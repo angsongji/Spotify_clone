@@ -13,56 +13,59 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
     const navigate = useNavigate();
     const handleSearch = () => {
 
-        const results = [];
+        // const results = [];
 
-        // Tìm kiếm trong radios
-        if (radios) {
-            radios.forEach((radio) => {
-                if (radio.name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                    results.push({ type: 'radio', ...radio });
-                }
-            });
-        }
+        // // Tìm kiếm trong radios
+        // if (radios) {
+        //     radios.forEach((radio) => {
+        //         if (radio.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        //             results.push({ type: 'radio', ...radio });
+        //         }
+        //     });
+        // }
 
-        // Tìm kiếm trong albums
-        if (albums) {
-            albums.forEach((album) => {
-                if (album.name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                    results.push({ type: 'album', ...album });
-                }
-            });
-        }
+        // // Tìm kiếm trong albums
+        // if (albums) {
+        //     albums.forEach((album) => {
+        //         if (album.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        //             results.push({ type: 'album', ...album });
+        //         }
+        //     });
+        // }
 
-        // Tìm kiếm trong artists
-        if (artists) {
-            artists.forEach((artist) => {
-                if (artist.name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                    results.push({ type: 'artist', ...artist });
-                }
-            });
-        }
+        // // Tìm kiếm trong artists
+        // if (artists) {
+        //     artists.forEach((artist) => {
+        //         if (artist.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        //             results.push({ type: 'artist', ...artist });
+        //         }
+        //     });
+        // }
 
-        // Tìm kiếm trong podcasts
-        if (podcasts) {
-            podcasts.forEach((podcast) => {
-                if (podcast.name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                    results.push({ type: 'podcast', ...podcast });
-                }
-            });
-        }
+        // // Tìm kiếm trong podcasts
+        // if (podcasts) {
+        //     podcasts.forEach((podcast) => {
+        //         if (podcast.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        //             results.push({ type: 'podcast', ...podcast });
+        //         }
+        //     });
+        // }
 
-        setSearchResults(results);
+        // setSearchResults(results);
+
+
     };
 
     const handleInputChange = (event) => {
         setSearchTerm(event.target.value);
+        navigate(`/search?value=${encodeURIComponent(event.target.value.trim())}`);
     };
 
-    const handleKeyDown = (event) => {
-        if (event.key === 'Enter') {
-            handleSearch();
-        }
-    };
+    // const handleKeyDown = (event) => {
+    //     if (event.key === 'Enter') {
+    //         handleSearch();
+    //     }
+    // };
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -87,7 +90,7 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                 {/* Logo + Home */}
                 <div className="flex items-center gap-3 ">
                     <img src="/logoSpotify.png" alt="Spotify" className="w-12 h-12" />
-                    <button className="p-2 rounded-full bg-[var(--light-gray1)] hover:bg-gray-700" onClick={() => navigate("/")}>
+                    <button className="p-2 rounded-full bg-[var(--light-gray1)] hover:bg-gray-700" onClick={() => { setSearchTerm(""); navigate("/"); }}>
                         <FaHome className="text-white w-7 h-7 cursor-pointer" />
                     </button>
                 </div>
@@ -98,8 +101,8 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                             placeholder="Bạn muốn nghe gì?"
                             className="bg-[var(--light-gray1)] text-white p-2 rounded-full w-96 focus:outline-none placeholder-[var(--light-gray3)] text-sm pl-10"
                             value={searchTerm}
+                            onClick={() => navigate(`/search?value=${encodeURIComponent(searchTerm.trim())}`)}
                             onChange={handleInputChange}
-                            onKeyDown={handleKeyDown}
                         />
                         <FaSearch className="absolute left-2 top-0 translate-x-[50%] translate-y-[50%] text-[var(--light-gray3)]" />
                     </div>

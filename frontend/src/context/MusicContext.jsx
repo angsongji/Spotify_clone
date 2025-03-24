@@ -2,82 +2,138 @@ import React, { useRef, createContext, useState, useContext, useEffect } from 'r
 import { useApi } from "./ApiContext";
 const MusicContext = createContext();
 
+
 export const MusicProvider = ({ children }) => {
     const { fetchSongs } = useApi();
-    const [volume, setVolume] = useState(1);
+    const [musicIndex, setMusicIndex] = useState(-1);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [currentSong, setCurrentSong] = useState({});
+    const [duration, setDuration] = useState(0);
+    const audioRef = useRef(null);
+    const [songsQueue, setSongsQueue] = useState([]);
+    const progressRef = useRef(null);
     const [isMuted, setIsMuted] = useState(false);
-    const [playStatus, setPlayStatus] = useState(false);
-    const [currentSong, setCurrentSong] = useState(null);
-    const audio = useRef(null);
-    const [songs, setSongs] = useState([]);
+    const [volume, setVolume] = useState(1);
 
-    // useEffect để thay đổi nguồn nhạc mỗi khi có bài hát mới hoặc thay đổi playStatus
     useEffect(() => {
-        if (currentSong && audio.current) {
-            audio.current.src = currentSong.file_url; // Cập nhật nguồn bài hát
-            audio.current.load(); // Tải lại bài hát
+        const loadSongs = async () => {
+            const data = await fetchSongs();
+            setSongsQueue(data.message);
+        };
+        loadSongs();
+    }, [])
 
-            // Kiểm tra nếu có thời gian đã lưu trong localStorage
-            const savedTime = localStorage.getItem(`song-${currentSong.id}-time`);
-            if (savedTime) {
-                audio.current.currentTime = parseFloat(savedTime); // Tiếp tục phát từ thời gian lưu
-            }
+    useEffect(() => {
+        if (!audioRef.current) return;
 
-            if (playStatus) {
-                audio.current.play(); // Phát bài hát nếu playStatus là true
-            } else {
-                audio.current.pause(); // Dừng bài hát nếu playStatus là false
-            }
+        const audio = audioRef.current;
+
+        // Đảm bảo audio có nguồn phát
+
+        audio.addEventListener("timeupdate", updateProgressBar);
+        audio.addEventListener("loadedmetadata", () => setDuration(audio.duration));
+        audio.addEventListener("ended", () => changeMusic(1));
+
+        return () => {
+            audio.addEventListener("timeupdate", updateProgressBar);
+            audio.addEventListener("loadedmetadata", () => setDuration(audio.duration));
+            audio.addEventListener("ended", () => changeMusic(1));
+        };
+    }, [musicIndex]); // Khi musicIndex thay đổi, cập nhật sự kiện
+    useEffect(() => {
+        setCurrentSong({ ...songsQueue[musicIndex] });
+        if (!audioRef.current || !songsQueue[musicIndex]) return;
+        if (songsQueue[musicIndex].price === 0) {
+            audioRef.current.src = songsQueue[musicIndex].file_url;
+            console.log("preview");
+        } else {
+            audioRef.current.src = songsQueue[musicIndex].preview_url;
+            console.log("full");
         }
-    }, [currentSong, playStatus]);
 
-    // Lưu thời gian hiện tại khi người dùng nhấn stop
-    const handleStop = () => {
-        if (audio.current) {
-            localStorage.setItem(`song-${currentSong.id}-time`, audio.current.currentTime); // Lưu thời gian
-            audio.current.pause();
-            setPlayStatus(false);
+
+        if (isPlaying) {
+            audioRef.current.play();
         }
-    };
+
+
+
+
+    }, [musicIndex]);
+
+    useEffect(() => {
+        if (audioRef.current) audioRef.current.volume = volume;
+
+    }, [volume]);
+
 
     const togglePlay = () => {
-        setPlayStatus(prevStatus => {
-            const newStatus = !prevStatus;
-            if (newStatus && audio.current) {
-                audio.current.play(); // Phát bài hát
-            } else {
-                handleStop(); // Nếu stop, lưu lại thời gian
-            }
-            return newStatus;
-        });
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play();
+        }
+        setIsPlaying(!isPlaying);
+    };
+
+    const changeMusic = (direction) => {
+        if (songsQueue.length === 0) return; // Kiểm tra tránh lỗi chia 0
+        setMusicIndex((prevIndex) => (prevIndex + direction + songsQueue.length) % songsQueue.length);
+    };
+
+
+    const updateProgressBar = () => {
+        setCurrentTime(audioRef.current.currentTime);
+        setDuration(audioRef.current.duration);
+        const progressPercent = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+        if (progressRef.current) progressRef.current.style.width = `${progressPercent}%`;
+    };
+
+
+
+    const handleMuteClick = () => {
+        setIsMuted(!isMuted);
+        if (audioRef.current) {
+            audioRef.current.volume = isMuted ? volume : 0;
+        }
     };
 
     const handleVolumeChange = (newVolume) => {
         setVolume(newVolume);
-        if (audio.current) {
-            audio.current.volume = newVolume;
+        if (audioRef.current) {
+            audioRef.current.volume = newVolume;
         }
     };
 
-    const handleMuteClick = () => {
-        setIsMuted(!isMuted);
-        if (audio.current) {
-            audio.current.volume = isMuted ? volume : 0;
-        }
+
+    const formatTime = (time) => {
+        if (!time) return "00:00";
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
     };
 
     return (
         <MusicContext.Provider value={{
-            volume,
-            isMuted,
-            playStatus,
+            musicIndex,
+            isPlaying,
+            currentTime,
             currentSong,
-            audio,
-            setCurrentSong,
-            togglePlay,
-            handleVolumeChange,
+            duration,
+            audioRef,
+            progressRef,
+            isMuted,
+            volume,
+            songsQueue,
+            setSongsQueue,
+            setMusicIndex,
+            formatTime,
             handleMuteClick,
-            setPlayStatus
+            handleVolumeChange,
+            togglePlay,
+            changeMusic,
+            setIsPlaying
         }}>
             {children}
         </MusicContext.Provider>

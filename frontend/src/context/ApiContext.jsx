@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState } from "react";
 import { FaPlay, FaPlus } from 'react-icons/fa';
+import { useNavigate } from "react-router-dom";
 // Tạo context
 const ApiContext = createContext();
 
 // Provider để bọc toàn bộ ứng dụng
 export const ApiProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
     const fetchData = async (endpoint, options = {}) => {
         setLoading(true);
         try {
@@ -38,6 +38,7 @@ export const ApiProvider = ({ children }) => {
     const fetchSongById = async (id) => fetchData(`songs/${id}`);
     const fetchArtist = async () => fetchData("artists");
     const fetchArtistById = async (id) => fetchData(`artists/filter/?id=${id}`);
+    const fetchCategories = async () => fetchData("categories");
 
     const transformToDurationString = (n) => {
         let minute = Math.floor(n / 60);
@@ -93,49 +94,75 @@ export const ApiProvider = ({ children }) => {
         );
     };
 
+    const AlbumCard = ({ album }) => {
+        const navigate = useNavigate();
+        return (
+            <div
+                onClick={() => navigate(`/album/${album.id}`)}
+                className="w-40 bg-[var(--light-gray2)] h-fit p-3 rounded-lg transition-transform transform hover:scale-105 duration-300 cursor-pointer flex flex-col"
+            >
+                <img
+                    src={album.image}
+                    alt={album.name}
+                    className="w-full h-32 object-cover aspect-square rounded-sm"
+                />
+
+                {/* Bọc phần nội dung text để canh lề trái */}
+                <div className="w-full mt-2">
+                    <h3 className="text-white font-semibold overflow-hidden whitespace-nowrap text-ellipsis w-full">
+                        {album.name}
+                    </h3>
+
+                    <p className="text-gray-400 text-sm">{album.artist_data.name}</p>
+                </div>
+            </div>
+
+
+        );
+    };
+
     function generateLinearGradient(hex, opacityStart = 1, opacityEnd = 0.5, angle = 50) {
         const { r, g, b } = hexToRgb(hex);
+        const { r: dr, g: dg, b: db } = darkenColor(r, g, b, 0.8); // Giảm 30% độ sáng
 
-        // Tạo background linear-gradient với góc 50 độ
-        return `linear-gradient(${angle}deg, rgba(${r}, ${g}, ${b}, ${opacityStart}), rgba(${r}, ${g}, ${b}, ${opacityEnd}))`;
+        return `linear-gradient(${angle}deg, 
+            rgba(${r}, ${g}, ${b}, ${opacityStart}), 
+            rgba(${dr}, ${dg}, ${db}, ${opacityEnd}))`;
     }
+    function darkenColor(r, g, b, factor = 0.7) {
+        return {
+            r: Math.round(r * factor),
+            g: Math.round(g * factor),
+            b: Math.round(b * factor),
+        };
+    }
+
     const hexToRgb = (hex) => {
-        hex = hex.replace("#", "");
+        hex = hex.replace(/^#/, ''); // Xóa ký tự #
+
+        // Nếu HEX có 3 ký tự, chuyển thành 6 ký tự
+        if (hex.length === 3) {
+            hex = hex.split('').map(char => char + char).join('');
+        }
+
+        // Kiểm tra nếu HEX không hợp lệ (không đúng 6 ký tự)
+        if (hex.length !== 6) {
+            throw new Error("Mã màu HEX không hợp lệ");
+        }
+
+        // Chuyển đổi HEX sang RGB
         let r = parseInt(hex.substring(0, 2), 16);
         let g = parseInt(hex.substring(2, 4), 16);
         let b = parseInt(hex.substring(4, 6), 16);
+
         return { r, g, b };
     };
 
-    function togglePlay() {
-        if (isPlaying)
-            playSong();
-        else
-            pauseSong();
-    }
-
-    function playSong() {
-        setIsPlaying(true);
-        song.play();
-    }
-
-    function pauseSong() {
-        setIsPlaying(false);
-        song.pause();
-    }
-
-    // function loadSong({ song }) {
-    //     if (song.price == 0)
-    //         song.src = song.file_url;
-    //     else
-    //         song.src = song.preview_url;
-    // }
-
     let apiFunctions = {
+        loading,
         fetchSongs,
         fetchAlbums,
         fetchSongById,
-        loading,
         fetchAlbumById,
         transformToDurationString,
         setLoading,
@@ -143,7 +170,9 @@ export const ApiProvider = ({ children }) => {
         fetchArtist,
         fetchArtistById,
         SongCard,
-        generateLinearGradient
+        generateLinearGradient,
+        fetchCategories,
+        AlbumCard
     };
 
     return (
