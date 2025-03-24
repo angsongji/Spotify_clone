@@ -26,8 +26,8 @@ import { useMusic } from "../../context/MusicContext";
 
 
 const Home = () => {
-  const { setCurrentSong, setPlayStatus } = useMusic();
-  const { fetchAlbums, loading, fetchSongs, setLoading, transformFormatDate, fetchArtist } = useApi();
+  const { setMusicIndex, songsQueue, setIsPlaying } = useMusic();
+  const { fetchAlbums, fetchSongs, transformFormatDate, fetchArtist, AlbumCard } = useApi();
   const [activeFilter, setActiveFilter] = useState('Tất cả');
   const navigate = useNavigate();
   const handleFilterChange = (filter) => {
@@ -36,27 +36,30 @@ const Home = () => {
   const [albums, setAlbums] = useState([]);
   const [songs, setSongs] = useState([]);
   const [artists, setArtists] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
-    const loadAlbums = async () => {
-      const data = await fetchAlbums();
-      setLoading(true);
-      setAlbums(data.message);
+    const fetchData = async () => {
+      setLoading(true); // Bắt đầu loading
 
-    };
-    const loadSongs = async () => {
-      const data = await fetchSongs();
-      setSongs(data.message);
+      try {
+        const [albumsData, songsData, artistsData] = await Promise.all([
+          fetchAlbums(),
+          fetchSongs(),
+          fetchArtist()
+        ]);
+
+        setAlbums(albumsData.message);
+        setSongs(songsData.message);
+        setArtists(artistsData.message);
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu:", error);
+      } finally {
+        setLoading(false); // Dừng loading khi tất cả API đã hoàn thành
+      }
     };
 
-    const loadArtist = async () => {
-      const data = await fetchArtist();
-      setArtists(data.message);
-    };
-    loadAlbums();
-    loadSongs();
-    loadArtist();
+    fetchData();
   }, []);
-
   const filteredAlbums = activeFilter === 'Tất cả' || activeFilter === 'Album' ? albums : [];
   const filteredPodcasts = activeFilter === 'Podcasts' ? podcasts : [];
 
@@ -90,31 +93,7 @@ const Home = () => {
 
 
   // Thẻ Album
-  const AlbumCard = ({ album }) => {
-    return (
-      <div
-        onClick={() => navigate(`/album/${album.id}`)}
-        className="w-40 bg-[var(--light-gray2)] h-fit p-3 rounded-lg transition-transform transform hover:scale-105 duration-300 cursor-pointer flex flex-col"
-      >
-        <img
-          src={album.image}
-          alt={album.name}
-          className="w-full h-32 object-cover aspect-square rounded-sm"
-        />
 
-        {/* Bọc phần nội dung text để canh lề trái */}
-        <div className="w-full mt-2">
-          <h3 className="text-white font-semibold overflow-hidden whitespace-nowrap text-ellipsis w-full">
-            {album.name}
-          </h3>
-
-          <p className="text-gray-400 text-sm">{album.artist_data.name}</p>
-        </div>
-      </div>
-
-
-    );
-  };
 
   const PopularArtists = () => {
     return (
@@ -123,7 +102,7 @@ const Home = () => {
         <div className="flex overflow-x-auto space-x-10 scrollbar-hide">
           {artists.map((artist, index) => (
             <div onClick={() => navigate(`/artist/${artist.id}`)} key={index} className="flex flex-col items-center w-40 cursor-pointer">
-              <img src={artist.avatar} alt={artist.name} className="flex-1 rounded-full object-cover border-4 border-gray-700 hover:border-green-500 transition" />
+              <img src={artist.avatar} alt={artist.name} className="w-full h-40 rounded-full object-cover border-4 border-gray-700 hover:border-green-500 transition" />
               <h3 className="text-white mt-2 font-medium text-center text-base">{artist.name}</h3>
               <p className="text-gray-400 text-sm">Nghệ sĩ</p>
             </div>
@@ -159,12 +138,12 @@ const Home = () => {
     );
   }
   function handleClickSong(id) {
-    const selectedSong = songs.find(item => item.id === id);
-    if (selectedSong) {
-      localStorage.removeItem(`song-${selectedSong.id}-time`);
-      setCurrentSong({ ...selectedSong });
-      setPlayStatus(true);
-    }
+    songsQueue.forEach((item, index) => {
+      if (item.id === id) {
+        setMusicIndex(index);
+        setIsPlaying(true);
+      }
+    });
   }
   return <>
     {
