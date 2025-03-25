@@ -1,6 +1,6 @@
 import React, { startTransition, useState, useRef, useEffect } from 'react';
 import { FaHome, FaSearch, FaBell, FaGlobe } from 'react-icons/fa';
-
+import { BsFillChatTextFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import PopupMenu from '../PopupMenu';
 import "../../index.css";
@@ -108,11 +108,11 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
-                    <button className=" text-black px-4 py-2 rounded-full text-sm bg-gradient-to-r from-purple-500 to-pink-500">Khám phá Premium </button>
+                    {/* <button className=" text-black px-4 py-2 rounded-full text-sm bg-gradient-to-r from-purple-500 to-pink-500">Khám phá Premium</button> */}
                     <FaGlobe className='cursor-pointer w-5 h-5' />
                     {isLogin ?
                         <>
-                            <FaBell className="text-white cursor-pointer w-5 h-5" />
+                            <BsFillChatTextFill className="text-white cursor-pointer w-5 h-5" />
                             <PopupMenu role={2} />
                         </> :
                         <>

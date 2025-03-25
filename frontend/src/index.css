@@ -84,3 +84,18 @@
         height: 4px
     }
 }
+
+@keyframes slow-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.slow-spin {
+    animation: slow-spin 10s linear infinite;
+    /* 6s cho 1 vòng quay */
+}

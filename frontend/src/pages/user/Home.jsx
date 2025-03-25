@@ -26,7 +26,7 @@ import { useMusic } from "../../context/MusicContext";
 
 
 const Home = () => {
-  const { setMusicIndex, songsQueue, setIsPlaying } = useMusic();
+  const { formatTime, handleClickSong, currentSong } = useMusic();
   const { fetchAlbums, fetchSongs, transformFormatDate, fetchArtist, AlbumCard } = useApi();
   const [activeFilter, setActiveFilter] = useState('Tất cả');
   const navigate = useNavigate();
@@ -99,10 +99,10 @@ const Home = () => {
     return (
       <div className="my-8">
         <SectionTitle title="Popular Artists" />
-        <div className="flex overflow-x-auto space-x-10 scrollbar-hide">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
           {artists.map((artist, index) => (
-            <div onClick={() => navigate(`/artist/${artist.id}`)} key={index} className="flex flex-col items-center w-40 cursor-pointer">
-              <img src={artist.avatar} alt={artist.name} className="w-full h-40 rounded-full object-cover border-4 border-gray-700 hover:border-green-500 transition" />
+            <div onClick={() => navigate(`/artist/${artist.id}`)} key={index} className="flex flex-col items-center w-full cursor-pointer">
+              <img src={artist.avatar} alt={artist.name} className="w-full aspect-square rounded-full object-cover border-4 border-gray-700 hover:border-[var(--main-green)]" />
               <h3 className="text-white mt-2 font-medium text-center text-base">{artist.name}</h3>
               <p className="text-gray-400 text-sm">Nghệ sĩ</p>
             </div>
@@ -120,7 +120,10 @@ const Home = () => {
         <img src={song.image} alt="Album Cover" className="w-15 h-15 object-cover aspect-square rounded-sm" />
         <div className="text-[var(--light-gray3)] w-full flex flex-col">
           <div className="grid grid-cols-[1fr_auto] items-center">
-            <div className="text-base  font-semibold text-white w-full overflow-hidden whitespace-nowrap text-ellipsis">
+            <div className="text-base  font-semibold text-white w-full overflow-hidden whitespace-nowrap text-ellipsis"
+              style={currentSong.id === song.id ? { color: "var(--main-green)", fontSize: "18px" } : {}}
+
+            >
               {song.name}
             </div>
 
@@ -132,19 +135,20 @@ const Home = () => {
           </div>
 
           <div className="text-xs">{song.artists_data?.map((item) => item.name).join(", ")}</div>
-          <div className="text-xs mt-1">{transformFormatDate(song.date)}</div>
+          <div className="text-xs mt-1 flex justify-between">
+            <span>
+              {transformFormatDate(song.date)}
+            </span>
+            <span>
+              {formatTime(song.duration)}
+            </span>
+          </div>
+
         </div>
       </div>
     );
   }
-  function handleClickSong(id) {
-    songsQueue.forEach((item, index) => {
-      if (item.id === id) {
-        setMusicIndex(index);
-        setIsPlaying(true);
-      }
-    });
-  }
+
   return <>
     {
       !loading ? <div className="bg-gradient-to-tl from-stone-900 to-neutral-700 p-6 min-h-screen flex flex-col gap-20 ">
