@@ -8,9 +8,10 @@ import {
     UserOutlined,
     LogoutOutlined,
 } from "@ant-design/icons";
-
+import { useApi } from '../context/ApiContext';
 function PopupMenu({ role }) {
     const navigate = useNavigate();
+    const { user } = useApi();
     const menuItems = [
         {
             key: "1",
@@ -70,7 +71,7 @@ function PopupMenu({ role }) {
     return <Dropdown menu={{ items: chooseMenuItem(), onClick: handleMenuClick }}>
         <Avatar
             size="large"
-            src="https://tse4.mm.bing.net/th?id=OIP.TIk8dC3O2hUW2V_GfO94egHaHa&pid=Api&P=0&h=220"
+            src={user.avatar}
             className="cursor-pointer"
         />
     </Dropdown>

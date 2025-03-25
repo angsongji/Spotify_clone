@@ -68,7 +68,7 @@ import { useMusic } from "../../context/MusicContext";
 
 const Artist = () => {
   const { generateLinearGradient, fetchArtistById, loading, transformFormatDate, setLoading } = useApi();
-  const { SongCard } = useMusic();
+  const { SongCard, SongHeader } = useMusic();
   const navigate = useNavigate();
   const { id } = useParams(); // Đây là id của album, từ id này gọi api để truyền dữ liệu cho biến album
   const [colorMain, setColorMain] = useState("#ffffff");
@@ -157,13 +157,14 @@ const Artist = () => {
 
           <div className='px-5 flex flex-col gap-20'>
 
-            <div className='flex flex-col gap-5'>
+            <div className='flex flex-col gap-10'>
               <button className="bg-green-500 px-6 py-3 rounded-full  flex items-center cursor-pointer w-fit flex gap-2">
                 <FaPlay className="" /> Play
               </button>
               <div>
                 <SectionTitle title="Phố biến" />
                 <ul>
+                  <SongHeader />
                   {artist.songs_data?.map((song, index) => (
                     <SongCard key={index} song={song} index={index} />
                   ))}

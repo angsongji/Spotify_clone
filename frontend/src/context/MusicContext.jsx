@@ -1,6 +1,7 @@
 import React, { useRef, createContext, useState, useContext, useEffect } from 'react';
 import { useApi } from "./ApiContext";
-import { FaPlay, FaPlus } from 'react-icons/fa';
+import { FiPlusCircle } from "react-icons/fi";
+import { BiTime } from 'react-icons/bi';
 const MusicContext = createContext();
 
 
@@ -154,10 +155,26 @@ export const MusicProvider = ({ children }) => {
                 <div className="flex items-center gap-5 w-fit">
                     <span className="text-gray-400">{transformToDurationString(song.duration)}</span>
                     <span className='w-5 h-5 flex items-center justify-center'>
-                        <FaPlus className=" w-4 h-4 cursor-pointer text-white" />
+                        <FiPlusCircle className=" w-4 h-4 cursor-pointer text-gray-400  hover:text-white" />
                     </span>
                 </div>
             </li>
+        );
+    };
+
+    const SongHeader = () => {
+        return (
+            <div className="h-15 w-full flex justify-between items-center py-2 px-5 text-sm text-gray-400 ">
+                <div className="flex items-center gap-5 w-3/5">
+                <div className="text-center">#</div>
+                <div className=''>Tiêu đề</div>
+                </div>
+                
+                <div className='flex-1'>Nghệ sĩ</div>
+                <div className="flex justify-start w-17">
+                    <BiTime className="w-5 h-5" />
+                </div>
+            </div>
         );
     };
     return (
@@ -172,6 +189,7 @@ export const MusicProvider = ({ children }) => {
             isMuted,
             volume,
             songsQueue,
+            SongHeader,
             setSongsQueue,
             setMusicIndex,
             formatTime,
