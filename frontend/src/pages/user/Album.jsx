@@ -3,10 +3,12 @@ import { FaPlay, FaHeart, FaPlus } from 'react-icons/fa';
 import { FastAverageColor } from "fast-average-color";
 import { useParams } from "react-router-dom";
 import { useApi } from "../../context/ApiContext";
+import { useMusic } from "../../context/MusicContext";
 
 
 const Album = () => {
-  const { generateLinearGradient, SongCard, fetchAlbumById, loading, transformFormatDate, setLoading } = useApi();
+  const { generateLinearGradient, fetchAlbumById, loading, transformFormatDate, setLoading } = useApi();
+  const { SongCard } = useMusic();
   const { id } = useParams(); // Đây là id của album, từ id này gọi api để truyền dữ liệu cho biến album
   const [colorMain, setColorMain] = useState("#ffffff");
   const [backgroundStyle, setBackgroundStyle] = useState("");
@@ -71,7 +73,13 @@ const Album = () => {
 
           <ul>
             {album.songs_data?.map((track, index) => (
-              <SongCard key={index} song={track} index={index} />
+              <>
+
+                <SongCard key={index} song={track} index={index} />
+
+              </>
+
+
             ))}
           </ul>
         </div>

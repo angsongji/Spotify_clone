@@ -4,6 +4,7 @@ import { FastAverageColor } from "fast-average-color";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../index.css";
 import { useApi } from "../../context/ApiContext";
+import { useMusic } from "../../context/MusicContext";
 
 // const artist = {
 //   id: "1",
@@ -66,7 +67,8 @@ import { useApi } from "../../context/ApiContext";
 // };
 
 const Artist = () => {
-  const { generateLinearGradient, SongCard, fetchArtistById, loading, transformFormatDate, setLoading } = useApi();
+  const { generateLinearGradient, fetchArtistById, loading, transformFormatDate, setLoading } = useApi();
+  const { SongCard } = useMusic();
   const navigate = useNavigate();
   const { id } = useParams(); // Đây là id của album, từ id này gọi api để truyền dữ liệu cho biến album
   const [colorMain, setColorMain] = useState("#ffffff");
@@ -111,7 +113,7 @@ const Artist = () => {
     return (
       <div
         onClick={() => navigate(`/album/${album.id}`)}
-        className=" w-40 h-fit  rounded-lg transition-transform transform hover:scale-105 duration-300 cursor-pointer flex flex-col"
+        className=" w-40 h-fit  rounded-lg hover:scale-105 cursor-pointer flex flex-col"
       >
         <img
           src={album.image}

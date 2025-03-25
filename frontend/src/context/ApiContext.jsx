@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { FaPlay, FaPlus } from 'react-icons/fa';
+
 import { useNavigate } from "react-router-dom";
 // Tạo context
 const ApiContext = createContext();
@@ -54,45 +54,7 @@ export const ApiProvider = ({ children }) => {
         return '';  // Trả về chuỗi rỗng nếu s không hợp lệ
     };
 
-    const SongCard = ({ song, index }) => {
-        const [isHovered, setIsHovered] = useState(false);
 
-        return (
-            <li
-                className="h-15 w-full flex justify-between items-center py-2 px-5  hover:bg-[var(--dark-gray)]"
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
-                <div className="flex items-center text-white gap-3">
-                    <span className='w-5 h-5 flex items-center justify-center'>
-                        {isHovered ? <FaPlay className=" w-3 h-3 cursor-pointer" /> :
-                            <span className="text-[var(--light-gray3)] ">
-                                {index + 1}
-                            </span>
-                        }
-                    </span>
-
-                    <img
-                        src={song.image}
-                        alt="Album Cover"
-                        className="w-10 h-10 object-cover aspect-square rounded-sm"
-                    />
-                    <span className="font-bold cursor-pointer">{song.name}</span>
-                </div>
-                <div className="text-xs text-gray-400">{song.artists_data?.map((item) => item.name).join(", ")}</div>
-                <div className="flex items-center gap-5">
-                    <span className="text-gray-400">{transformToDurationString(song.duration)}</span>
-                    <span className='w-5 h-5 flex items-center justify-center'>
-                        {isHovered ? <FaPlus className=" w-4 h-4 cursor-pointer text-white" /> :
-                            <span className="">
-                                &nbsp;
-                            </span>
-                        }
-                    </span>
-                </div>
-            </li>
-        );
-    };
 
     const AlbumCard = ({ album }) => {
         const navigate = useNavigate();
@@ -169,7 +131,6 @@ export const ApiProvider = ({ children }) => {
         transformFormatDate,
         fetchArtist,
         fetchArtistById,
-        SongCard,
         generateLinearGradient,
         fetchCategories,
         AlbumCard
