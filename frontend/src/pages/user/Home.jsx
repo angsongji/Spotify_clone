@@ -3,27 +3,6 @@ import { useNavigate } from "react-router-dom";
 import '../../index.css'
 import { useApi } from "../../context/ApiContext";
 import { useMusic } from "../../context/MusicContext";
-// const albums = [
-//   { id: 1, name: "Ruby", artist: "JENNIE", image: "/JennieSpotify.jpg" },
-//   { id: 2, name: "Lặng", artist: "Shiki", image: "/ShikiSpotify.jpg" },
-//   { id: 3, name: "THE WXRDIES", artist: "Wxrdie", image: "/WxrdieSpotify.jpg" },
-//   { id: 4, name: "Đánh Đổi", artist: "Obito, Shiki", image: "/ObitoSpotify1.jpg" },
-//   { id: 5, name: "Từng Ngày Như Mãi Mãi", artist: "buitruonglinh", image: "/BuiTruongLinhSpotify.jpg" },
-//   { id: 5, name: "Từng Ngày Như Mãi Mãi", artist: "buitruonglinh", image: "/BuiTruongLinhSpotify.jpg" },
-//   { id: 3, name: "THE WXRDIES", artist: "Wxrdie", image: "/WxrdieSpotify.jpg" },
-// ];
-
-// const artists = [
-//   { id: 1, name: "Noo Phước Thịnh", image: "/NooPhuocThinh.jpg" },
-//   { id: 1, name: "HIEUTHUHAI", image: "/HTH.jpg" },
-//   { id: 1, name: "Sơn Tùng M-TP", image: "/SonTung.jpg" },
-//   { id: 1, name: "Dương Domic", image: "/DuongDomic.jpg" },
-//   { id: 1, name: "ChiPu", image: "/ChiPu.jpg" },
-//   { id: 1, name: "Bích Phương", image: "/BichPhuong.jpg" },
-// ];
-
-
-
 
 const Home = () => {
   const { formatTime, handleClickSong, currentSong } = useMusic();

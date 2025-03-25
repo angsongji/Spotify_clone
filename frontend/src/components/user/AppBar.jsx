@@ -4,7 +4,9 @@ import { BsFillChatTextFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import PopupMenu from '../PopupMenu';
 import "../../index.css";
+import { useApi } from '../../context/ApiContext';
 const AppBar = ({ radios, albums, artists, podcasts }) => {
+    const { user } = useApi();
     const [isLogin, setIsLogin] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -89,9 +91,9 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
             <div className=" p-4 flex justify-between items-center text-white">
                 {/* Logo + Home */}
                 <div className="flex items-center gap-3 ">
-                    <img src="/logoSpotify.png" alt="Spotify" className="w-12 h-12" />
+                    <img src="/logoSpotify.png" alt="Spotify" className="w-10 h-10" />
                     <button className="p-2 rounded-full bg-[var(--light-gray1)] hover:bg-gray-700" onClick={() => { setSearchTerm(""); navigate("/"); }}>
-                        <FaHome className="text-white w-7 h-7 cursor-pointer" />
+                        <FaHome className="text-white w-5 h-5 cursor-pointer" />
                     </button>
                 </div>
                 <div className="flex items-center">

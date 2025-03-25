@@ -31,7 +31,7 @@ export default function AudioBar() {
 
     return (<>
         {
-            musicIndex == -1 ? <div className="fixed bottom-0 h-fit bg-black  text-white w-full py-3 px-4">
+            musicIndex == -1 ? <div className="fixed bottom-0 h-fit bg-gradient-to-l from-red-300 to-pink-600  text-white w-full py-3 px-4 m-1">
                 Chọn bài hát bạn muốn nghe!
             </div> :
                 <div className="fixed bottom-0 h-fit bg-black flex items-center justify-between text-white w-full py-3 px-4">
