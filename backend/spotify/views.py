@@ -16,11 +16,39 @@ def get_users(request):
         if not users.exists():  # Kiểm tra nếu không có dữ liệu
             return Response({"message": [], "status": 200},status=status.HTTP_200_OK)
 
-        serializer = UserFullInforSerializer(users, many=True)
+        serializer = UserSerializer(users, many=True)
         return Response({"message": serializer.data, "status": 200},status=status.HTTP_200_OK)
 
     except Exception as e:  # Bắt lỗi chung nếu có lỗi xảy ra
         return Response({"error": str(e), "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["GET"])
+def get_user_by_email(request):
+    try:
+        filter_params = request.query_params  # Lấy các tham số bộ lọc từ query parameters
+        users = User.objects.all()  # Lấy tất cả các album
+
+        # Áp dụng bộ lọc nếu có tham số từ query_params
+        # Lọc theo 'id' (sử dụng 'exact' cho ObjectId)
+        if 'email' in filter_params:
+            try:
+                users = users.filter(email=filter_params['email'])  # Lọc theo ObjectId chính xác
+            except Exception:
+                return Response({"error": "Invalid id format, should be a valid ObjectId", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        # Nếu không có album nào sau khi lọc
+        if not users.exists():
+            return Response({"message": [], "status": 200}, status=status.HTTP_200_OK)
+        
+        # Serialize các album với thông tin bài hát
+        serializer = UserFullInforSerializer(users, many=True)
+        return Response({"message": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Trả về lỗi chi tiết hơn
+        return Response({"error": f"Error occurred: {str(e)}", "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 #songs
@@ -146,4 +174,5 @@ def get_categories(request):
 
     except Exception as e:
         return Response({"error": str(e), "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 

@@ -1,99 +1,181 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { FaSpotify } from 'react-icons/fa';
+import { message, Spin } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 
 const SignUp = () => {
-  return (
-    <div className="flex items-center  justify-center min-h-screen bg-neutral-800">
-      <div className="bg-neutral-950 p-8 flex flex-col items-center justify-center rounded-lg shadow-md w-180">
-        <img
-          className="w-10 mb-5 h-10 mx-auto"
-          src="../../public/logo1.svg"
-          alt="logo"
-        />
-        <h2 className="text-2xl font-bold text-center mb-6 text-amber-50">
-          Đăng ký để bắt đầu nghe
-        </h2>
-        <form className="w-80">
-          <div className="mb-2 ">
-            <label
-              className="block text-white text-sm font-bold mb-2"
-              htmlFor="username"
-            >
-              Địa chỉ email
-            </label>
-            <input
-              className="w-full text-white  border-gray-400  border hover:border-white rounded-lg px-3 py-2 placeholder:text-gray-500"
-              id="username"
-              type="text"
-              placeholder="name@domain.com"
-            />
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
-            <div className="mb-6 mt-3">
-              <label
-                className="block text-white text-sm font-bold mb-2"
-                htmlFor="password"
-              >
-                Mật khẩu
-              </label>
-              <input
-                className="w-full text-white  border-gray-400 border hover:border-white rounded-lg px-3 py-2 placeholder:text-gray-500"
-                id="password"
-                type="password"
-                placeholder="Mật khẩu"
-              />
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        // Kiểm tra password match
+        if (formData.password !== formData.confirmPassword) {
+          console.log('sai');
+          message.error('Mật khẩu không khớp!');
+          alert('Mật khẩu không khớp!');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            console.log('Sending request with data:', {
+                name: formData.name,
+                email: formData.email,
+                password: formData.password
+            });
+
+            const response = await fetch('http://127.0.0.1:8000/api/users/register/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password
+                })
+            });
+
+            const data = await response.json();
+            console.log('Response:', data);
+
+            if (data.success) {
+                message.success({
+                    content: 'Đăng ký thành công!',
+                    duration: 2
+                });
+                alert('Đăng ký thành công!');
+                setTimeout(() => {
+                    navigate('/sign-in');
+                }, 1000);
+            } else {
+                message.error({
+                    content: data.message || 'Đăng ký thất bại',
+                    duration: 3
+                });
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error('Error during registration:', error);
+            message.error({
+                content: 'Lỗi kết nối server',
+                duration: 3
+            });
+            alert('Lỗi kết nối server!');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#1e1e1e] to-black p-4">
+            <div className="w-full max-w-md bg-[#121212] rounded-lg shadow-lg p-8">
+                <div className="flex flex-col items-center mb-8">
+                    <FaSpotify className="text-[#1DB954] text-5xl mb-4" />
+                    <h2 className="text-white text-2xl font-bold">Đăng ký tài khoản Spotify</h2>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                            Tên hiển thị
+                        </label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+                            className="w-full px-4 py-3 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
+                            required
+                            disabled={isLoading}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            className="w-full px-4 py-3 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
+                            required
+                            disabled={isLoading}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                            Mật khẩu
+                        </label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={(e) => setFormData({...formData, password: e.target.value})}
+                            className="w-full px-4 py-3 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
+                            required
+                            minLength={6}
+                            disabled={isLoading}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                            Xác nhận mật khẩu
+                        </label>
+                        <input
+                            type="password"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                            className="w-full px-4 py-3 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
+                            required
+                            minLength={6}
+                            disabled={isLoading}
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className={`w-full py-3 rounded-full font-medium text-white flex items-center justify-center
+                            ${isLoading ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#1DB954] hover:bg-[#1ed760] hover:scale-105'}`}
+                    >
+                        {isLoading ? (
+                            <>
+                                <Spin indicator={antIcon} className="mr-2" />
+                                Đang xử lý...
+                            </>
+                        ) : 'Đăng ký'}
+                    </button>
+                </form>
+
+                <div className="mt-6 text-center">
+                    <p className="text-gray-400">
+                        Đã có tài khoản?{' '}
+                        <Link to="/sign-in" className="text-[#1DB954] hover:text-[#1ed760] font-medium">
+                            Đăng nhập
+                        </Link>
+                    </p>
+                </div>
             </div>
-          </div>
-
-          <button
-            className="bg-green-500 hover:bg-green-700 text-black cursor-pointer font-bold py-3 px-4 mt-5 rounded-full w-full"
-            type="submit"
-          >
-            Tiếp theo
-          </button>
-        </form>
-        <div className=" flex items-center my-4  w-100 ">
-          <hr className="flex-grow border-t-1 ml-10 border-gray-500" />
-          <span className="mx-4 text-white ">hoặc</span>
-          <hr className="flex-grow border-t mr-10 border-gray-500" />
         </div>
-
-        <div className="flex flex-col justify-center items-center">
-          <button className="rounded-full flex items-center w-80 border text-center border-gray-400 font-bold  cursor-pointer hover:border-white text-white px-3 py-2 mb-2">
-            <span>
-              <img
-                className="w-7 h-7 ml-4"
-                src="../../public/logo-google.png"
-                alt="logo-google"
-              />
-            </span>
-            <span className="px-7 w-60 text-white">Đăng ký bằng Google</span>
-          </button>
-          <button className="rounded-full flex items-center w-80 border text-center border-gray-400 font-bold cursor-pointer hover:border-white text-white px-3 py-2 mb-8">
-            <span>
-              <img
-                className="w-7 h-7 ml-4"
-                src="../../public/logo-facebook.png"
-                alt="logo-facebook"
-              />
-            </span>
-            <span className="px-7 w-60 text-white">Đăng ký bằng Facebook</span>
-          </button>
-        </div>
-
-        <hr className="border-t-1 border-gray-800 w-80 mx-auto  " />
-
-        <div className="flex mt-10">
-          <p className="text-gray-500">Bạn đã có tài khoản? </p>
-          <Link
-            to="/sign-in"
-            className="ml-2 text-white underline font-bold  hover:text-green-600"
-          >
-            Đăng nhập tại đây
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default SignUp;

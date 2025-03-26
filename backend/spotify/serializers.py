@@ -6,7 +6,7 @@ class UserSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     class Meta:
         model = User
-        fields = ["id","name", "email", "avatar","role", "created_at", "status", "liked_albums"]
+        fields = ["id","name", "email", "avatar","role", "created_at", "status"]
     def get_id(self, obj):
         return str(obj.id)
 
@@ -14,9 +14,10 @@ class UserFullInforSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     playlists_data = serializers.SerializerMethodField()
     liked_albums_data = serializers.SerializerMethodField()
+    liked_songs_data = serializers.SerializerMethodField()
     class Meta:
         model = User
-        fields = ["id","name", "email", "avatar","role", "created_at", "status", "liked_albums","liked_albums_data", "playlists_data"]
+        fields = ["id","name", "email", "avatar","role", "created_at", "status", "liked_albums_data", "playlists_data", "liked_songs_data"]
     def get_id(self, obj):
         return str(obj.id)
     def get_playlists_data(self, obj):
@@ -30,6 +31,14 @@ class UserFullInforSerializer(serializers.ModelSerializer):
             albums = Album.objects.filter(id__in=liked_albums_ids)
             return AlbumSerializer(albums, many=True).data  # Serialize các album và trả về dữ liệu chi tiết
         return []
+    def get_liked_songs_data(self, obj):    
+        liked_songs_ids = obj.liked_songs  # Đây là mảng chứa ID của các album người dùng đã thích
+        if liked_songs_ids:
+            # Lấy các bài hát chi tiết từ database dựa trên ID trong liked_songs
+            songs = Song.objects.filter(id__in=liked_songs_ids)
+            return SongSerializer(songs, many=True).data  # Serialize các bài hát và trả về dữ liệu chi tiết
+        return []
+
 class SongSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField() #thêm một trường mới vào API response
     # album_data = serializers.SerializerMethodField() #thêm một trường mới vào API response
@@ -127,11 +136,17 @@ class PurchaseSerializer(serializers.ModelSerializer):
     
 class PlaylistSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
+    songs_data = serializers.SerializerMethodField()
     class Meta:
         model = Playlist
         fields = "__all__"
     def get_id(self, obj):
         return str(obj.id)
+    def get_songs_data(self, obj):    
+        if obj.songs:
+            songs = Song.objects.filter(id__in=obj.songs)
+            return SongSerializer(songs, many=True).data  # Serialize các bài hát và trả về dữ liệu chi tiết
+        return []
     
 class ArtistSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()

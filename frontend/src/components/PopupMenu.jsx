@@ -70,9 +70,8 @@ function PopupMenu({ role }) {
     };
     return <Dropdown menu={{ items: chooseMenuItem(), onClick: handleMenuClick }}>
         <Avatar
-            size="large"
             src={user.avatar}
-            className="cursor-pointer"
+            className="cursor-pointer rounded-full"
         />
     </Dropdown>
 }
