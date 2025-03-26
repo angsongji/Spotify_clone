@@ -7,46 +7,7 @@ const ApiContext = createContext();
 // Provider để bọc toàn bộ ứng dụng
 export const ApiProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
-    const [user, setUser] = useState({
-        id: "67dd866d8540d06d5dc0d867",
-        name: "Oanh le",
-        email: "hoichima33@gmail.com",
-        avatar: "https://i.scdn.co/image/ab67616100005174c36dd9eb55fb0db4911f25dd",
-        role: "user",
-        created_at: "2025-03-21T00:00:00Z",
-        status: 1,
-        liked_albums: "[\"67dd84d78540d06d5dc0d863\"]",
-        liked_albums_data: [
-            {
-                id: "67dd84d78540d06d5dc0d863",
-                release_date: "2012-07-27",
-                artist_data: {
-                    id: "67dd81198540d06d5dc0d861",
-                    name: "Bruno Mars",
-                    email: "hoichima@gmail.com",
-                    avatar: "https://i.scdn.co/image/ab67616100005174c36dd9eb55fb0db4911f25dd",
-                    role: "artist",
-                    created_at: "2024-03-21T00:00:00Z",
-                    status: 1,
-                    liked_albums: []
-                },
-                name: "Marry You",  
-                artist_id: "67dd81198540d06d5dc0d861",
-                status: 1,
-                image: "https://i.scdn.co/image/ab67616d00001e02f6b55ca93bd33211227b502b"
-            }
-        ],
-        playlists_data: [
-            {
-                id: "67df7e488540d06d5dc0d89d",
-                name: "Playlist của tôi",
-                release_date: "2012-07-27",
-                user_id: "67dd866d8540d06d5dc0d867",
-                status: 1,
-                songs: []
-            }
-        ]
-    });
+    const [user, setUser] = useState({});
     const fetchData = async (endpoint, options = {}) => {
         setLoading(true);
         try {
@@ -75,7 +36,6 @@ export const ApiProvider = ({ children }) => {
     const fetchSongs = async () => fetchData("songs");
     const fetchAlbums = async () => fetchData("albums");
     const fetchAlbumById = async (id) => fetchData(`albums/filter/?id=${id}`);
-    const fetchSongById = async (id) => fetchData(`songs/${id}`);
     const fetchArtist = async () => fetchData("artists");
     const fetchArtistById = async (id) => fetchData(`artists/filter/?id=${id}`);
     const fetchCategories = async () => fetchData("categories");
@@ -165,7 +125,6 @@ export const ApiProvider = ({ children }) => {
         user, 
         fetchSongs,
         fetchAlbums,
-        fetchSongById,
         fetchAlbumById,
         transformToDurationString,
         setLoading,

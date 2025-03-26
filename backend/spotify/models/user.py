@@ -10,7 +10,7 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(default=1)
     liked_albums = ArrayField(models.CharField(max_length=24))
-
+    liked_songs = ArrayField(models.CharField(max_length=24))
     class Meta:
         db_table = "users"
         app_label = 'spotify'

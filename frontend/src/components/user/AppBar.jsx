@@ -112,14 +112,14 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                 <div className="flex items-center gap-4">
                     {/* <button className=" text-black px-4 py-2 rounded-full text-sm bg-gradient-to-r from-purple-500 to-pink-500">Khám phá Premium</button> */}
                     <FaGlobe className='cursor-pointer w-5 h-5' />
-                    {isLogin ?
+                    {user && user.id ?
                         <>
                             <BsFillChatTextFill className="text-white cursor-pointer w-5 h-5" />
                             <PopupMenu role={2} />
                         </> :
                         <>
                             <p
-                                className="bg-white text-black text-[15px] px-5 p-2 rounded-3xl hidden md:block cursor-pointer hover:scale-105"
+                                className="bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC] text-white text-[15px] px-5 p-2 rounded-3xl hidden md:block cursor-pointer hover:scale-105"
                                 onClick={() => {
                                     startTransition(() => {
                                         navigate("/sign-in");

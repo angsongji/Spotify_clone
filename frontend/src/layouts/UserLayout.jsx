@@ -14,7 +14,7 @@ const UserLayout = () => {
 
             <div className="flex-1 flex  px-2 gap-2">
                 {/* Sidebar - Menu trái */}
-                <div className="w-[22.22%] bg-[var(--dark-gray)] rounded-lg">
+                <div className="px-2 py-5 w-fit bg-[var(--dark-gray)] rounded-lg">
                     <SideBar />
                 </div>
 
