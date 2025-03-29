@@ -13,7 +13,7 @@ class Song(models.Model):
     price = models.IntegerField()
     preview_url = models.URLField(blank=True, null=True)
     album_id = models.CharField(max_length=24)  # ObjectId của album
-    
+    video_url = models.URLField(blank=True, null=True)
     class Meta:
         db_table = "songs"
         app_label = 'spotify'
