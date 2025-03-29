@@ -2,6 +2,8 @@ from bson import ObjectId
 from rest_framework import serializers
 from .models import User, Song, Album, Category, Chat, Message, Purchase, Playlist 
 
+class FileUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
 class UserSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     class Meta:
