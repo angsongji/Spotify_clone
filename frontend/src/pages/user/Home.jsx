@@ -46,13 +46,13 @@ const Home = () => {
     const filters = ['Tất cả', 'Album', "Bài hát"];
 
     return (
-      <div className=" flex items-center mb-4 space-x-3 text-sm ">
+      <div className=" flex items-center mb-4 space-x-3 text-sm gap-2 ">
         {filters.map((filter) => (
           <button
             key={filter}
             className={`cursor-pointer px-3 py-1 rounded-full transition-colors duration-300 ${activeFilter === filter
               ? 'bg-[var(--main-green)] text-black' // Màu xanh khi active
-              : 'bg-[var(--light-gray1)] text-gray-300 hover:bg-gray-600'
+              : 'bg-[var(--light-gray2)] !text-gray-500 hover:bg-[var(--light-gray1)]'
               }`}
             onClick={() => onFilterChange(filter)}
           >
@@ -80,11 +80,16 @@ const Home = () => {
         <SectionTitle title="Popular Artists" />
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
           {artists.map((artist, index) => (
-            <div onClick={() => navigate(`/artist/${artist.id}`)} key={index} className="flex flex-col items-center w-full cursor-pointer">
+            <>
+            {
+              artist.status != 0 && <div onClick={() => navigate(`/artist/${artist.id}`)} key={index} className="flex flex-col items-center w-full cursor-pointer">
               <img src={artist.avatar} alt={artist.name} className="w-full aspect-square rounded-full object-cover border-4 border-gray-700 hover:border-[var(--main-green)]" />
               <h3 className="text-white mt-2 font-medium text-center text-base">{artist.name}</h3>
               <p className="text-gray-400 text-sm">Nghệ sĩ</p>
             </div>
+            }
+            </>
+            
           ))}
         </div>
       </div>
@@ -140,8 +145,12 @@ const Home = () => {
             <SectionTitle title="Popular Albums" />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
               {filteredAlbums.map((album, index) => (
-
-                < AlbumCard key={index} album={album} />
+                <>
+                {
+                  album.status != 0 && < AlbumCard key={index} album={album} />
+                }
+                </>
+                
               ))}
             </div>
           </div>
@@ -151,7 +160,11 @@ const Home = () => {
           <SectionTitle title="Thịnh hành" />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-5">
             {songs.map((song, index) => (
-              <SongCard key={index} song={song} />
+              <>
+              {
+                song.status != 0 && <SongCard key={index} song={song} />
+              }
+              </>
             ))}
           </div>
         </div>
@@ -160,7 +173,11 @@ const Home = () => {
           <SectionTitle title="Mới phát hành" />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-5">
             {songs.map((song, index) => (
-              <SongCard key={index} song={song} />
+              <>
+              {
+                song.status != 0 && <SongCard key={index} song={song} />
+              }
+              </>
             ))}
           </div>
         </div>

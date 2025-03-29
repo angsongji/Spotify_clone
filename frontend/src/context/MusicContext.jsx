@@ -2,11 +2,12 @@ import React, { useRef, createContext, useState, useContext, useEffect } from 'r
 import { useApi } from "./ApiContext";
 import { FiPlusCircle } from "react-icons/fi";
 import { BiTime } from 'react-icons/bi';
+import { message } from "antd";
 const MusicContext = createContext();
 
 
 export const MusicProvider = ({ children }) => {
-    const { fetchSongs, transformToDurationString } = useApi();
+    const { fetchSongs, transformToDurationString, user } = useApi();
     const [musicIndex, setMusicIndex] = useState(-1);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -117,6 +118,10 @@ export const MusicProvider = ({ children }) => {
     };
 
     function handleClickSong(id) {
+        if (!user || !user.id) {
+            message.error("Vui lòng đăng nhập để nghe bài hát")
+            return;
+        }
         songsQueue.forEach((item, index) => {
             if (item.id === id) {
                 setMusicIndex(index);
@@ -166,10 +171,10 @@ export const MusicProvider = ({ children }) => {
         return (
             <div className="h-15 w-full flex justify-between items-center py-2 px-5 text-sm text-gray-400 ">
                 <div className="flex items-center gap-5 w-3/5">
-                <div className="text-center">#</div>
-                <div className=''>Tiêu đề</div>
+                    <div className="text-center">#</div>
+                    <div className=''>Tiêu đề</div>
                 </div>
-                
+
                 <div className='flex-1'>Nghệ sĩ</div>
                 <div className="flex justify-start w-17">
                     <BiTime className="w-5 h-5" />

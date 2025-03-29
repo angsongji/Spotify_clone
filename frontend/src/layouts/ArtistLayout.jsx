@@ -1,47 +1,36 @@
-import { useNavigate } from "react-router-dom";
-import { Layout, Menu } from "antd";
 import { Outlet, Link } from "react-router-dom";
-import {
-    HiOutlineMusicNote,
-    HiOutlineCollection,
-} from "react-icons/hi";
+import AppBar from "../components/user/AppBar";
+import SideBar from "../components/artist/SideBar";
 import '../index.css';
-import PopupMenu from "../components/PopupMenu";
-const { Header, Sider, Content } = Layout;
-
+import { useApi } from "../context/ApiContext";
 const ArtistLayout = () => {
-    const navigate = useNavigate();
+    const { user } = useApi();
     return (
-        <Layout style={{ minHeight: "100vh" }}>
-            {/* Sidebar */}
-            <Sider collapsible >
-                <div className="flex justify-center my-5" >
-                    <img onClick={() => navigate("/", { replace: true })} src="https://tse4.mm.bing.net/th?id=OIP.TIk8dC3O2hUW2V_GfO94egHaHa&pid=Api&P=0&h=220" className="rounded-full w-[50%] cursor-pointer" />
+        <div className="bg-black flex flex-col h-screen">
+            <AppBar />
+
+            <div className="flex-1 flex  px-2 gap-2 pb-4">
+                {/* Sidebar - Menu trái */}
+                <div className="px-2 py-5 w-fit bg-[var(--dark-gray)] rounded-lg h-fit">
+                    <SideBar />
                 </div>
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]} >
-                    <Menu.Item key="1" icon={<HiOutlineMusicNote />}>
-                        <Link to="/artist">Bài hát</Link>
-                    </Menu.Item>
-                    <Menu.Item key="2" icon={<HiOutlineCollection />}>
-                        <Link to="/artist/albums">Albums</Link>
-                    </Menu.Item>
-                </Menu>
-            </Sider>
 
-            {/* Main Layout */}
-            <Layout>
-                <Header style={{ background: "#fff", padding: "0 40px 0 40px", textAlign: "center", fontSize: 20, display: "flex", justifyContent: "space-between" }}>
-                    <h1>Welcome!</h1>
-                    <div className="flex gap-2 items-center">
-                        <span className="text-lg">Oanh le</span>
+                {/* Main Content - Nội dung chính */}
+                <div className="bg-gradient-to-tl from-stone-900 to-neutral-700 relative flex-1  rounded-lg ">
+
+                    <div>
+                    <Outlet />
                     </div>
+                    
 
-                </Header>
-                <Content style={{ margin: "16px", padding: "24px", background: "#fff" }}>
-                    <Outlet /> {/* Hiển thị nội dung tương ứng với route */}
-                </Content>
-            </Layout>
-        </Layout>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
     );
 };
 

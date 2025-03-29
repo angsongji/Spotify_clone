@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { FaPlay, FaRandom } from "react-icons/fa";
 import { IoMdPause, IoMdDownload } from "react-icons/io";
@@ -12,6 +13,7 @@ import "../../index.css";
 
 
 export default function AudioBar() {
+   
     const {
         audioRef,
         isPlaying,
@@ -27,11 +29,11 @@ export default function AudioBar() {
         handleVolumeChange,
         musicIndex
     } = useMusic();
-
+    const navigate = useNavigate();
 
     return (<>
         {
-            musicIndex == -1 ? <div className="fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-3 px-4 m-1">
+            musicIndex == -1 ? <div className="fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-5 px-4 m-1">
                 Chọn bài hát bạn muốn nghe!
             </div> :
                 <div className="fixed bottom-0 h-fit bg-black flex items-center justify-between text-white w-full py-3 px-4">
@@ -97,7 +99,9 @@ export default function AudioBar() {
 
                     <div className="hidden lg:flex items-center gap-2 opacity-75 text-xl">
                         <IoMdDownload className="cursor-pointer" />
-                        < MdOutlineOndemandVideo className="cursor-pointer" />
+                        {
+                            currentSong.video_url ? < MdOutlineOndemandVideo className="cursor-pointer" onClick={() => navigate("/video")}/> : null
+                        }
                         {isMuted ? (
                             <GoMute onClick={handleMuteClick} className="cursor-pointer" />
                         ) : (

@@ -69,10 +69,6 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
     //     }
     // };
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
-
     const handleClickOutside = (event) => {
         if (avatarRef.current && !avatarRef.current.contains(event.target)) {
             setIsMenuOpen(false);
@@ -88,7 +84,7 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
 
     return (
         <div>
-            <div className=" p-4 flex justify-between items-center text-white">
+            <div className=" p-4 flex justify-between items-center text-white ">
                 {/* Logo + Home */}
                 <div className="flex items-center gap-3 ">
                     <img src="/logoSpotify.png" alt="Spotify" className="w-10 h-10" />
@@ -115,10 +111,10 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                     {user && user.id ?
                         <>
                             <BsFillChatTextFill className="text-white cursor-pointer w-5 h-5" />
-                            <PopupMenu role={2} />
+                            <PopupMenu role={user.role} />
                         </> :
                         <>
-                            <p
+                            <div
                                 className="bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC] text-white text-[15px] px-5 p-2 rounded-3xl hidden md:block cursor-pointer hover:scale-105"
                                 onClick={() => {
                                     startTransition(() => {
@@ -127,8 +123,8 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                                 }}
                             >
                                 Đăng nhập
-                            </p>
-                            <p
+                            </div>
+                            <div
                                 className="text-gray-300 text-[15px] px-5 p-2 rounded-3xl hidden md:block cursor-pointer hover:text-white hover:scale-110"
                                 onClick={() => {
                                     startTransition(() => {
@@ -137,7 +133,7 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                                 }}
                             >
                                 Đăng kí
-                            </p>
+                            </div>
                         </>}
 
 
