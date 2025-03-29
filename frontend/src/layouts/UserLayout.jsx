@@ -7,14 +7,13 @@ import Footer from "../components/user/Footer";
 import '../index.css';
 import { useApi } from "../context/ApiContext";
 const UserLayout = () => {
-    const { loading } = useApi();
     return (
         <div className="bg-black flex flex-col h-screen">
             <AppBar />
 
             <div className="flex-1 flex  px-2 gap-2">
                 {/* Sidebar - Menu trái */}
-                <div className="w-[22.22%] bg-[var(--dark-gray)] rounded-lg">
+                <div className="px-2 py-5 w-fit bg-[var(--dark-gray)] rounded-lg">
                     <SideBar />
                 </div>
 

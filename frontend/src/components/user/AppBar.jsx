@@ -1,10 +1,12 @@
 import React, { startTransition, useState, useRef, useEffect } from 'react';
 import { FaHome, FaSearch, FaBell, FaGlobe } from 'react-icons/fa';
-
+import { BsFillChatTextFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import PopupMenu from '../PopupMenu';
 import "../../index.css";
+import { useApi } from '../../context/ApiContext';
 const AppBar = ({ radios, albums, artists, podcasts }) => {
+    const { user } = useApi();
     const [isLogin, setIsLogin] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -67,10 +69,6 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
     //     }
     // };
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
-
     const handleClickOutside = (event) => {
         if (avatarRef.current && !avatarRef.current.contains(event.target)) {
             setIsMenuOpen(false);
@@ -86,12 +84,12 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
 
     return (
         <div>
-            <div className=" p-4 flex justify-between items-center text-white">
+            <div className=" p-4 flex justify-between items-center text-white ">
                 {/* Logo + Home */}
                 <div className="flex items-center gap-3 ">
-                    <img src="/logoSpotify.png" alt="Spotify" className="w-12 h-12" />
+                    <img src="/logoSpotify.png" alt="Spotify" className="w-10 h-10" />
                     <button className="p-2 rounded-full bg-[var(--light-gray1)] hover:bg-gray-700" onClick={() => { setSearchTerm(""); navigate("/"); }}>
-                        <FaHome className="text-white w-7 h-7 cursor-pointer" />
+                        <FaHome className="text-white w-5 h-5 cursor-pointer" />
                     </button>
                 </div>
                 <div className="flex items-center">
@@ -108,16 +106,16 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
-                    <button className=" text-black px-4 py-2 rounded-full text-sm bg-gradient-to-r from-purple-500 to-pink-500">Khám phá Premium </button>
+                    {/* <button className=" text-black px-4 py-2 rounded-full text-sm bg-gradient-to-r from-purple-500 to-pink-500">Khám phá Premium</button> */}
                     <FaGlobe className='cursor-pointer w-5 h-5' />
-                    {isLogin ?
+                    {user && user.id ?
                         <>
-                            <FaBell className="text-white cursor-pointer w-5 h-5" />
-                            <PopupMenu role={2} />
+                            <BsFillChatTextFill className="text-white cursor-pointer w-5 h-5" />
+                            <PopupMenu role={user.role} />
                         </> :
                         <>
-                            <p
-                                className="bg-white text-black text-[15px] px-5 p-2 rounded-3xl hidden md:block cursor-pointer hover:scale-105"
+                            <div
+                                className="bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC] text-white text-[15px] px-5 p-2 rounded-3xl hidden md:block cursor-pointer hover:scale-105"
                                 onClick={() => {
                                     startTransition(() => {
                                         navigate("/sign-in");
@@ -125,8 +123,8 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                                 }}
                             >
                                 Đăng nhập
-                            </p>
-                            <p
+                            </div>
+                            <div
                                 className="text-gray-300 text-[15px] px-5 p-2 rounded-3xl hidden md:block cursor-pointer hover:text-white hover:scale-110"
                                 onClick={() => {
                                     startTransition(() => {
@@ -135,7 +133,7 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                                 }}
                             >
                                 Đăng kí
-                            </p>
+                            </div>
                         </>}
 
 

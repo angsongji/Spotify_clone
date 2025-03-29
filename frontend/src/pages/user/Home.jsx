@@ -3,30 +3,9 @@ import { useNavigate } from "react-router-dom";
 import '../../index.css'
 import { useApi } from "../../context/ApiContext";
 import { useMusic } from "../../context/MusicContext";
-// const albums = [
-//   { id: 1, name: "Ruby", artist: "JENNIE", image: "/JennieSpotify.jpg" },
-//   { id: 2, name: "Lặng", artist: "Shiki", image: "/ShikiSpotify.jpg" },
-//   { id: 3, name: "THE WXRDIES", artist: "Wxrdie", image: "/WxrdieSpotify.jpg" },
-//   { id: 4, name: "Đánh Đổi", artist: "Obito, Shiki", image: "/ObitoSpotify1.jpg" },
-//   { id: 5, name: "Từng Ngày Như Mãi Mãi", artist: "buitruonglinh", image: "/BuiTruongLinhSpotify.jpg" },
-//   { id: 5, name: "Từng Ngày Như Mãi Mãi", artist: "buitruonglinh", image: "/BuiTruongLinhSpotify.jpg" },
-//   { id: 3, name: "THE WXRDIES", artist: "Wxrdie", image: "/WxrdieSpotify.jpg" },
-// ];
-
-// const artists = [
-//   { id: 1, name: "Noo Phước Thịnh", image: "/NooPhuocThinh.jpg" },
-//   { id: 1, name: "HIEUTHUHAI", image: "/HTH.jpg" },
-//   { id: 1, name: "Sơn Tùng M-TP", image: "/SonTung.jpg" },
-//   { id: 1, name: "Dương Domic", image: "/DuongDomic.jpg" },
-//   { id: 1, name: "ChiPu", image: "/ChiPu.jpg" },
-//   { id: 1, name: "Bích Phương", image: "/BichPhuong.jpg" },
-// ];
-
-
-
 
 const Home = () => {
-  const { setMusicIndex, songsQueue, setIsPlaying } = useMusic();
+  const { formatTime, handleClickSong, currentSong } = useMusic();
   const { fetchAlbums, fetchSongs, transformFormatDate, fetchArtist, AlbumCard } = useApi();
   const [activeFilter, setActiveFilter] = useState('Tất cả');
   const navigate = useNavigate();
@@ -67,13 +46,13 @@ const Home = () => {
     const filters = ['Tất cả', 'Album', "Bài hát"];
 
     return (
-      <div className=" flex items-center mb-4 space-x-3 text-sm ">
+      <div className=" flex items-center mb-4 space-x-3 text-sm gap-2 ">
         {filters.map((filter) => (
           <button
             key={filter}
             className={`cursor-pointer px-3 py-1 rounded-full transition-colors duration-300 ${activeFilter === filter
               ? 'bg-[var(--main-green)] text-black' // Màu xanh khi active
-              : 'bg-[var(--light-gray1)] text-gray-300 hover:bg-gray-600'
+              : 'bg-[var(--light-gray2)] !text-gray-500 hover:bg-[var(--light-gray1)]'
               }`}
             onClick={() => onFilterChange(filter)}
           >
@@ -99,13 +78,18 @@ const Home = () => {
     return (
       <div className="my-8">
         <SectionTitle title="Popular Artists" />
-        <div className="flex overflow-x-auto space-x-10 scrollbar-hide">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
           {artists.map((artist, index) => (
-            <div onClick={() => navigate(`/artist/${artist.id}`)} key={index} className="flex flex-col items-center w-40 cursor-pointer">
-              <img src={artist.avatar} alt={artist.name} className="w-full h-40 rounded-full object-cover border-4 border-gray-700 hover:border-green-500 transition" />
+            <>
+            {
+              artist.status != 0 && <div onClick={() => navigate(`/artist/${artist.id}`)} key={index} className="flex flex-col items-center w-full cursor-pointer">
+              <img src={artist.avatar} alt={artist.name} className="w-full aspect-square rounded-full object-cover border-4 border-gray-700 hover:border-[var(--main-green)]" />
               <h3 className="text-white mt-2 font-medium text-center text-base">{artist.name}</h3>
               <p className="text-gray-400 text-sm">Nghệ sĩ</p>
             </div>
+            }
+            </>
+            
           ))}
         </div>
       </div>
@@ -120,7 +104,10 @@ const Home = () => {
         <img src={song.image} alt="Album Cover" className="w-15 h-15 object-cover aspect-square rounded-sm" />
         <div className="text-[var(--light-gray3)] w-full flex flex-col">
           <div className="grid grid-cols-[1fr_auto] items-center">
-            <div className="text-base  font-semibold text-white w-full overflow-hidden whitespace-nowrap text-ellipsis">
+            <div className="text-base  font-semibold text-white w-full overflow-hidden whitespace-nowrap text-ellipsis"
+              style={currentSong.id === song.id ? { color: "var(--main-green)", fontSize: "18px" } : {}}
+
+            >
               {song.name}
             </div>
 
@@ -132,19 +119,20 @@ const Home = () => {
           </div>
 
           <div className="text-xs">{song.artists_data?.map((item) => item.name).join(", ")}</div>
-          <div className="text-xs mt-1">{transformFormatDate(song.date)}</div>
+          <div className="text-xs mt-1 flex justify-between">
+            <span>
+              {transformFormatDate(song.date)}
+            </span>
+            <span>
+              {formatTime(song.duration)}
+            </span>
+          </div>
+
         </div>
       </div>
     );
   }
-  function handleClickSong(id) {
-    songsQueue.forEach((item, index) => {
-      if (item.id === id) {
-        setMusicIndex(index);
-        setIsPlaying(true);
-      }
-    });
-  }
+
   return <>
     {
       !loading ? <div className="bg-gradient-to-tl from-stone-900 to-neutral-700 p-6 min-h-screen flex flex-col gap-20 ">
@@ -157,8 +145,12 @@ const Home = () => {
             <SectionTitle title="Popular Albums" />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
               {filteredAlbums.map((album, index) => (
-
-                < AlbumCard key={index} album={album} />
+                <>
+                {
+                  album.status != 0 && < AlbumCard key={index} album={album} />
+                }
+                </>
+                
               ))}
             </div>
           </div>
@@ -168,7 +160,11 @@ const Home = () => {
           <SectionTitle title="Thịnh hành" />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-5">
             {songs.map((song, index) => (
-              <SongCard key={index} song={song} />
+              <>
+              {
+                song.status != 0 && <SongCard key={index} song={song} />
+              }
+              </>
             ))}
           </div>
         </div>
@@ -177,7 +173,11 @@ const Home = () => {
           <SectionTitle title="Mới phát hành" />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-5">
             {songs.map((song, index) => (
-              <SongCard key={index} song={song} />
+              <>
+              {
+                song.status != 0 && <SongCard key={index} song={song} />
+              }
+              </>
             ))}
           </div>
         </div>

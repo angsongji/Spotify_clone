@@ -3,15 +3,19 @@ import { FaPlay, FaHeart, FaPlus } from 'react-icons/fa';
 import { FastAverageColor } from "fast-average-color";
 import { useParams } from "react-router-dom";
 import { useApi } from "../../context/ApiContext";
+import { useMusic } from "../../context/MusicContext";
+import { useNavigate } from "react-router-dom";
 
 
 const Album = () => {
-  const { generateLinearGradient, SongCard, fetchAlbumById, loading, transformFormatDate, setLoading } = useApi();
+  const { generateLinearGradient, fetchAlbumById, loading, transformFormatDate, setLoading, user } = useApi();
+  const { SongCard, SongHeader } = useMusic();
   const { id } = useParams(); // Đây là id của album, từ id này gọi api để truyền dữ liệu cho biến album
   const [colorMain, setColorMain] = useState("#ffffff");
   const [backgroundStyle, setBackgroundStyle] = useState("");
   const [album, setAlbum] = useState({});
   const fac = new FastAverageColor();
+  const navigate = useNavigate();
   useEffect(() => {
     const loadAlbum = async () => {
       try {
@@ -50,10 +54,13 @@ const Album = () => {
             <p>Album</p>
             <h1 className="text-5xl font-bold mb-4 md:text-7xl">{album.name}</h1>
             <p className="mt-1 flex items-center text-gray-400 text-sm">
+              <span className='"w-fit flex cursor-pointer hover:text-white' onClick={()=>navigate(`/artist/${album.artist_id}`)}>
               <img className="w-5 rounded-full" src={album.image} alt="Spotify Logo" />
               <b className="pl-2">{album.artist_data?.name} • </b>
+              </span>
+              
               <b className="pl-2">{transformFormatDate(album.release_date)} •</b>
-              <b className="pl-2">{album.songs_data?.length} bài hát</b>
+              <b className="pl-2">{album.songs_data?.reduce((sum, item) => sum + (item.status !== 0 ? 1 : 0), 0) ?? 0} bài hát</b>
             </p>
           </div>
         </div>
@@ -65,13 +72,23 @@ const Album = () => {
               <FaPlay className="mr-2" /> Play
             </button>
             <button className="text-gray-400 flex items-center cursor-pointer">
-              <FaHeart className="mr-2 text-2xl" color="red" />
+              <FaHeart 
+                className="mr-2 text-2xl" 
+                color={user.liked_albums_data?.find(item => item.id === id) ? "red" : "gray"}
+              />
             </button>
           </div>
 
           <ul>
+            <SongHeader />
             {album.songs_data?.map((track, index) => (
-              <SongCard key={index} song={track} index={index} />
+              <>
+              {
+                track.status != 0 && <SongCard key={index} song={track} index={index} />
+              }
+              </>
+
+
             ))}
           </ul>
         </div>
