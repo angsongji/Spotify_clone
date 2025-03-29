@@ -7,7 +7,6 @@ import Footer from "../components/user/Footer";
 import '../index.css';
 import { useApi } from "../context/ApiContext";
 const UserLayout = () => {
-    const { loading } = useApi();
     return (
         <div className="bg-black flex flex-col h-screen">
             <AppBar />

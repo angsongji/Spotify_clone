@@ -60,7 +60,7 @@ const Album = () => {
               </span>
               
               <b className="pl-2">{transformFormatDate(album.release_date)} •</b>
-              <b className="pl-2">{album.songs_data?.length} bài hát</b>
+              <b className="pl-2">{album.songs_data?.reduce((sum, item) => sum + (item.status !== 0 ? 1 : 0), 0) ?? 0} bài hát</b>
             </p>
           </div>
         </div>
@@ -83,9 +83,9 @@ const Album = () => {
             <SongHeader />
             {album.songs_data?.map((track, index) => (
               <>
-
-                <SongCard key={index} song={track} index={index} />
-
+              {
+                track.status != 0 && <SongCard key={index} song={track} index={index} />
+              }
               </>
 
 

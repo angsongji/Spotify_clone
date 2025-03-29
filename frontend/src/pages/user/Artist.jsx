@@ -149,24 +149,27 @@ const Artist = () => {
               <p>Artist</p>
               <h1 className="text-5xl font-bold mb-4 md:text-7xl">{artist.name}</h1>
               <p className="mt-1 flex items-center text-gray-400 text-sm">
-                <b className="pl-2">{artist.albums_data?.length} album • </b>
-                <b className="pl-2">{artist.songs_data?.length} bài hát</b>
+                <b className="pl-2">{artist.albums_data?.reduce((sum, item) => sum + (item.status !== 0 ? 1 : 0), 0) ?? 0} album • </b>
+                <b className="pl-2">{artist.songs_data?.reduce((sum, item) => sum + (item.status !== 0 ? 1 : 0), 0) ?? 0} bài hát</b>
               </p>
             </div>
           </div>
 
-          <div className='px-5 flex flex-col gap-20'>
+          <div className='px-5 flex flex-col gap-10'>
 
-            <div className='flex flex-col gap-10'>
+            <div className='flex flex-col gap-5'>
               <button className="bg-green-500 px-6 py-3 rounded-full  flex items-center cursor-pointer w-fit flex gap-2">
                 <FaPlay className="" /> Play
               </button>
               <div>
-                <SectionTitle title="Phố biến" />
                 <ul>
                   <SongHeader />
                   {artist.songs_data?.map((song, index) => (
-                    <SongCard key={index} song={song} index={index} />
+                    <>
+                    {
+                      song.status != 0 && <SongCard key={index} song={song} index={index} />
+                    }
+                    </>
                   ))}
                 </ul>
               </div>
@@ -176,7 +179,11 @@ const Artist = () => {
               <SectionTitle title="Danh sách Album" />
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
                 {artist.albums_data?.map((album, index) => (
-                  <AlbumCard key={index} album={album} />
+                  <>
+                  {
+                    album.status != 0 && <AlbumCard key={index} album={album} />
+                  }
+                  </>
                 ))}
               </div>
             </div>

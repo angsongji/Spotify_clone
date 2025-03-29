@@ -1,249 +1,133 @@
 import React, { useState } from "react";
-import { FaEdit, FaTrash, FaPlus, FaTimes, FaSave } from "react-icons/fa";
-
+import { useMusic } from "../../context/MusicContext";
+import { useApi } from "../../context/ApiContext";
+import { FaLock, FaSearch, FaPlus, FaPen } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import { Select } from "antd";
+import "../../index.css";
+const { Option } = Select;
+// Dữ liệu mẫu
+const options = [
+  { value: "1", label: "Tất cả" },
+  { value: "2", label: "Riêng tư" },
+  { value: "3", label: "Công khai" },
+];
 const ArtistSongs = () => {
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  //delete
-  const openDeleteModal = () => {
-    setIsDeleteModalOpen(true); // Mở popup
+  const { formatTime } = useMusic();
+  const { user, transformFormatDate } = useApi();
+  const [searchValue, setSearchValue] = useState("");
+  const handleInputChange = (event) => {
+    setSearchValue(event.target.value);
+  };
+  const ComboBox = ({ options, onChange }) => {
+    return (
+      <Select
+        style={{ width: 100 }}
+        placeholder="Chọn một mục"
+        onChange={onChange}
+        defaultValue="1"
+      >
+        {options.map((item) => (
+          <Option key={item.value} value={item.value}>
+            {item.label}
+          </Option>
+        ))}
+      </Select>
+    );
   };
 
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false); // Đóng popup
-  };
 
-  const handleDeleteSong = () => {
-    closeDeleteModal();
-  };
 
-  //edit
-  const openEditModal = () => {
-    setIsEditModalOpen(true);
+  const handleChange = (value) => {
+    console.log("Giá trị đã chọn:", value);
   };
+  function SongCard({ song }) {
+    return (
+      <div className="relative group w-[100%] cursor-pointer flex gap-3 max-w-xs shadow-lg overflow-hidden items-center hover:bg-[var(--light-gray2)] p-2 rounded-sm"
+      // onClick={() => handleClickSong(song.id)}
 
-  const closeEditModal = (e) => {
-    setIsEditModalOpen(false);
-  };
+      >
+        <img src={song.image} alt="Album Cover" className="group-hover:scale-105 w-15 h-15 object-cover aspect-square rounded-sm" />
+        <div className="text-[var(--light-gray3)] w-full flex flex-col">
+          <div className="grid grid-cols-[1fr_auto] items-center">
+            <div className="text-base  font-semibold text-white w-full overflow-hidden whitespace-nowrap text-ellipsis"
 
-  const handleSave = () => {
-    closeEditModal();
-  };
+
+            >
+              {song.name}
+            </div>
+
+            <span className={`${Number(song.price) !== 0 ? 'bg-[var(--main-green)]' : 'transparent'} text-black text-sm px-2 py-1 rounded-sm font-semibold`}>
+              {song.price != 0 ? song.price : ""}
+            </span>
+
+
+          </div>
+
+          <div className="text-xs">{song.artists_data?.map((item) => item.name).join(", ")}</div>
+          <div className="text-xs mt-1 flex justify-between">
+            <span>
+              {transformFormatDate(song.date)}
+            </span>
+            <span>
+              {formatTime(song.duration)}
+            </span>
+          </div>
+
+        </div>
+        {/* Lớp nền đè lên */}
+        {
+          song.status == 0 && <div className="absolute top-0 left-0 bg-[var(--light-gray1)] opacity-50  transition-opacity duration-300  bottom-0 right-0 flex items-center justify-center">
+            <div className="text-gray-500 text-sm font-semibold flex items-center gap-2">
+              <FaLock /> Riêng tư
+            </div>
+          </div>
+        }
+
+      </div>
+    );
+  }
 
   return (
-    <div className="p-5">
-      <h1 className="text-2xl font-bold mb-4">Artist Songs</h1>
-
-      {/* Bảng hiển thị bài hát */}
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-gray-200">
-            <th className="p-3 text-left">#</th>
-            <th className="p-3 text-left">Cover</th>
-            <th className="p-3 text-left">Title</th>
-            <th className="p-3 text-left">Duration</th>
-            <th className="p-3 text-left">Date Release</th>
-            <th className="p-3 text-left">Playlist Pitch</th>
-            <th className="p-3 text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {/* Dòng 1 */}
-          <tr className="border-b border-gray-200 hover:bg-gray-50">
-            <td className="p-3">1</td>
-            <td className="p-3">
-              <img src="SonTung.jpg" alt="Cover" className="w-12 h-12" />
-            </td>
-            <td className="p-3">Song One</td>
-            <td className="p-3">3:45</td>
-            <td className="p-3">2023-01-01</td>
-            <td className="p-3">Upbeat and energetic</td>
-            <td className="p-3">
-              <div className="flex item-center gap-3 space-x-2">
-                <button
-                  onClick={openEditModal}
-                  className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600"
-                >
-                  <FaEdit className="" />
-                </button>
-                <button
-                  onClick={openDeleteModal}
-                  className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
-                >
-                  <FaTrash className="" />
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          {/* Dòng 2 */}
-          <tr className="border-b border-gray-200 hover:bg-gray-50">
-            <td className="p-3">2</td>
-            <td className="p-3">
-              <img src="NooPhuocThinh.jpg" alt="Cover" className="w-12 h-12" />
-            </td>
-            <td className="p-3">Song Two</td>
-            <td className="p-3">4:20</td>
-            <td className="p-3">2023-02-15</td>
-            <td className="p-3">Relaxing and chill</td>
-            <td className="p-3">
-              <div className="flex item-center gap-3 space-x-2">
-                <button
-                  onClick={openEditModal}
-                  className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600"
-                >
-                  <FaEdit className="" />
-                </button>
-                <button
-                  onClick={openDeleteModal}
-                  className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
-                >
-                  <FaTrash className="" />
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          {/* Dòng 3 */}
-          <tr className="border-b border-gray-200 hover:bg-gray-50">
-            <td className="p-3">3</td>
-            <td className="p-3">
-              <img src="/JennieSpotify.jpg" alt="Cover" className="w-12 h-12" />
-            </td>
-            <td className="p-3">Song Three</td>
-            <td className="p-3">2:58</td>
-            <td className="p-3">2023-03-10</td>
-            <td className="p-3">Energetic and fast-paced</td>
-            <td className="p-3">
-              <div className="flex item-center gap-3 space-x-2">
-                <button
-                  onClick={openEditModal}
-                  className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600"
-                >
-                  <FaEdit className="" />
-                </button>
-                <button
-                  onClick={openDeleteModal}
-                  className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
-                >
-                  <FaTrash className="" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Nút thêm bài hát */}
-      <button className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-lg hover:shadow-xl">
-        <span className="text-2xl">+</span>
-      </button>
-
-      {/* Popup xác nhận xóa */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white border rounded-lg p-6 w-96">
-            <div className="flex justify-end items-center mb-2">
-              <button
-                onClick={closeDeleteModal}
-                className="flex text-gray-500 hover:text-gray-700"
-              >
-                <FaTimes className="text-lg" />
-              </button>
-            </div>
-
-            {/* Header */}
-            <h2 className="text-xl font-semibold text-center mb-4">
-              Xác nhận xóa
-            </h2>
-
-            {/* Nội dung */}
-            <p className="text-gray-700 mb-8">
-              Bạn có chắc chắn muốn xóa bài hát{" "}
-              <span className="font-semibold"></span> không? Hành động này không
-              thể hoàn tác.
-            </p>
-
-            {/* Nút hành động */}
-            <div className="flex justify-center gap-10 mt-5">
-              <button
-                onClick={closeDeleteModal}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleDeleteSong}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-              >
-                Xóa
-              </button>
-            </div>
+    <div className="p-2">
+      <div className="flex items-center justify-between m-5 mb-7">
+        <div className="flex items-center gap-5 ">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Nhập tên bài hát"
+              className="bg-[var(--light-gray2)] !text-white p-2 rounded-full w-96 focus:outline-none placeholder-[var(--light-gray3)] text-sm pl-10"
+              value={searchValue}
+              onChange={handleInputChange}
+            />
+            <FaSearch className="absolute left-2 top-0 translate-x-[50%] translate-y-[50%] text-[var(--light-gray3)]" />
           </div>
+          <ComboBox options={options} onChange={handleChange} />
         </div>
-      )}
+        <div className="flex items-center gap-2 mr-2">
+          <div className="hover:bg-[var(--main-green)] hover:text-black text-[var(--light-gray3)] text-base cursor-pointer rounded-full bg-[var(--light-gray1)] p-2"><FaPlus /></div>
+          <div className="hover:bg-[var(--main-green)] hover:text-black text-[var(--light-gray3)] text-base cursor-pointer rounded-full bg-[var(--light-gray1)] p-2"><FaPen /> </div>
+          <div className="hover:bg-[var(--main-green)] hover:text-black text-[var(--light-gray3)] text-base cursor-pointer rounded-full bg-[var(--light-gray1)] p-2"><MdDelete /> </div>
 
-      {/* Popup chỉnh sửa */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] relative">
-            {/* Nút đóng */}
-            <button
-              onClick={closeEditModal}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-            >
-              <FaTimes className="text-lg" />
-            </button>
 
-            <h2 className="text-xl font-semibold mb-4">Chỉnh sửa bài hát</h2>
-
-            {/* Tên bài hát */}
-            <div className="mb-3">
-              <label className="block text-sm font-medium">Tên bài hát</label>
-              <input type="text" className="w-full border rounded p-2" />
-            </div>
-            {/* Tên album */}
-            <div className="mb-3">
-              <label className="block text-sm font-medium">Tên album</label>
-              <input type="text" className="w-full border rounded p-2" />
-            </div>
-
-            {/* Thời lượng */}
-            <div className="mb-3">
-              <label className="block text-sm font-medium">Thời lượng</label>
-              <input
-                type="text"
-                className="w-full border rounded p-2"
-                placeholder="mm:ss"
-              />
-            </div>
-
-            {/* Ngày phát hành */}
-            <div className="mb-3">
-              <label className="block text-sm font-medium">
-                Ngày phát hành
-              </label>
-              <input type="date" className="w-full border rounded p-2" />
-            </div>
-            {/* Tải file nhạc */}
-            <div className="mb-3">
-              <label className="block text-sm font-medium">File nhạc</label>
-              <input type="file" className="w-full border rounded p-2" />
-            </div>
-            {/* Ảnh bìa */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Ảnh bìa</label>
-              <input type="file" className="w-full border rounded p-2" />
-            </div>
-
-            {/* Nút lưu */}
-            <button className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-              Lưu thay đổi
-            </button>
-          </div>
         </div>
-      )}
+      </div>
+
+
+      <div className="h-[60vh] overflow-y-auto  custom-scroll">
+        <div className="grid grid-cols-1  md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 justify-items-center">
+          {user.songs_data.map((song, index) => (
+            <>
+              {
+                song.status != 2 && <SongCard key={index} song={song} />
+              }
+            </>
+          ))}
+        </div>
+      </div>
     </div>
+
+
   );
 };
 

@@ -7,7 +7,7 @@ const ApiContext = createContext();
 // Provider để bọc toàn bộ ứng dụng
 export const ApiProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
-    const [user, setUser] = useState({});
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) ? JSON.parse(localStorage.getItem('user')) : {});
     const fetchData = async (endpoint, options = {}) => {
         setLoading(true);
         try {
