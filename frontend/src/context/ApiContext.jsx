@@ -11,18 +11,28 @@ export const ApiProvider = ({ children }) => {
     const fetchData = async (endpoint, options = {}) => {
         setLoading(true);
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/${endpoint}`, {
-                ...options,
+            const { method = 'GET', body = null, headers = {} } = options;
+    
+            const requestOptions = {
+                method,
                 headers: {
-                    "Content-Type": "application/json",
-                    ...(options.headers || {}),
+                    ...(method !== 'POST' && { "Content-Type": "application/json" }),  // Chỉ thêm Content-Type cho những yêu cầu không phải POST với FormData
+                    ...headers,
                 },
-            });
-
+                body: body,
+            };
+    
+            // Nếu body là FormData, không cần thiết phải chỉ định Content-Type, trình duyệt sẽ tự động làm việc này
+            if (body instanceof FormData) {
+                delete requestOptions.headers["Content-Type"];
+            }
+    
+            const response = await fetch(`http://127.0.0.1:8000/api/${endpoint}`, requestOptions);
+    
             if (!response.ok) {
                 throw new Error(`HTTP Error! Status: ${response.status}`);
             }
-
+    
             return await response.json();
         } catch (error) {
             console.error("API Error:", error);
@@ -31,6 +41,7 @@ export const ApiProvider = ({ children }) => {
             setLoading(false);
         }
     };
+    
 
     // 🌟 Các hàm gọi API cụ thể 🌟
     const fetchSongs = async () => fetchData("songs");
@@ -134,7 +145,8 @@ export const ApiProvider = ({ children }) => {
         generateLinearGradient,
         fetchCategories,
         AlbumCard,
-        setUser
+        setUser,
+        fetchData
     };
 
     return (

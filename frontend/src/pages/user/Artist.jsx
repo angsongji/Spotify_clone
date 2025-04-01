@@ -6,65 +6,6 @@ import "../../index.css";
 import { useApi } from "../../context/ApiContext";
 import { useMusic } from "../../context/MusicContext";
 
-// const artist = {
-//   id: "1",
-//   name: "Obito",
-//   avatar: "https://i.scdn.co/image/ab67616d00001e02a06a6b51d0dc296d48505ee6",
-//   albums: [
-//     {
-//       id: "album1",
-//       name: "Sky Tour",
-//       releaseDate: "2020-06-07",
-//       image: "https://i.scdn.co/image/ab67616d00001e02a06a6b51d0dc296d48505ee6",
-//     },
-//     {
-//       id: "album2",
-//       name: "M-TP M-TP",
-//       releaseDate: "2017-12-12",
-//       image: "https://i.scdn.co/image/ab67616d00001e02a06a6b51d0dc296d48505ee6",
-//     },
-//     {
-//       id: "album2",
-//       name: "M-TP M-TP",
-//       releaseDate: "2017-12-12",
-//       image: "https://i.scdn.co/image/ab67616d00001e02a06a6b51d0dc296d48505ee6",
-//     },
-//     {
-//       id: "album2",
-//       name: "M-TP M-TP",
-//       releaseDate: "2017-12-12",
-//       image: "https://i.scdn.co/image/ab67616d00001e02a06a6b51d0dc296d48505ee6",
-//     },
-//     {
-//       id: "album2",
-//       name: "M-TP M-TP",
-//       releaseDate: "2017-12-12",
-//       image: "https://i.scdn.co/image/ab67616d00001e02a06a6b51d0dc296d48505ee6",
-//     },
-//     {
-//       id: "album2",
-//       name: "M-TP M-TP",
-//       releaseDate: "2017-12-12",
-//       image: "https://i.scdn.co/image/ab67616d00001e02a06a6b51d0dc296d48505ee6",
-//     },
-//   ],
-//   songs: [
-//     {
-//       id: "track1",
-//       name: "Chạy Ngay Đi",
-//       duration: "3:50",
-//       releaseDate: "2017-12-12",
-//       image: "https://i.scdn.co/image/ab67616d00001e02a06a6b51d0dc296d48505ee6",
-//     },
-//     {
-//       id: "track2",
-//       name: "Hãy Trao Cho Anh",
-//       duration: "4:10",
-//       releaseDate: "2017-12-12",
-//       image: "https://i.scdn.co/image/ab67616d00001e02a06a6b51d0dc296d48505ee6",
-//     },
-//   ],
-// };
 
 const Artist = () => {
   const { generateLinearGradient, fetchArtistById, loading, transformFormatDate, setLoading } = useApi();
@@ -99,7 +40,7 @@ const Artist = () => {
 
     loadArtist();
   }, [id]); // Chạy lại khi id thay đổi
-
+  
   const SectionTitle = ({ title }) => (
     <div className="flex justify-between items-center  mb-5">
       <h2 className="text-white text-2xl font-bold">{title}</h2>
