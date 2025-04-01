@@ -8,6 +8,7 @@ urlpatterns = [
 
 
     path("songs/", get_songs, name="get_songs"),
+    path("add-song/", add_song, name="add_song"),
 
     path("artists/", get_artists, name="get_artists"),
     path("artists/filter/", get_artist_by_filter, name="get_artist_by_filter"),
