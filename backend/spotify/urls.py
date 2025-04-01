@@ -3,7 +3,9 @@ from .views import *
 
 urlpatterns = [
     path("users/", get_users, name="get_users"),
-    path("users/filter/", get_user_by_email, name="get_user_by_email"),
+    path('users/login/', login_user, name='login_user'),
+    path('users/register/', register_user, name='register_user'),
+
 
     path("songs/", get_songs, name="get_songs"),
 
@@ -14,6 +16,7 @@ urlpatterns = [
     path("albums/filter/", get_albums_by_filter, name="get_albums_by_filter"),
     
     path("categories/", get_categories, name="get_categories"),
-    
+
+    path('upload/', upload_file, name='upload_file'),
 ]   
     

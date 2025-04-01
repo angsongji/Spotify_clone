@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import django_mongodb_backend
-
+import os
+from dotenv import load_dotenv
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,7 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ly7pig^7jzi(rysqj+y2_u==@^avkoysfmg7bbkp!@5zgl4@l3'
+load_dotenv()
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
+AWS_S3_CUSTOM_DOMAIN = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+DEFAULT_FILE_STORAGE = os.getenv("DEFAULT_FILE_STORAGE", "storages.backends.s3boto3.S3Boto3Storage")
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+URI_MONGODB_DATABASE = os.getenv("URI_MONGODB_DATABASE")
+
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -42,6 +54,7 @@ INSTALLED_APPS = [
      "corsheaders",
     "rest_framework",
     'spotify',
+    "storages",
 ]
 
 MIDDLEWARE = [
@@ -80,7 +93,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": django_mongodb_backend.parse_uri("mongodb+srv://oanhle:xFquOWZWvCpyjzfH@oanhle.sz6xf.mongodb.net/spotify?retryWrites=true&w=majority&appName=oanhle"),
+    "default": django_mongodb_backend.parse_uri(URI_MONGODB_DATABASE),
 }
 
 # Password validation
