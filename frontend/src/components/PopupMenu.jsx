@@ -7,14 +7,14 @@ import { useApi } from "../context/ApiContext";
 
 function PopupMenu({ role }) {
     const navigate = useNavigate();
-    const { user } = useApi();
+    const { user, setUser } = useApi();
 
     const handleMenuClick = ({ key }) => {
         const actions = {
             "1": () => alert("Hiện div hiện thông tin về email, tên, avatar,...\nCó nút cập nhật thông tin"),
             "2": () => alert("Hiện div để đổi pass: input pass hiện tại, input pass mới, input nhập lại pass mới"),
             "3": () => navigate("/artist", { replace: true }),
-            "4": () => navigate("/", { replace: true }),
+            "4": () => {setUser({}); localStorage.removeItem('user'); navigate("/", { replace: true })},
         };
         actions[key]?.();
     };

@@ -7,13 +7,14 @@ import { Select } from "antd";
 const { Option } = Select;
 import "../../index.css";
 const options = [
-  { value: "1", label: "Tất cả" },
-  { value: "2", label: "Riêng tư" },
-  { value: "3", label: "Công khai" },
+  { value: -1, label: "Tất cả" },
+  { value: 0, label: "Riêng tư" },
+  { value: 1, label: "Công khai" },
 ];
 const ArtistAlbums = () => {
   const { user, transformFormatDate } = useApi();
   const [searchValue, setSearchValue] = useState("");
+  const [selectValue, setSelectValue] = useState(-1);
   const navigate = useNavigate();
   const ComboBox = ({ options, onChange }) => {
     return (
@@ -21,7 +22,7 @@ const ArtistAlbums = () => {
         style={{ width: 100 }}
         placeholder="Chọn một mục"
         onChange={onChange}
-        defaultValue="1"
+        defaultValue={selectValue}
       >
         {options.map((item) => (
           <Option key={item.value} value={item.value}>
@@ -37,7 +38,7 @@ const ArtistAlbums = () => {
     setSearchValue(event.target.value);
   };
   const handleChange = (value) => {
-    console.log("Giá trị đã chọn:", value);
+    setSelectValue(value);
   };
   const AlbumCard = ({ album }) => {
     const navigate = useNavigate();
@@ -76,7 +77,9 @@ const ArtistAlbums = () => {
   return (
     <div className="p-2">
       <div className="flex items-center justify-between m-5 mb-7">
-        <div className="flex items-center gap-5 ">
+        {
+          user.albums_data == null ? <div className="text-center text-white text-sm">Bạn chưa có album nào</div>
+          : <div className="flex items-center gap-5 ">
           <div className="relative">
             <input
               type="text"
@@ -89,6 +92,8 @@ const ArtistAlbums = () => {
           </div>
           <ComboBox options={options} onChange={handleChange} />
         </div>
+        }
+        
         <div className="flex items-center gap-2 mr-2">
           <div className="hover:bg-[var(--main-green)] hover:text-black text-[var(--light-gray3)] text-base cursor-pointer rounded-full bg-[var(--light-gray1)] p-2"><FaPlus /></div>
           <div className="hover:bg-[var(--main-green)] hover:text-black text-[var(--light-gray3)] text-base cursor-pointer rounded-full bg-[var(--light-gray1)] p-2"><FaPen /> </div>
@@ -99,13 +104,9 @@ const ArtistAlbums = () => {
       </div>
       <div className="h-[70vh] overflow-y-auto  custom-scroll">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 justify-items-center">
-          {user.albums_data.map((album, index) => (
-            <>
-              {
-                album.status != 2 && <AlbumCard key={index} album={album} />
-              }
-            </>
-
+          {user.albums_data?.map((album, index) => (
+            (album.status != 2 && (album.name.toLowerCase().includes(searchValue.toLowerCase()) && (selectValue == -1 || (album.status == selectValue)))) && <AlbumCard key={index} album={album} />
+             
           ))}
 
         </div>

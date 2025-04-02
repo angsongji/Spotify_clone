@@ -40,7 +40,7 @@ const SignIn = () => {
             console.log('Login response:', data);
             if (data.success) {
                 // Lưu thông tin user vào localStorage và context
-                localStorage.setItem('user', JSON.stringify(data.data));
+                localStorage.setItem('user', data.data.id);
                 setUser(data.data);
 
                 message.success({

@@ -3,49 +3,48 @@ import { useMusic } from "../../context/MusicContext";
 import { useApi } from "../../context/ApiContext";
 import { FaLock, FaSearch, FaPlus, FaPen } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { Select, Button, Modal, Form, Input, Upload, Image, DatePicker, TimePicker, Checkbox   } from "antd";
-import {  VideoCameraOutlined, FileOutlined } from "@ant-design/icons";
+import { Select, Button, Modal, Form, Input, Upload , DatePicker, TimePicker, Checkbox } from "antd";
+import { VideoCameraOutlined, FileOutlined } from "@ant-design/icons";
 import UploadImage from "../../components/artist/UploadImage"
 import "../../index.css";
 const { Option } = Select;
 // Dữ liệu mẫu
 const options = [
-  { value: "1", label: "Tất cả" },
-  { value: "2", label: "Riêng tư" },
-  { value: "3", label: "Công khai" },
+  { value: -1, label: "Tất cả" },
+  { value: 0, label: "Riêng tư" },
+  { value: 1, label: "Công khai" },
 ];
 const ArtistSongs = () => {
   const [artists, setArtists] = useState([]);
   const [categories, setcategories] = useState([]);
   const { formatTime } = useMusic();
-  const { user, transformFormatDate, fetchData,  fetchCategories, fetchArtist, setLoading, loading } = useApi();
+  const { setUser, user, transformFormatDate, fetchData, fetchCategories, fetchArtist, setLoading, loading } = useApi();
   const [searchValue, setSearchValue] = useState("");
+  const [selectValue, setSelectValue] = useState(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formAdd] = Form.useForm();
   useEffect(() => {
     if (!isModalOpen) return; // Nếu modal chưa mở, không chạy effect
 
     const fetchDataAll = async () => {
-        setLoading(true); // Bắt đầu loading
+      setLoading(true); // Bắt đầu loading
 
-        try {
-            const [artistsData, categoriesData] = await Promise.all([
-                fetchArtist(),
-                fetchCategories()
-            ]);
-            console.log(categoriesData.message);
-            console.log(artistsData.message);
-            setcategories(categoriesData.message);
-            setArtists(artistsData.message);
-        } catch (error) {
-            console.error("Lỗi khi tải dữ liệu:", error);
-        } finally {
-            setLoading(false); // Dừng loading khi tất cả API đã hoàn thành
-        }
+      try {
+        const [artistsData, categoriesData] = await Promise.all([
+          fetchArtist(),
+          fetchCategories()
+        ]);
+        setcategories(categoriesData.message);
+        setArtists(artistsData.message);
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu:", error);
+      } finally {
+        setLoading(false); // Dừng loading khi tất cả API đã hoàn thành
+      }
     };
 
     fetchDataAll();
-}, [isModalOpen]); // Chạy khi isModalOpen thay đổi
+  }, [isModalOpen]); // Chạy khi isModalOpen thay đổi
 
   const handleInputChange = (event) => {
     setSearchValue(event.target.value);
@@ -56,7 +55,7 @@ const ArtistSongs = () => {
         style={{ width: 100 }}
         placeholder="Chọn một mục"
         onChange={onChange}
-        defaultValue="1"
+        defaultValue={selectValue}
       >
         {options.map((item) => (
           <Option key={item.value} value={item.value}>
@@ -67,7 +66,7 @@ const ArtistSongs = () => {
     );
   };
   const handleChange = (value) => {
-    console.log("Giá trị đã chọn:", value);
+    setSelectValue(value);
   };
   //Xử lí hiện form
   const showModal = ({ type }) => {
@@ -80,11 +79,11 @@ const ArtistSongs = () => {
     try {
       setLoading(true); // Bắt đầu loading
       const values = await formAdd.validateFields();
-  
+
       if (type === "add") {
         await handleAddSong(values);
       }
-  
+
       setIsModalOpen(false); // Đóng modal sau khi xử lý xong
       formAdd.resetFields();
     } catch (error) {
@@ -93,109 +92,126 @@ const ArtistSongs = () => {
       setLoading(false); // Tắt loading khi xong
     }
   };
-  
-  
+
+
   const handleAddSong = async (values) => {
-    console.log("Adding song");
+    
 
     try {
-        // Tạo FormData chứa các file để upload
+      let image = "https://s3-django-app-spotify-bucket.s3.us-east-1.amazonaws.com/images/giothiaicuoi.jpg";
+      let audio = "https://s3-django-app-spotify-bucket.s3.us-east-1.amazonaws.com/audio/Gi%E1%BB%9D+Th%C3%AC+Ai+C%C6%B0%E1%BB%9Di+-+HIEUTHUHAI.mp3";
+      let video = "https://s3-django-app-spotify-bucket.s3.us-east-1.amazonaws.com/videos/gi%E1%BB%9D-th%C3%AC-ai-c%C6%B0%E1%BB%9Di-prod-by-kewtiie-l-official-video---hieuthuhai.mp4";
+
+      // Danh sách promises upload
+      const uploadPromises = [];
+
+      // Upload image
+      if (values.image) {
         const imageData = new FormData();
-        const audioData = new FormData();
-        const videoData = new FormData();
-
-        let image = "https://s3-django-app-spotify-bucket.s3.amazonaws.com/images/chayngaydi.jpg";
-        let audio = "https://s3-django-app-spotify-bucket.s3.us-east-1.amazonaws.com/audio/Ch%E1%BA%A1y+Ngay+%C4%90i+-+S%C6%A1n+T%C3%B9ng+M-TP.mp3";
-        let video = "https://s3-django-app-spotify-bucket.s3.amazonaws.com/videos/run-now--sơn-tùng-m-tp--official-music-video---chạy-ngay-đi.mp4";
-
-        // Tạo một danh sách các promises để upload
-        // const uploadPromises = [];
-
-        // // Bắt đầu upload image
-        // if (values.image) {
-        //     imageData.append("file", values.image);
-        //     const uploadImagePromise = fetchData("upload/", {
-        //         method: "POST",
-        //         body: imageData,
-        //     }).then(response => {
-        //         if (response && response.status === 200) {
-        //             image = response.message;
-        //             console.log("Image uploaded successfully:", response.message);
-        //         } else {
-        //             throw new Error("Image upload failed");
-        //         }
-        //     });
-        //     uploadPromises.push(uploadImagePromise);
-        // }
-
-        // // Bắt đầu upload audio
-        // if (values.file_url) {
-        //     audioData.append("file", values.file_url);
-        //     const uploadAudioPromise = fetchData("upload/", {
-        //         method: "POST",
-        //         body: audioData,
-        //     }).then(response => {
-        //         if (response && response.status === 200) {
-        //             audio = response.message;
-        //             console.log("Audio uploaded successfully:", response.message);
-        //         } else {
-        //             throw new Error("Audio upload failed");
-        //         }
-        //     });
-        //     uploadPromises.push(uploadAudioPromise);
-        // }
-
-        // // Bắt đầu upload video nếu có
-        // if (values.video_url) {
-        //     videoData.append("file", values.video_url);
-        //     const uploadVideoPromise = fetchData("upload/", {
-        //         method: "POST",
-        //         body: videoData,
-        //     }).then(response => {
-        //         if (response && response.status === 200) {
-        //             video = response.message;
-        //             console.log("Video uploaded successfully:", response.message);
-        //         }
-        //     });
-        //     uploadPromises.push(uploadVideoPromise);
-        // }
-
-        // Chờ tất cả các promises hoàn thành
-        // await Promise.all(uploadPromises);
-
-        // Tiếp tục xử lý sau khi tất cả các file đã được upload
-        const songData = {
-            name: values.name,
-            image: image, // Đường dẫn của ảnh
-            date: values.date,
-            duration: values.duration,
-            artists: Array.isArray(values.artists) ? [...values.artists, user.id] : [user.id],
-            categories: values.categories,
-            file_url: audio, // Đường dẫn của âm thanh
-            video_url: video, // Đường dẫn của video
-            // Các thông tin khác của bài hát
-        };
-        console.log(songData);
-        // Thực hiện thêm bài hát qua API
-        const addSongResponse = await fetchData("add-song/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(songData),
+        imageData.append("file", values.image);
+        const uploadImagePromise = fetchData("upload/", {
+          method: "POST",
+          body: imageData,
+        }).then(response => {
+          if (response && response.status === 200) {
+            
+            return response.message; // Trả về URL
+          } else {
+            throw new Error("Image upload failed");
+          }
         });
 
-        if (addSongResponse && addSongResponse.status === 201) {
-            console.log("Song added successfully:", addSongResponse);
-        } else {
-            throw new Error("Failed to add song");
-        }
-    } catch (error) {
-        console.error("Error adding song:", error);
-    }
-};
+        uploadPromises.push(uploadImagePromise);
+      } else {
+        uploadPromises.push(Promise.resolve("")); // Giữ chỗ để không lỗi
+      }
 
-  
+      // Upload audio
+      if (values.file_url) {
+        const audioData = new FormData();
+        audioData.append("file", values.file_url);
+        const uploadAudioPromise = fetchData("upload/", {
+          method: "POST",
+          body: audioData,
+        }).then(response => {
+          if (response && response.status === 200) {
+            
+            return response.message;
+          } else {
+            throw new Error("Audio upload failed");
+          }
+        });
+
+        uploadPromises.push(uploadAudioPromise);
+      } else {
+        uploadPromises.push(Promise.resolve(""));
+      }
+
+      // Upload video nếu có
+      if (values.video_url) {
+        const videoData = new FormData();
+        videoData.append("file", values.video_url);
+        const uploadVideoPromise = fetchData("upload/", {
+          method: "POST",
+          body: videoData,
+        }).then(response => {
+          if (response && response.status === 200) {
+            
+            return response.message;
+          }
+        });
+
+        uploadPromises.push(uploadVideoPromise);
+      } else {
+        uploadPromises.push(Promise.resolve(""));
+      }
+
+      // Chạy tất cả promise upload song song
+      const [uploadedImage, uploadedAudio, uploadedVideo] = await Promise.all(uploadPromises);
+
+      // Gán lại giá trị từ kết quả upload
+      image = uploadedImage;
+      audio = uploadedAudio;
+      video = uploadedVideo;
+
+      // Tạo dữ liệu bài hát sau khi upload xong
+      const songData = {
+        name: values.name,
+        image: encodeURI(image),
+        date: values.date,
+        duration: values.duration,
+        artists: Array.isArray(values.artists) ? [...values.artists, user.id] : [user.id],
+        categories: values.categories,
+        file_url: encodeURI(audio),
+        video_url: encodeURI(video),
+      };
+
+
+      const addSongResponse = await fetchData("add-song/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(songData),
+      });
+
+      if (addSongResponse && addSongResponse.status === 201) {
+        
+        setUser(prevState => ({
+          ...prevState,  // Giữ lại các giá trị trước trong user.
+          songs_data: [...prevState.songs_data, addSongResponse.message]  // Thêm bài hát mới vào mảng songs_data.
+        }));
+        
+      } else {
+        throw new Error("Failed to add song");
+      }
+    } catch (error) {
+      console.error("Error adding song:", error);
+    }
+  };
+
+
+
   const handleCancel = () => {
     setIsModalOpen(false);
   };
@@ -256,7 +272,7 @@ const ArtistSongs = () => {
                 <UploadVideo form={formAdd} />
               </Form.Item>
             </div>
-  
+
             <div className="flex-1">
               <Form.Item
                 label="Tên bài hát"
@@ -280,14 +296,14 @@ const ArtistSongs = () => {
                 <SongTimePicker form={formAdd} />
               </Form.Item>
               <Form.Item label="Nghệ sĩ liên quan" name="artists">
-                <SelectWithCheckbox data={artists} form={formAdd} type="artists" />
+                <SelectMultipleWithSearch data={artists} form={formAdd} type="artists" />
               </Form.Item>
               <Form.Item
                 label="Thể loại nhạc"
                 name="categories"
                 rules={[{ required: true, message: "Vui lòng chọn thể loại bài hát!" }]}
               >
-                <SelectWithCheckbox data={categories} form={formAdd} type="categories" />
+                <SelectMultipleWithSearch data={categories} form={formAdd} type="categories" />
               </Form.Item>
             </div>
           </div>
@@ -295,24 +311,24 @@ const ArtistSongs = () => {
       )}
     </Modal>
   );
-  
-  
 
-  
+
+
+
   const UploadMP3 = ({ form }) => {
     const [mp3File, setMp3File] = useState(null);
-
+  
     const handleChange = (info) => {
       const file = info.file;
       setMp3File(file);
       form.setFieldsValue({ file_url: info.file });
     };
-
+  
     return (
-      <div className=" p-2 border-t-1 border-black">
+      <div className="p-2 border-t-1 border-black">
         {mp3File && (
           <div style={{ marginTop: 10 }}>
-            <audio controls>
+            <audio key={mp3File.name} controls>
               <source src={URL.createObjectURL(mp3File)} type="audio/mpeg" />
               Your browser does not support the audio tag.
             </audio>
@@ -327,11 +343,10 @@ const ArtistSongs = () => {
         >
           <Button icon={<FileOutlined />}>Select MP3</Button>
         </Upload>
-
-
       </div>
     );
   };
+  
 
   // Component upload Video
   const UploadVideo = ({ form }) => {
@@ -347,7 +362,7 @@ const ArtistSongs = () => {
       <div className=" p-2 border-t-1 border-black">
         {videoFile && (
           <div style={{ marginTop: 10 }}>
-            <video width="300" controls>
+            <video key={videoFile.name} width="300" controls>
               <source src={URL.createObjectURL(videoFile)} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
@@ -367,31 +382,31 @@ const ArtistSongs = () => {
       </div>
     );
   };
-  const SongDatePicker = ({form}) => {
+  const SongDatePicker = ({ form }) => {
     const [selectedDate, setSelectedDate] = useState(null);
-  
+
     const handleChange = (date, dateString) => {
       setSelectedDate(dateString); // Lưu dưới dạng YYYY-MM-DD
-      form.setFieldsValue({date: dateString});
+      form.setFieldsValue({ date: dateString });
     };
-  
+
     return (
       <div>
-        <DatePicker 
-          onChange={handleChange} 
+        <DatePicker
+          onChange={handleChange}
           format="YYYY-MM-DD"  // Hiển thị ngày tháng rõ ràng
         />
       </div>
     );
   };
-  const SongTimePicker = ({form}) => {
+  const SongTimePicker = ({ form }) => {
     const [selectedTime, setSelectedTime] = useState(null);
-  
+
     const handleChange = (time) => {
       if (time) {
         const totalSeconds = time.minute() * 60 + time.second(); // Chuyển thành số giây
         setSelectedTime(totalSeconds);
-        form.setFieldsValue({duration: totalSeconds});
+        form.setFieldsValue({ duration: totalSeconds });
       } else {
         setSelectedTime(null);
       }
@@ -401,7 +416,7 @@ const ArtistSongs = () => {
       disabledMinutes: (hour) => (hour === 0 ? Array.from({ length: 60 }, (_, i) => (i >= 10 ? i : null)).filter(i => i !== null) : []),
       disabledSeconds: () => [],
     });
-    return (  
+    return (
       <div>
         <TimePicker
           onChange={handleChange}
@@ -412,13 +427,13 @@ const ArtistSongs = () => {
       </div>
     );
   };
-  const SelectWithCheckbox = ({type, data, form}) => {
+  const SelectMultipleWithSearch  = ({ type, data, form }) => {
     const [selectedValues, setSelectedValues] = useState([]);
     const handleChange = (values) => {
       setSelectedValues(values);  // Cập nhật các giá trị đã chọn
-      form.setFieldsValue({[type]: values});
+      form.setFieldsValue({ [type]: values });
     };
-  
+
     return (
       <div>
         <Select
@@ -426,15 +441,18 @@ const ArtistSongs = () => {
           value={selectedValues}   // Các giá trị đã chọn
           onChange={handleChange}  // Cập nhật khi chọn hoặc bỏ chọn
           placeholder="Chọn nhiều"
-          style={{ width: 300 }}
+          style={{ width: '100%' }}
+          showSearch  // Bật tính năng tìm kiếm trong dropdown
+          filterOption={(input, option) => {
+            // Lọc các Option theo tên khi nhập tìm kiếm
+            return option.children.toLowerCase().includes(input.toLowerCase());
+          }}
         >
-          {
-            data.map((item,index)=>(
-              <Option key={index} value={item.id}>
-                <Checkbox checked={selectedValues.includes(item.id)}>{item.name}</Checkbox>
-              </Option>
-            ))
-          }
+          {data.map((item) => (
+            <Option key={item.id} value={item.id}>
+              {item.name}
+            </Option>
+          ))}
         </Select>
       </div>
     );
@@ -517,7 +535,7 @@ const ArtistSongs = () => {
           {user.songs_data.map((song, index) => (
             <>
               {
-                song.status != 2 && <SongCard key={index} song={song} />
+                 (song.status != 2 && (song.name.toLowerCase().includes(searchValue.toLowerCase()) && (selectValue == -1 || (song.status == selectValue)))) && <SongCard key={index} song={song} />
               }
             </>
           ))}
