@@ -67,6 +67,39 @@ def get_users(request):
     except Exception as e:  # Bắt lỗi chung nếu có lỗi xảy ra
         return Response({"error": str(e), "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(["GET"])
+def get_user(request):
+    try:
+        filter_params = request.query_params  # Lấy các tham số bộ lọc từ query parameters
+
+        # Áp dụng bộ lọc nếu có tham số từ query_params
+        # Lọc theo 'id' (sử dụng 'exact' cho ObjectId)
+        if 'id' in filter_params:
+            try:
+                user_id = ObjectId(filter_params['id'])  # Chuyển id sang ObjectId
+                user = User.objects.filter(id=user_id).first()
+                if user.role == "artist":
+                    artist_data = ArtistFullInforSerializer(user).data
+                    user_data = UserFullInforSerializer(user).data
+                    serializer = {**user_data, **artist_data}  
+                    # Gộp hai dictionary, Nếu hai serializer có cùng key, dữ liệu của artist_data sẽ ghi đè lên user_data.
+                else:
+                    serializer = UserFullInforSerializer(user).data
+            except Exception:
+                return Response({"error": "Invalid id format, should be a valid ObjectId", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Nếu không có user nào sau khi lọc
+        if not user.DoesNotExist():
+            return Response({"message": [], "status": 200}, status=status.HTTP_200_OK)
+        
+        # Serialize các user
+        return Response({"message": serializer, "status": 200}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Trả về lỗi chi tiết hơn
+        return Response({"error": f"Error occurred: {str(e)}", "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(["POST"])
 def login_user(request):
     try:
@@ -208,7 +241,8 @@ def add_song(request):
     if serializer.is_valid():
         serializer.save()
         return Response({"message": serializer.data, "status": 201}, status=status.HTTP_201_CREATED)
-
+    
+    print(serializer.errors)
     return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
 
