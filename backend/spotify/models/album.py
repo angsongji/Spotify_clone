@@ -5,7 +5,7 @@ class Album(models.Model):
     name = models.CharField(max_length=255)
     artist_id = models.CharField(max_length=24)  # ObjectId của nghệ sĩ
     release_date = models.DateField()
-    status = models.IntegerField()
+    status = models.IntegerField(default=0)
     image = models.URLField()
     
     class Meta:

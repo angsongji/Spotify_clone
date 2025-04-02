@@ -5,7 +5,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from storages.backends.s3boto3 import S3Boto3Storage
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework import status
-from .models import User, Song, Album, Category, Chat, Message, Purchase
+from .models import User, Song, Album, Category, Chat, Message, Purchase, Playlist
 from .serializers import *
 from bson import ObjectId
 from datetime import datetime
@@ -234,6 +234,7 @@ def get_songs(request):
 
     except Exception as e:  # Bắt lỗi chung nếu có lỗi xảy ra
         return Response({"error": str(e), "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 @api_view(["POST"])
 def add_song(request):
     serializer = SongSerializer(data=request.data)
@@ -245,6 +246,24 @@ def add_song(request):
     print(serializer.errors)
     return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(["PATCH"]) #update những cái cần update, chỉ cần gửi cho api những cái cần update khác với put
+def update_song(request):
+    song_id = request.query_params["id"] # Lấy song_id từ param
+    if not song_id:
+        return Response({"message": "Thiếu id", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        object_id = ObjectId(song_id)  # Chuyển đổi song_id thành ObjectID của MongoDB
+        song = Song.objects.get(id=object_id)
+    except (Song.DoesNotExist, ValueError):
+        return Response({"message": "Không tìm thấy bài hát", "status": 404}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = SongSerializer(song, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+
+    return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["GET"])
 def get_artists(request):
@@ -260,7 +279,7 @@ def get_artists(request):
         return Response({"error": str(e), "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
+#album
 @api_view(["GET"])
 def get_albums(request):
     try:
@@ -308,6 +327,18 @@ def get_albums_by_filter(request):
     except Exception as e:
         # Trả về lỗi chi tiết hơn
         return Response({"error": f"Error occurred: {str(e)}", "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["POST"])
+def add_album(request):
+    serializer = AlbumSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": serializer.data, "status": 201}, status=status.HTTP_201_CREATED)
+    
+    print(serializer.errors)
+    return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 def get_artist_by_filter(request):
