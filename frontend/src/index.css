@@ -102,3 +102,8 @@ body{
     animation: slow-spin 10s linear infinite;
     /* 6s cho 1 vòng quay */
 }
+
+@keyframes marquee {
+    0% { left: 0; }
+    100% { left: -100%; }
+  }

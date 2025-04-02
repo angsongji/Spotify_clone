@@ -78,7 +78,7 @@ const Home = () => {
     return (
       <div className="my-8">
         <SectionTitle title="Popular Artists" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
           {artists.map((artist, index) => (
             <>
             {
@@ -98,7 +98,7 @@ const Home = () => {
 
   function SongCard({ song }) {
     return (
-      <div className="w-[100%] cursor-pointer flex gap-3 max-w-xs shadow-lg overflow-hidden items-center hover:bg-[var(--light-gray1)] p-2 rounded-sm"
+      <div className="w-full cursor-pointer flex gap-3 shadow-lg overflow-hidden items-center hover:bg-[var(--light-gray1)] p-2 rounded-sm"
         onClick={() => handleClickSong(song.id)}
       >
         <img src={song.image} alt="Album Cover" className="w-15 h-15 object-cover aspect-square rounded-sm" />
@@ -143,7 +143,7 @@ const Home = () => {
         {filteredAlbums.length > 0 && (
           <div>
             <SectionTitle title="Popular Albums" />
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+            <div className=" grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
               {filteredAlbums.map((album, index) => (
                 <>
                 {
@@ -158,8 +158,8 @@ const Home = () => {
 
         <div>
           <SectionTitle title="Thịnh hành" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-5">
-            {songs.map((song, index) => (
+          <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+             {songs.map((song, index) => (
               <>
               {
                 song.status != 0 && <SongCard key={index} song={song} />
@@ -171,7 +171,7 @@ const Home = () => {
 
         <div>
           <SectionTitle title="Mới phát hành" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-5">
+          <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {songs.map((song, index) => (
               <>
               {

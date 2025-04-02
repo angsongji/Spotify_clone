@@ -84,25 +84,40 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
 
     return (
         <div>
-            <div className=" p-4 flex justify-between items-center text-white ">
+            <div className=" p-3 flex justify-between items-center text-white ">
                 {/* Logo + Home */}
                 <div className="flex items-center gap-3 ">
                     <img src="/logoSpotify.png" alt="Spotify" className="w-10 h-10" />
                     <button className="p-2 rounded-full bg-[var(--light-gray1)] hover:bg-gray-700" onClick={() => { setSearchTerm(""); navigate("/"); }}>
                         <FaHome className="text-white w-5 h-5 cursor-pointer" />
                     </button>
+                    <div className="relative overflow-hidden w-[300px] h-[25px]" >
+                        <div className="top-0 absolute overflow-hidden h-[30px] w-[200%]" style={{animation: 'marquee 5s linear infinite'}}>
+                        <span style={{float: 'left', width: '50%'}}>
+                        {
+                            localStorage.getItem('user') ? user.id && `Xin chào, ${user.name}` :'Hôm nay, bạn muốn nghe gì?'
+                        }
+                        </span>
+                        <span style={{float: 'left', width: '50%'}}>
+                        {
+                            localStorage.getItem('user') ? user.id && `Xin chào, ${user.name}` :'Hôm nay, bạn muốn nghe gì?'
+                        }
+                        </span>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex items-center">
+
+                <div className="">
                     <div className="relative">
                         <input
                             type="text"
                             placeholder="Bạn muốn nghe gì?"
-                            className="bg-[var(--light-gray1)] text-white p-2 rounded-full w-96 focus:outline-none placeholder-[var(--light-gray3)] text-sm pl-10"
+                            className=" h-[200%] bg-[var(--light-gray1)] text-white p-2 rounded-full w-96 focus:outline-none placeholder-[var(--light-gray3)] text-sm pl-10"
                             value={searchTerm}
                             onClick={() => navigate(`/search?value=${encodeURIComponent(searchTerm.trim())}`)}
                             onChange={handleInputChange}
                         />
-                        <FaSearch className="absolute left-2 top-0 translate-x-[50%] translate-y-[50%] text-[var(--light-gray3)]" />
+                        <FaSearch className="absolute left-0 top-0 translate-x-[100%] translate-y-[75%] text-[var(--light-gray3)]" />
                     </div>
                 </div>
                 <div className="flex items-center gap-4">

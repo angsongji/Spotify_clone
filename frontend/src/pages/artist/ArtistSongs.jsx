@@ -3,7 +3,8 @@ import { useMusic } from "../../context/MusicContext";
 import { useApi } from "../../context/ApiContext";
 import { FaLock, FaSearch, FaPlus, FaPen } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { Select, Button, Modal, Form, Input, Upload , DatePicker, TimePicker, Checkbox } from "antd";
+import { HiDotsVertical } from "react-icons/hi";
+import { Select, Button, Modal, Form, Input, Upload, DatePicker, TimePicker, Dropdown } from "antd";
 import { VideoCameraOutlined, FileOutlined } from "@ant-design/icons";
 import UploadImage from "../../components/artist/UploadImage"
 import "../../index.css";
@@ -17,7 +18,6 @@ const options = [
 const ArtistSongs = () => {
   const [artists, setArtists] = useState([]);
   const [categories, setcategories] = useState([]);
-  const { formatTime } = useMusic();
   const { setUser, user, transformFormatDate, fetchData, fetchCategories, fetchArtist, setLoading, loading } = useApi();
   const [searchValue, setSearchValue] = useState("");
   const [selectValue, setSelectValue] = useState(-1);
@@ -95,7 +95,7 @@ const ArtistSongs = () => {
 
 
   const handleAddSong = async (values) => {
-    
+
 
     try {
       let image = "https://s3-django-app-spotify-bucket.s3.us-east-1.amazonaws.com/images/giothiaicuoi.jpg";
@@ -114,7 +114,7 @@ const ArtistSongs = () => {
           body: imageData,
         }).then(response => {
           if (response && response.status === 200) {
-            
+
             return response.message; // Trả về URL
           } else {
             throw new Error("Image upload failed");
@@ -135,7 +135,7 @@ const ArtistSongs = () => {
           body: audioData,
         }).then(response => {
           if (response && response.status === 200) {
-            
+
             return response.message;
           } else {
             throw new Error("Audio upload failed");
@@ -156,7 +156,7 @@ const ArtistSongs = () => {
           body: videoData,
         }).then(response => {
           if (response && response.status === 200) {
-            
+
             return response.message;
           }
         });
@@ -196,12 +196,12 @@ const ArtistSongs = () => {
       });
 
       if (addSongResponse && addSongResponse.status === 201) {
-        
+
         setUser(prevState => ({
           ...prevState,  // Giữ lại các giá trị trước trong user.
           songs_data: [...prevState.songs_data, addSongResponse.message]  // Thêm bài hát mới vào mảng songs_data.
         }));
-        
+
       } else {
         throw new Error("Failed to add song");
       }
@@ -317,13 +317,13 @@ const ArtistSongs = () => {
 
   const UploadMP3 = ({ form }) => {
     const [mp3File, setMp3File] = useState(null);
-  
+
     const handleChange = (info) => {
       const file = info.file;
       setMp3File(file);
       form.setFieldsValue({ file_url: info.file });
     };
-  
+
     return (
       <div className="p-2 border-t-1 border-black">
         {mp3File && (
@@ -346,8 +346,6 @@ const ArtistSongs = () => {
       </div>
     );
   };
-  
-
   // Component upload Video
   const UploadVideo = ({ form }) => {
     const [videoFile, setVideoFile] = useState(null);
@@ -427,7 +425,7 @@ const ArtistSongs = () => {
       </div>
     );
   };
-  const SelectMultipleWithSearch  = ({ type, data, form }) => {
+  const SelectMultipleWithSearch = ({ type, data, form }) => {
     const [selectedValues, setSelectedValues] = useState([]);
     const handleChange = (values) => {
       setSelectedValues(values);  // Cập nhật các giá trị đã chọn
@@ -455,6 +453,27 @@ const ArtistSongs = () => {
           ))}
         </Select>
       </div>
+    );
+  };
+
+  const DropdownMenu = () => {
+    const items = [
+      {
+        key: '1',
+        label: 'Cập nhật',
+        onClick: () => alert('Clicked on 1st menu item'),
+      },
+      {
+        key: '2',
+        label: 'Xóa',
+        onClick: () => alert('Clicked on 2nd menu item'),
+      },
+    ];
+    return (
+
+      <Dropdown menu={{ items }} trigger={['click']}>
+        <HiDotsVertical />
+      </Dropdown>
     );
   };
   function SongCard({ song }) {
@@ -485,19 +504,22 @@ const ArtistSongs = () => {
             <span>
               {transformFormatDate(song.date)}
             </span>
-            <span>
-              {formatTime(song.duration)}
-            </span>
           </div>
 
+
+        </div>
+        <div className="z-1 absolute bottom-2 right-0 hover:text-white">
+          <DropdownMenu />
         </div>
         {/* Lớp nền đè lên */}
         {
-          song.status == 0 && <div className="absolute top-0 left-0 bg-[var(--light-gray1)] opacity-50  transition-opacity duration-300  bottom-0 right-0 flex items-center justify-center">
-            <div className="text-gray-500 text-sm font-semibold flex items-center gap-2">
-              <FaLock /> Riêng tư
+          song.status == 0 && (
+            <div className="absolute top-0 left-0 bg-[var(--light-gray1)] opacity-50 transition-opacity duration-300 bottom-0 right-0 flex items-center justify-center z-0 pointer-events-none">
+              <div className="text-gray-500 text-sm font-semibold flex items-center gap-2">
+                <FaLock /> Riêng tư
+              </div>
             </div>
-          </div>
+          )
         }
 
       </div>
@@ -520,13 +542,18 @@ const ArtistSongs = () => {
           </div>
           <ComboBox options={options} onChange={handleChange} />
         </div>
-        <div className="flex items-center gap-2 mr-2">
-          <div onClick={() => showModal({ type: "add" })} className="hover:bg-[var(--main-green)] hover:text-black text-[var(--light-gray3)] text-base cursor-pointer rounded-full bg-[var(--light-gray1)] p-2"><FaPlus /></div>
-          <div className="hover:bg-[var(--main-green)] hover:text-black text-[var(--light-gray3)] text-base cursor-pointer rounded-full bg-[var(--light-gray1)] p-2"><FaPen /> </div>
-          <div className="hover:bg-[var(--main-green)] hover:text-black text-[var(--light-gray3)] text-base cursor-pointer rounded-full bg-[var(--light-gray1)] p-2"><MdDelete /> </div>
 
-
+        <div
+          onClick={() => showModal({ type: "add" })}
+          className="group rounded-xl transition-all duration-300 hover:bg-[var(--main-green)] hover:text-black text-[var(--light-gray3)] text-base cursor-pointer w-fit bg-[var(--light-gray1)] p-2 flex items-center gap-2"
+        >
+          <FaPlus />
+          <span className="hidden group-hover:inline text-xs ">
+            Thêm bài hát
+          </span>
         </div>
+
+
       </div>
 
 
@@ -535,7 +562,7 @@ const ArtistSongs = () => {
           {user.songs_data.map((song, index) => (
             <>
               {
-                 (song.status != 2 && (song.name.toLowerCase().includes(searchValue.toLowerCase()) && (selectValue == -1 || (song.status == selectValue)))) && <SongCard key={index} song={song} />
+                (song.status != 2 && (song.name.toLowerCase().includes(searchValue.toLowerCase()) && (selectValue == -1 || (song.status == selectValue)))) && <SongCard key={index} song={song} />
               }
             </>
           ))}
