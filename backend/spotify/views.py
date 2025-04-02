@@ -30,7 +30,7 @@ def upload_file(request):
         file_extension = uploaded_file.name.split(".")[-1].lower()
 
         if file_extension not in ALLOWED_EXTENSIONS:
-            return Response({"error": "Định dạng file không hợp lệ!"}, status=400)
+            return Response({"message": "Định dạng file không hợp lệ!", "status": 400}, status=400)
 
         # Xác định thư mục lưu trên S3
         folder_mapping = {"png": "images", "jpg": "images", "jpeg": "images",
@@ -47,9 +47,9 @@ def upload_file(request):
         print(f"Saved file path: {saved_file_path}")  
         print("File URL:", file_url)
 
-        return Response({"file_url": file_url}, status=201)
+        return Response({"message": file_url, "status": 200}, status=200)
 
-    return Response(serializer.errors, status=400)
+    return Response({"message": serializer.errors, "status": 400}, status=400)
 #users
 @api_view(["GET"])
 def get_users(request):
@@ -201,6 +201,16 @@ def get_songs(request):
 
     except Exception as e:  # Bắt lỗi chung nếu có lỗi xảy ra
         return Response({"error": str(e), "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+@api_view(["POST"])
+def add_song(request):
+    serializer = SongSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": serializer.data, "status": 201}, status=status.HTTP_201_CREATED)
+
+    return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 def get_artists(request):
