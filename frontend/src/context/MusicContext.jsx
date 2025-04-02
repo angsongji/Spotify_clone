@@ -17,7 +17,8 @@ export const MusicProvider = ({ children }) => {
     const [songsQueue, setSongsQueue] = useState([]);
     const progressRef = useRef(null);
     const [isMuted, setIsMuted] = useState(false);
-    const [volume, setVolume] = useState(1);
+    const [volume, setVolume] = useState(0.5);
+    const [isPlayingVideo, setIsPlayingVideo] = useState(false);
 
     useEffect(() => {
         const loadSongs = async () => {
@@ -204,7 +205,9 @@ export const MusicProvider = ({ children }) => {
             changeMusic,
             setIsPlaying,
             handleClickSong,
-            SongCard
+            SongCard,
+            isPlayingVideo, 
+            setIsPlayingVideo
         }}>
             {children}
         </MusicContext.Provider>

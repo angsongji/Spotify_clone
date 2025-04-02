@@ -34,9 +34,9 @@ const SideBar = () => {
 
             </div>
 
-            {!user || !user.id ? (
+            {!localStorage.getItem('user') ? (
                 <NoneUser />
-            ) : <div>
+            ) : user.id && <div>
                 <div className="flex items-center gap-3 bg-gradient-to-r from-gray-800 to-gray-900 px-2 py-1 rounded-md mb-4 w-[80%]">
                     <FaSearch className="w-5 h-5 text-white" />
                     <input
@@ -63,7 +63,7 @@ const SideBar = () => {
     const CompactView = () => (
         <>
             {
-                (!user || !user.id) ? <NoneUser /> : <div className="w-fit h-full p-2 flex flex-col text-[var(--light-gray3)] text-base ">
+                (!localStorage.getItem('user')) ? <NoneUser /> : user.id && <div className="w-fit h-full p-2 flex flex-col text-[var(--light-gray3)] text-base ">
                     <div className="flex items-center  justify-center gap-2 cursor-pointer">
                         <div className="text-2xl font-bold" onClick={() => setIsFull(true)}>
                             <HiMiniArrowRight />

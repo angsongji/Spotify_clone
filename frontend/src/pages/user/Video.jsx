@@ -24,7 +24,7 @@ const Video = () => {
     return (
         <div>
             {song ? (
-                <div className="flex items-center bg-gradient-to-r from-[#cc2b5e] to-[#753a88]  h-screen flex-col">
+                <div className="flex items-center bg-gradient-to-r from-[#cc2b5e] to-[#753a88]  h-fit flex-col">
                     <div className=" w-2/3 border-b-2 border-[var(--light-gray3)] pb-5">
                         <div className="m-5 text-xl font-bold text-[var(--light-gray2)]">Bạn đang xem video</div>
                         <div className="w-full h-fit flex  gap-2 items-center ml-5">

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
 // Tạo context
@@ -7,7 +7,17 @@ const ApiContext = createContext();
 // Provider để bọc toàn bộ ứng dụng
 export const ApiProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
-    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) ? JSON.parse(localStorage.getItem('user')) : {});
+    const [user, setUser] = useState(localStorage.getItem('user')?localStorage.getItem('user'):{});
+    useEffect(() => {// Lấy thông tin người dùng từ localStorage.
+        if (user) {
+          const fetchDataUser = async () => {
+            const fetchedUser = await fetchUserById(user); // Giả sử storedUser có id.
+            console.log("fetchedUser", fetchedUser);
+            setUser(fetchedUser.message); // Cập nhật trạng thái user.
+          };
+          fetchDataUser(); // Gọi hàm bất đồng bộ để lấy dữ liệu người dùng.
+        }
+      }, []);
     const fetchData = async (endpoint, options = {}) => {
         setLoading(true);
         try {
@@ -24,11 +34,12 @@ export const ApiProvider = ({ children }) => {
     
             // Nếu body là FormData, không cần thiết phải chỉ định Content-Type, trình duyệt sẽ tự động làm việc này
             if (body instanceof FormData) {
+                console.log("FormData");
                 delete requestOptions.headers["Content-Type"];
             }
     
             const response = await fetch(`http://127.0.0.1:8000/api/${endpoint}`, requestOptions);
-    
+            
             if (!response.ok) {
                 throw new Error(`HTTP Error! Status: ${response.status}`);
             }
@@ -50,6 +61,7 @@ export const ApiProvider = ({ children }) => {
     const fetchArtist = async () => fetchData("artists");
     const fetchArtistById = async (id) => fetchData(`artists/filter/?id=${id}`);
     const fetchCategories = async () => fetchData("categories");
+    const fetchUserById = async (id) => fetchData(`users/filter/?id=${id}`);
 
     const transformToDurationString = (n) => {
         let minute = Math.floor(n / 60);

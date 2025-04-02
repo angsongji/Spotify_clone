@@ -27,12 +27,16 @@ export default function AudioBar() {
         progressRef,
         handleMuteClick,
         handleVolumeChange,
-        musicIndex
+        musicIndex,
+        isPlayingVideo, 
+        setIsPlayingVideo
     } = useMusic();
     const navigate = useNavigate();
 
     return (<>
-        {
+        {   isPlayingVideo ? <div className="fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-5 px-4 m-1">
+            Tận hưởng video bạn đã chọn!
+            </div> :
             musicIndex == -1 ? <div className="fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-5 px-4 m-1">
                 Chọn bài hát bạn muốn nghe!
             </div> :
@@ -100,7 +104,7 @@ export default function AudioBar() {
                     <div className="hidden lg:flex items-center gap-2 opacity-75 text-xl">
                         <IoMdDownload className="cursor-pointer" />
                         {
-                            currentSong.video_url ? < MdOutlineOndemandVideo className="cursor-pointer" onClick={() => navigate("/video")}/> : null
+                            currentSong.video_url ? < MdOutlineOndemandVideo className="cursor-pointer" onClick={() => {togglePlay(); navigate("/video"); setIsPlayingVideo(true)}}/> : null
                         }
                         {isMuted ? (
                             <GoMute onClick={handleMuteClick} className="cursor-pointer" />
