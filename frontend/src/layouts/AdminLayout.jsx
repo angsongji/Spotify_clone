@@ -1,60 +1,55 @@
-import { Layout, Menu } from "antd";
-import { Outlet, Link } from "react-router-dom";
-import { AiFillTags } from "react-icons/ai";
-import {
-    HiOutlineMusicNote,
-    HiOutlineCollection,
-} from "react-icons/hi";
-import {
-    UserOutlined,
-    SettingOutlined,
-} from "@ant-design/icons";
+
+
+import { Outlet, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import SideBar from "../components/admin/SideBar";
 import PopupMenu from "../components/PopupMenu";
-const { Header, Sider, Content, Footer } = Layout;
-
+import {useApi} from "../context/ApiContext"
+import "../index.css"
 const AdminLayout = () => {
-
+    const [title, setTitle] = useState("");
+    const location = useLocation();
+    const {user} = useApi();
+    useEffect(() => {
+        if(location.pathname === "/admin"){
+            setTitle("Người dùng");
+        }
+        if(location.pathname === "/admin/songs"){
+            setTitle("Bài hát");
+        }
+        if(location.pathname === "/admin/albums"){
+            setTitle("Albums");
+        }   
+        if(location.pathname === "/admin/categorys"){
+            setTitle("Thể loại");
+        }
+    }, [location.pathname]);
     return (
-        <Layout style={{ minHeight: "100vh" }}>
-            {/* Sidebar */}
-            <Sider collapsible>
-                <div style={{ height: 64, display: "flex", justifyContent: "center", color: "#fff", margin: "24px 0" }}>
-                    <img src="/logo1.svg" className="w-full h-auto" alt="Logo" />
-                </div>
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]} className="">
-                    <Menu.Item key="1" icon={<UserOutlined />}>
-                        <Link to="/admin">Người dùng</Link>
-                    </Menu.Item>
-                    <Menu.Item key="2" icon={<HiOutlineMusicNote />}>
-                        <Link to="/admin/songs">Bài hát</Link>
-                    </Menu.Item>
-                    <Menu.Item key="3" icon={<HiOutlineCollection />}>
-                        <Link to="/admin/albums">Albums</Link>
-                    </Menu.Item>
-                    <Menu.Item key="4" icon={<AiFillTags />}>
-                        <Link to="/admin/categorys">Thể loại</Link>
-                    </Menu.Item>
-                    <Menu.Item key="5" icon={<SettingOutlined />}>
-                        <Link to="/admin/roles">Phân quyền</Link>
-                    </Menu.Item>
-                </Menu>
-            </Sider>
-
-            {/* Main Layout */}
-            <Layout>
-                <Header style={{ background: "#fff", padding: "0 40px 0 40px", textAlign: "center", fontSize: 20, display: "flex", justifyContent: "space-between" }}>
-                    <h1>Welcome!</h1>
-                    <div className="flex gap-2 items-center">
-                        <span className="text-lg">Oanh le</span>
-                        <PopupMenu role={1} />
+        <div className="flex w-full min-h-screen bg-black py-5 px-3 gap-3">
+            <div className="w-1/6 bg-[var(--dark-gray)]  flex flex-col items-center rounded-2xl">
+                <img src="/spotify_logo.jpg" className="w-1/3 h-auto my-5" alt="Logo" />
+            <SideBar />
+            </div>
+            <div className="flex-1 flex flex-col text-[var(--light-gray3)]">
+                <div className="h-fit flex justify-end items-center bg-black ">
+                    <div className="font-bold text-xl pl-5 flex-1 bg-[var(--dark-gray)] h-full rounded-tl-xl rounded-tr-xl flex items-center ">
+                        {title}
                     </div>
+                    <div className="bg-black pb-2 pl-2 w-fit rounded-xl rounded-tr-none">
+                    <div className="flex gap-2 items-center bg-[var(--dark-gray)] rounded-xl py-2 px-5 ">
+                         <span className="text-base font-bold">{user.name}</span>
+                         <PopupMenu role={1} />
+                     </div>
 
-                </Header>
-                <Content style={{ margin: "16px", padding: "24px", background: "#fff" }}>
-                    <Outlet /> {/* Hiển thị nội dung tương ứng với route */}
-                </Content>
-            </Layout>
-        </Layout>
+                    </div>
+                     
+                </div>
+                <div className="flex-1 bg-[var(--dark-gray)] rounded-bl-xl rounded-br-xl p-5 pb-0 rounded-tr-xl">
+                    <Outlet />
+                </div>
+            </div>
+
+        </div>
     );
 };
 

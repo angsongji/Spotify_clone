@@ -111,8 +111,8 @@ const Home = () => {
               {song.name}
             </div>
 
-            <span className={`${song.price != 0 ? 'bg-[var(--main-green)]' : 'transparent'} text-black text-sm px-2 py-1 rounded-sm font-semibold`}>
-              {song.price != 0 ? song.price : ""}
+            <span className={`${song.price != 0 ? 'bg-[var(--main-green)]' : 'transparent'} text-black text-xs px-2 py-1 rounded-sm font-semibold`}>
+              {song.price != 0 ? "Premium" : ""}
             </span>
 
 
@@ -143,11 +143,11 @@ const Home = () => {
         {filteredAlbums.length > 0 && (
           <div>
             <SectionTitle title="Popular Albums" />
-            <div className=" grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+            <div className="  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 2xl:grid-cols-6 gap-5">
               {filteredAlbums.map((album, index) => (
                 <>
                 {
-                  album.status != 0 && < AlbumCard key={index} album={album} />
+                  album.status == 1 && < AlbumCard key={index} album={album} />
                 }
                 </>
                 
@@ -162,7 +162,7 @@ const Home = () => {
              {songs.map((song, index) => (
               <>
               {
-                song.status != 0 && <SongCard key={index} song={song} />
+                song.status == 1 && <SongCard key={index} song={song} />
               }
               </>
             ))}
@@ -175,7 +175,7 @@ const Home = () => {
             {songs.map((song, index) => (
               <>
               {
-                song.status != 0 && <SongCard key={index} song={song} />
+                song.status == 1 && <SongCard key={index} song={song} />
               }
               </>
             ))}

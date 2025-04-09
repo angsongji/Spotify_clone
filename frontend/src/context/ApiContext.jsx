@@ -18,7 +18,7 @@ export const ApiProvider = ({ children }) => {
           fetchDataUser(); // Gọi hàm bất đồng bộ để lấy dữ liệu người dùng.
         }
       }, []);
-    const fetchData = async (endpoint, options = {}) => {
+      const fetchData = async (endpoint, options = {}) => {
         setLoading(true);
         try {
             const { method = 'GET', body = null, headers = {} } = options;
@@ -26,36 +26,40 @@ export const ApiProvider = ({ children }) => {
             const requestOptions = {
                 method,
                 headers: {
-                    ...(method !== 'POST' && { "Content-Type": "application/json" }),  // Chỉ thêm Content-Type cho những yêu cầu không phải POST với FormData
+                    "Content-Type": "application/json",
                     ...headers,
                 },
-                body: body,
+                body,
             };
     
-            // Nếu body là FormData, không cần thiết phải chỉ định Content-Type, trình duyệt sẽ tự động làm việc này
             if (body instanceof FormData) {
-                console.log("FormData");
                 delete requestOptions.headers["Content-Type"];
             }
     
             const response = await fetch(`http://127.0.0.1:8000/api/${endpoint}`, requestOptions);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP Error! Status: ${response.status}`);
-            }
     
-            return await response.json();
+            const data = await response.json();  // lấy JSON kể cả khi lỗi
+            return {
+                status: response.status,
+                ...data,
+            };
         } catch (error) {
             console.error("API Error:", error);
-            return null;
+            return {
+                status: 500,
+                success: false,
+                message: "Lỗi mạng hoặc máy chủ!",
+            };
         } finally {
             setLoading(false);
         }
     };
     
+    
 
     // 🌟 Các hàm gọi API cụ thể 🌟
     const fetchSongs = async () => fetchData("songs");
+    const fetchUsers = async () => fetchData("users");
     const fetchAlbums = async () => fetchData("albums");
     const fetchAlbumById = async (id) => fetchData(`albums/filter/?id=${id}`);
     const fetchArtist = async () => fetchData("artists");
@@ -84,12 +88,12 @@ export const ApiProvider = ({ children }) => {
         return (
             <div
                 onClick={() => navigate(`/album/${album.id}`)}
-                className="w-40 bg-[var(--light-gray2)] h-fit p-3 rounded-lg transition-transform transform hover:scale-105 duration-300 cursor-pointer flex flex-col"
+                className="w-full bg-[var(--light-gray2)] h-fit p-3 rounded-lg transition-transform transform hover:scale-105 duration-300 cursor-pointer flex flex-col"
             >
                 <img
                     src={album.image}
                     alt={album.name}
-                    className="w-full h-32 object-cover aspect-square rounded-sm"
+                    className="w-full  object-cover aspect-square rounded-sm self-center"
                 />
 
                 {/* Bọc phần nội dung text để canh lề trái */}
@@ -158,7 +162,8 @@ export const ApiProvider = ({ children }) => {
         fetchCategories,
         AlbumCard,
         setUser,
-        fetchData
+        fetchData,
+        fetchUsers
     };
 
     return (

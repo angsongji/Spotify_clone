@@ -41,7 +41,7 @@ function PopupMenu({ role }) {
 
     return (
         <Dropdown overlay={menu} trigger={["hover"]} placement="bottomRight">
-            <Avatar src={user.avatar} size={40} className="cursor-pointer" />
+            <Avatar src={user.avatar? user.avatar : "/user.png"} size={40} className="cursor-pointer" />
         </Dropdown>
     );
 }

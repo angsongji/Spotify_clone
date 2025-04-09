@@ -60,7 +60,7 @@ const Album = () => {
               </span>
               
               <b className="pl-2">{transformFormatDate(album.release_date)} •</b>
-              <b className="pl-2">{album.songs_data?.reduce((sum, item) => sum + (item.status !== 0 ? 1 : 0), 0) ?? 0} bài hát</b>
+              <b className="pl-2">{album.songs_data?.reduce((sum, item) => sum + (item.status !== 0 && item.status !== 3 ? 1 : 0), 0) ?? 0} bài hát</b>
             </p>
           </div>
         </div>
