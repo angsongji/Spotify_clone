@@ -118,7 +118,6 @@ def login_user(request):
         try:
             # Tìm user theo email
             user = User.objects.get(email=email)
-            print(user.password)
             # Kiểm tra password đã hash
             if check_password(password, user.password):
                 if user.role == "artist":
@@ -178,7 +177,6 @@ def register_user(request):
                 "message": "Email đã được sử dụng",
                 "status": 400
             }, status=status.HTTP_400_BAD_REQUEST)
-
         # Validate độ mạnh của password
         if len(password) < 6:
             return Response({
@@ -186,7 +184,6 @@ def register_user(request):
                 "message": "Mật khẩu phải có ít nhất 6 ký tự",
                 "status": 400
             }, status=status.HTTP_400_BAD_REQUEST)
-
         current_time = timezone.now()
         
         # Thay vì dùng create(), tạo instance và gọi save()
@@ -202,12 +199,11 @@ def register_user(request):
             liked_albums=[]
         )
         user.save()  # Gọi save() để trigger password hashing
-        print("Pass sau khi mã hóa: ",user.password)
         # Serialize và trả về thông tin user mới
         serializer = UserFullInforSerializer(user)
         return Response({
             "success": True,
-            "message": "Đăng ký thành công",
+            "message": "Xứ lí thành công",
             "data": {
                 "user": serializer.data
             },
@@ -215,22 +211,42 @@ def register_user(request):
         }, status=status.HTTP_201_CREATED)
 
     except Exception as e:
+        print(serializer.error)
         return Response({
             "success": False,
             "message": f"Lỗi server: {str(e)}",
             "status": 500
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+@api_view(["PATCH"]) #update những cái cần update, chỉ cần gửi cho api những cái cần update khác với put
+def update_user(request):
+    user_id = request.query_params["id"] # Lấy song_id từ param
+    if not user_id:
+        return Response({"message": "Thiếu id", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        object_id = ObjectId(user_id)  # Chuyển đổi song_id thành ObjectID của MongoDB
+        user = User.objects.get(id=object_id)
+    except (User.DoesNotExist, ValueError):
+        return Response({"message": "Không tìm thấy người dùng", "status": 404}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = UserSerializer(user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+
+    return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+
 #songs
 @api_view(["GET"])
 def get_songs(request):
     try:
-        songs = Song.objects.all()
-        if not songs.exists():  # Kiểm tra nếu không có dữ liệu
-            return Response({"message": [], "status": 200},status=status.HTTP_200_OK)
+        songs_data = SongSerializer.get_songs()
+        if not songs_data:  # Dữ liệu rỗng
+            return Response({"message": [], "status": 200}, status=status.HTTP_200_OK)
 
-        serializer = SongSerializer(songs, many=True)  # Sử dụng serializer có album_data
-        return Response({"message": serializer.data, "status": 200},status=status.HTTP_200_OK)
+        return Response({"message": songs_data, "status": 200}, status=status.HTTP_200_OK)
 
     except Exception as e:  # Bắt lỗi chung nếu có lỗi xảy ra
         return Response({"error": str(e), "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -283,16 +299,12 @@ def get_artists(request):
 @api_view(["GET"])
 def get_albums(request):
     try:
-        albums = Album.objects.all()
-        if not albums.exists():
+        albums_data = AlbumSerializer.get_albums()
+        if not albums_data:  # Dữ liệu rỗng
             return Response({"message": [], "status": 200}, status=status.HTTP_200_OK)
-        
-        # Serialize danh sách album với tất cả các trường, bao gồm cả 'songs_data'
-        serializer = AlbumSerializer(albums, many=True)
-        
-        # Trả về dữ liệu của album đã được serialize
-        return Response({"message": serializer.data, "status": 200}, status=status.HTTP_200_OK)
 
+        return Response({"message": albums_data, "status": 200}, status=status.HTTP_200_OK)
+    
     except Exception as e:
         return Response({"error": str(e), "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -337,6 +349,25 @@ def add_album(request):
         return Response({"message": serializer.data, "status": 201}, status=status.HTTP_201_CREATED)
     
     print(serializer.errors)
+    return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["PATCH"]) #update những cái cần update, chỉ cần gửi cho api những cái cần update khác với put
+def update_album(request):
+    album_id = request.query_params["id"] # Lấy song_id từ param
+    if not album_id:
+        return Response({"message": "Thiếu id", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        object_id = ObjectId(album_id)  # Chuyển đổi song_id thành ObjectID của MongoDB
+        album = Album.objects.get(id=object_id)
+    except (Album.DoesNotExist, ValueError):
+        return Response({"message": "Không tìm thấy album", "status": 404}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = AlbumSerializer(album, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+
     return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -387,4 +418,28 @@ def get_categories(request):
     except Exception as e:
         return Response({"error": str(e), "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(["POST"])
+def add_category(request):
+    serializer = CategorySerializer(data=request.data)
 
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": serializer.data, "status": 201}, status=status.HTTP_201_CREATED)
+    else:    
+        print(str(serializer.errors))
+        return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+#chat
+@api_view(["POST"])
+def add_chat(request):
+    serializer = ChatSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": serializer.data, "status": 201}, status=status.HTTP_201_CREATED)
+    else:    
+        print(str(serializer.errors))
+        return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+
+#message

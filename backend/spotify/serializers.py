@@ -6,20 +6,26 @@ class FileUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
 class UserSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = ["id","name", "email", "avatar","role", "created_at", "status"]
     def get_id(self, obj):
         return str(obj.id)
+    def get_created_at(self, obj):
+        if obj.created_at:
+            return obj.created_at.strftime("%d-%m-%Y %H:%M:%S")  # Format chuẩn
+        return None
 
 class UserFullInforSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     playlists_data = serializers.SerializerMethodField()
     liked_albums_data = serializers.SerializerMethodField()
     liked_songs_data = serializers.SerializerMethodField()
+    chats_data = serializers.SerializerMethodField()
     class Meta:
         model = User
-        fields = ["id","name", "email", "avatar","role", "created_at", "status", "liked_albums_data", "playlists_data", "liked_songs_data"]
+        fields = ["id","name", "email", "avatar","role", "created_at", "status", "liked_albums_data", "playlists_data", "liked_songs_data", "chats_data" ]
     def get_id(self, obj):
         return str(obj.id)
     def get_playlists_data(self, obj):
@@ -31,28 +37,40 @@ class UserFullInforSerializer(serializers.ModelSerializer):
         if liked_albums_ids:
             # Lấy các album chi tiết từ database dựa trên ID trong liked_albums
             albums = Album.objects.filter(id__in=liked_albums_ids)
-            return AlbumSerializer(albums, many=True).data  # Serialize các album và trả về dữ liệu chi tiết
+            return AlbumSerializer(albums, many=True).data if albums.exists() else []  # Serialize các album và trả về dữ liệu chi tiết
         return []
     def get_liked_songs_data(self, obj):    
         liked_songs_ids = obj.liked_songs  # Đây là mảng chứa ID của các album người dùng đã thích
         if liked_songs_ids:
             # Lấy các bài hát chi tiết từ database dựa trên ID trong liked_songs
             songs = Song.objects.filter(id__in=liked_songs_ids)
-            return SongSerializer(songs, many=True).data  # Serialize các bài hát và trả về dữ liệu chi tiết
+            return SongSerializer(songs, many=True).data  if songs.exists() else []# Serialize các bài hát và trả về dữ liệu chi tiết
         return []
+    def get_chats_data(self, obj):
+        chats = Chat.objects.filter(users__contains=[str(obj.id)])
+        return ChatSerializer(chats, many=True).data  if chats.exists() else []
+
+    
+
 
 class SongSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField() #thêm một trường mới vào API response
     # album_data = serializers.SerializerMethodField() #thêm một trường mới vào API response
     artists_data = serializers.SerializerMethodField()
     categories_data = serializers.SerializerMethodField()
-
+    date = serializers.DateField(format="%d-%m-%Y")
     class Meta:
         model = Song    
         fields = "__all__"
 
     def get_id(self, obj):
         return str(obj.id)
+    
+    @classmethod
+    def get_songs(cls):
+        songs = Song.objects.exclude(status=2)
+        return cls(songs, many=True).data 
+
     
     def get_artists_data(self, obj):
         # Lấy danh sách các artist mà của song
@@ -69,12 +87,12 @@ class SongSerializer(serializers.ModelSerializer):
         if categories_ids:
             # Lấy các thông tin chi tiết từ database dựa trên ID trong categories
             categories = Category.objects.filter(id__in=categories_ids)
-            return CategorySerializer(categories, many=True).data  # Serialize các album và trả về dữ liệu chi tiết
+            return CategorySerializer(categories, many=True).data  if categories.exists() else []# Serialize các album và trả về dữ liệu chi tiết
         return []
 
 class AlbumSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
-    release_date = serializers.DateField(format="%Y-%m-%d")  # Định dạng YYYY-MM-DD
+    release_date = serializers.DateField(format="%d-%m-%Y")
     artist_data = serializers.SerializerMethodField()
     class Meta:
         model = Album
@@ -83,6 +101,13 @@ class AlbumSerializer(serializers.ModelSerializer):
     def get_id(self, obj):
         return str(obj.id)
     
+    @classmethod
+    def get_albums(cls):
+        # Lọc chỉ những song có status khác 2
+        albums = Album.objects.exclude(status=2)
+        # Sử dụng serializer để chuyển đổi queryset thành dữ liệu
+        return cls(albums, many=True).data
+    
     def get_artist_data(self, obj):
         # Lấy thông tin chi tiết các bài hát trong album này
         artist = User.objects.filter(id=obj.artist_id).first()
@@ -90,7 +115,7 @@ class AlbumSerializer(serializers.ModelSerializer):
 
 class AlbumFullInforSerializer(serializers.ModelSerializer):   
     id = serializers.SerializerMethodField()
-    release_date = serializers.DateField(format="%Y-%m-%d")  # Định dạng YYYY-MM-DD
+    release_date = serializers.DateField(format="%d-%m-%Y")  # Định dạng YYYY-MM-DD
     songs_data = serializers.SerializerMethodField()
     artist_data = serializers.SerializerMethodField()
     class Meta:
@@ -100,10 +125,17 @@ class AlbumFullInforSerializer(serializers.ModelSerializer):
     def get_id(self, obj):
         return str(obj.id)
 
+    @classmethod
+    def get_albums(cls):
+        # Lọc chỉ những song có status khác 2
+        albums = Album.objects.exclude(status=2)
+        # Sử dụng serializer để chuyển đổi queryset thành dữ liệu
+        return cls(albums, many=True).data
+
     def get_songs_data(self, obj):
         # Lấy thông tin chi tiết các bài hát trong album này
         songs = Song.objects.filter(album_id=obj.id)
-        return SongSerializer(songs, many=True).data if songs else None #many=true khi kết quả là danh sách
+        return SongSerializer(songs, many=True).data if songs.exists() else [] #many=true khi kết quả là danh sách
     
     def get_artist_data(self, obj):
         # Lấy thông tin chi tiết các bài hát trong album này
@@ -120,15 +152,30 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ChatSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    users_data = serializers.SerializerMethodField()
+    messages_data = serializers.SerializerMethodField()
     class Meta:
         model = Chat
         fields = "__all__"
-    
+    def get_id(self, obj):
+        return str(obj.id)
+    def get_users_data(self, obj):
+        users_id = obj.users
+        users = User.objects.filter(id__in = users_id)
+        return UserSerializer(users, many=True).data if users.exists() else []
+    def get_messages_data(self, obj):
+        messages = Message.objects.filter(chat_id=str(obj.id)).order_by("timestamp")
+        return MessageSerializer(messages, many=True).data if messages.exists() else []
 
 class MessageSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    # timestamp = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
     class Meta:
         model = Message
         fields = "__all__"
+    def get_id(self, obj):
+        return str(obj.id)
 
 
 class PurchaseSerializer(serializers.ModelSerializer):
@@ -182,8 +229,8 @@ class ArtistFullInforSerializer(serializers.ModelSerializer):
     def get_albums_data(self, obj):
         # Lấy thông tin chi tiết các bài hát trong album này
         albums = Album.objects.filter(artist_id=obj.id)
-        return AlbumSerializer(albums, many=True).data if albums else None
+        return AlbumSerializer(albums, many=True).data if albums.exists() else []
     
     def get_songs_data(self, obj):
         songs = Song.objects.filter(artists__contains=[str(obj.id)])
-        return SongSerializer(songs, many=True).data  # Trả về các bài hát đã được serialize
+        return SongSerializer(songs, many=True).data  if songs.exists() else []# Trả về các bài hát đã được serialize
