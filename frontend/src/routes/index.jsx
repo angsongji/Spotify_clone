@@ -6,7 +6,6 @@ import Home from "../pages/user/Home";
 import Playlist from "../pages/user/Playlist";
 import ManageUsers from "../pages/admin/ManageUsers";
 import ManageSongs from "../pages/admin/ManageSongs";
-import ManageRoles from "../pages/admin/ManageRoles";
 import ManageAlbums from "../pages/admin/ManageAlbums";
 import SignIn from "../pages/SignIn";
 import SignUp from "../pages/SignUp";
@@ -18,14 +17,12 @@ import Song from "../pages/user/Song";
 import Album from "../pages/user/Album";
 import ManageCategorys from "../pages/admin/ManageCategorys";
 import Search from "../pages/user/Search";
-import Video from "../pages/user/Video";
 const router = createBrowserRouter([
     {
         path: "/", //Phần chung user và artist
         element: <UserLayout />, // Layout chung
         children: [
             { path: "", element: <Home /> },
-            { path: "/video", element: <Video /> },
             { path: "/search", element: <Search /> },
             {
                 path: "/artist/:id", //xem thông tin chi tiết của nghệ sĩ theo id nghệ sĩ
@@ -62,8 +59,7 @@ const router = createBrowserRouter([
             { path: "", element: <ManageUsers /> },
             { path: "songs", element: <ManageSongs /> },
             { path: "albums", element: <ManageAlbums /> },
-            { path: "categorys", element: <ManageCategorys /> },
-            { path: "roles", element: <ManageRoles /> },
+            { path: "categorys", element: <ManageCategorys /> }
         ],
     },
     {

@@ -19,6 +19,7 @@ export const MusicProvider = ({ children }) => {
     const [isMuted, setIsMuted] = useState(false);
     const [volume, setVolume] = useState(0.5);
     const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+    const [isShowChatList, setIsShowChatList] = useState(false);
 
     useEffect(() => {
         const loadSongs = async () => {
@@ -134,37 +135,41 @@ export const MusicProvider = ({ children }) => {
     const SongCard = ({ song, index }) => {
 
         return (
-            <li
-                className="cursor-pointer h-15 w-full flex justify-between items-center py-2 px-5  hover:bg-[var(--dark-gray)]"
-                onClick={() => handleClickSong(song.id)}
-            >
-                <div className="flex items-center text-white gap-3 w-3/5"
-                    style={currentSong.id === song.id ? { color: "var(--main-green)", fontSize: "18px", fontWeight: "bold" } : {}}
-                >
-                    <span className='w-5 h-5 flex items-center justify-center'>
-                        <span className="text-[var(--light-gray3)] ">
-                            {index + 1}
-                        </span>
-                    </span>
+            <>
+                {
+                    song.status == 1 && <li
+                        className="cursor-pointer h-15 w-full flex justify-between items-center py-2 px-5  hover:bg-[var(--dark-gray)]"
+                        onClick={() => handleClickSong(song.id)}
+                    >
+                        <div className="flex items-center text-white gap-3 w-3/5"
+                            style={currentSong.id === song.id ? { color: "var(--main-green)", fontSize: "18px", fontWeight: "bold" } : {}}
+                        >
+                            <span className='w-5 h-5 flex items-center justify-center'>
+                                <span className="text-[var(--light-gray3)] ">
+                                    {index + 1}
+                                </span>
+                            </span>
 
-                    <img
-                        src={song.image}
-                        alt="Album Cover"
-                        className="w-10 h-10 object-cover aspect-square rounded-sm"
-                    />
-                    <div className='flex gap-5'>
-                        <span>{song.name}</span>
-                        {song.price !== 0 && <span className='bg-[var(--main-green)] text-black text-xs h-fit w-fit p-1 rounded-sm'>{song.price}</span>}
-                    </div>
-                </div>
-                <div className="flex-1 text-xs text-gray-400 ">{song.artists_data?.map((item) => item.name).join(", ")}</div>
-                <div className="flex items-center gap-5 w-fit">
-                    <span className="text-gray-400">{transformToDurationString(song.duration)}</span>
-                    <span className='w-5 h-5 flex items-center justify-center'>
-                        <FiPlusCircle className=" w-4 h-4 cursor-pointer text-gray-400  hover:text-white" />
-                    </span>
-                </div>
-            </li>
+                            <img
+                                src={song.image}
+                                alt="Album Cover"
+                                className="w-10 h-10 object-cover aspect-square rounded-sm"
+                            />
+                            <div className='flex gap-5'>
+                                <span>{song.name}</span>
+                                {song.price !== 0 && <span className='bg-[var(--main-green)] text-black text-xs h-fit w-fit p-1 rounded-sm'>Premium</span>}
+                            </div>
+                        </div>
+                        <div className="flex-1 text-xs text-gray-400 ">{song.artists_data?.map((item) => item.name).join(", ")}</div>
+                        <div className="flex items-center gap-5 w-fit">
+                            <span className="text-gray-400">{transformToDurationString(song.duration)}</span>
+                            <span className='w-5 h-5 flex items-center justify-center'>
+                                <FiPlusCircle className=" w-4 h-4 cursor-pointer text-gray-400  hover:text-white" />
+                            </span>
+                        </div>
+                    </li>
+                }
+            </>
         );
     };
 
@@ -206,8 +211,10 @@ export const MusicProvider = ({ children }) => {
             setIsPlaying,
             handleClickSong,
             SongCard,
-            isPlayingVideo, 
-            setIsPlayingVideo
+            isPlayingVideo,
+            setIsPlayingVideo,
+            isShowChatList, 
+            setIsShowChatList
         }}>
             {children}
         </MusicContext.Provider>

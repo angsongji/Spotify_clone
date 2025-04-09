@@ -1,10 +1,8 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import AppBar from "../components/user/AppBar";
 import SideBar from "../components/artist/SideBar";
 import '../index.css';
-import { useApi } from "../context/ApiContext";
 const ArtistLayout = () => {
-    const { user } = useApi();
     return (
         <div className="bg-black flex flex-col h-screen">
             <AppBar />

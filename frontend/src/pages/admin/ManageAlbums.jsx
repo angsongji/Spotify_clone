@@ -1,245 +1,290 @@
-import React, { useState } from "react";
-import { FaSearch, FaEdit, FaTrash, FaPlus, FaTimes } from "react-icons/fa"; // Import thêm FaTimes
+import { useState, useEffect } from "react";
+import { Select, Table, Dropdown, message } from "antd";
+import { FaSearch, FaEllipsisV } from "react-icons/fa";
+import { CiCircleRemove } from "react-icons/ci";
+import { useApi } from "../../context/ApiContext";
+import { useMusic } from "../../context/MusicContext";
+import { BsCalendarDate } from "react-icons/bs";
 
-export default function ManageAlbums() {
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State để điều khiển hiển thị popup
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+const { Option } = Select;
 
-  // Hàm mở popup xác nhận xóa
-  const openDeleteModal = () => {
-    setIsDeleteModalOpen(true); // Mở popup
+const options = [
+  { value: -1, label: "Tất cả" },
+  { value: 0, label: "Riêng tư" },
+  { value: 1, label: "Công khai" },
+  { value: 3, label: "Chờ duyệt" },
+];
+
+const ManageAlbums = () => {
+  const [searchValue, setSearchValue] = useState("");
+  const [selectValue, setSelectValue] = useState(-1);
+  const [albums, setAlbums] = useState([]);
+  const [filteredAlbums, setFilteredAlbums] = useState([]);
+  const [detailAlbum, setDetailAlbum] = useState({});
+  const [album, setAlbum] = useState({});
+  const { fetchAlbums, loading, fetchAlbumById, fetchData } = useApi();
+  const { formatTime } = useMusic();
+
+  useEffect(() => {
+    const fetchDataAlbums = async () => {
+      const fetchedAlbums = await fetchAlbums();
+      setAlbums(fetchedAlbums.message);
+      setFilteredAlbums(fetchedAlbums.message);
+    };
+    fetchDataAlbums();
+  }, []);
+
+  useEffect(() => {
+    let filtered = [...albums];
+
+    if (selectValue !== -1) {
+      filtered = filtered.filter((album) => album.status === selectValue);
+    }
+
+    if (searchValue) {
+      filtered = filtered.filter((album) =>
+        album.name.toLowerCase().includes(searchValue.toLowerCase())
+      );
+    }
+
+    setFilteredAlbums(filtered);
+  }, [selectValue, searchValue, albums]);
+
+  const handleMenuClick = (key, record) => {
+    if (key === "detail") {
+      handleShowDetailAlbum(record);
+    } else if (key === "edit") {
+      setAlbum(record);
+    }
   };
 
-  // Hàm đóng popup xác nhận xóa
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false); // Đóng popup
+
+  const columns = [
+    {
+      title: "",
+      dataIndex: "image",
+      key: "image",
+      render: (image) => (
+        <div className="flex justify-center">
+          <img src={image} alt="Ảnh album" className="w-10 h-auto aspect-square rounded-sm object-cover" />
+        </div>
+      ),
+    },
+    { title: "Tên album", dataIndex: "name", key: "name" },
+    { title: "Phát hành", dataIndex: "release_date", key: "release_date" },
+    {
+      title: "Nghệ sĩ",
+      dataIndex: "artist_data",
+      key: "artist_data",
+      render: (artist_data) => artist_data.name,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      render: (status) =>
+        status === 1 ? <span className="text-green-500">Công khai</span> : status === 3 ? <span className="text-yellow-500">Chờ duyệt</span> : <span className="text-red-500">Riêng tư</span>,
+    },
+    {
+      title: "",
+      key: "action",
+      render: (record) => (
+        <Dropdown
+          menu={{
+            items: [
+              { key: "detail", label: "Xem chi tiết" },
+              { key: "edit", label: "Chỉnh sửa" },
+            ],
+            onClick: ({ key }) => handleMenuClick(key, record),
+          }}
+          trigger={["click"]}
+        >
+          <span className="cursor-pointer">
+            <FaEllipsisV className="text-gray-500 hover:text-[var(--main-green)]" />
+          </span>
+        </Dropdown>
+      ),
+    }
+  ];
+
+  const handleShowDetailAlbum = (record) => {
+    const fetchDetailAlbum = async () => {
+      const fetchedAlbum = await fetchAlbumById(record.id);
+      setDetailAlbum(fetchedAlbum.message[0]);
+    };
+    fetchDetailAlbum();
   };
 
-  const handleDeleteAlbum = () => {
-    closeDeleteModal();
-  };
-  //edit
-  const openEditModal = () => {
-    setIsEditModalOpen(true);
-  };
+  const ComponentDetailAlbum = ({ detailAlbum }) => {
+    return (
+      <div className="z-10 fixed top-0 left-0 w-full h-full bg-black/80 flex flex-col items-center justify-center gap-2">
 
-  const closeEditModal = (e) => {
-    setIsEditModalOpen(false);
-  };
+        <CiCircleRemove className=" text-white text-3xl cursor-pointer" onClick={() => setDetailAlbum({})} />
+        <div className="bg-[var(--dark-gray)] p-4 rounded-md">
+          <div className="rounded-md shadow-md flex gap-5 items-center mb-5 ">
+            <img src={detailAlbum.image} alt="Ảnh album" className="w-[10vw] h-[10vw] object-cover rounded-md mb-2" />
+            <div className="flex flex-col gap-2">
+              <div className="text-xs">{detailAlbum.status === 1 ? <span className="text-green-500">Công khai</span> : detailAlbum.status === 3 ? <span className="text-yellow-500">Chờ duyệt</span> : <span className="text-red-500">Riêng tư</span>}</div>
+              <h2 className="text-xl font-semibold text-white">{detailAlbum.name}</h2>
+              <p className="text-sm text-gray-400">Ngày phát hành: {detailAlbum.release_date}</p>
+              <p className="text-sm text-gray-400">Nghệ sĩ: {detailAlbum.artist_data?.name}</p>
+            </div>
 
-  const handleSave = () => {
-    closeEditModal();
-  };
+          </div>
+          <div className="flex flex-col gap-5 w-full justify-center">
+            {
+              detailAlbum.songs_data.map((song, index) => (
+                <div key={index} className="flex gap-2 items-center justify-between">
+                  <div className="flex gap-2 items-center">
+                    <div>{index + 1}</div>
+                    <img src={song.image} alt="Ảnh bài hát" className="w-10 h-10 object-cover rounded-md" />
+                    <div className="text-white">{song.name}</div>
+                  </div>
+                  <div>{formatTime(song.duration)}</div>
+                </div>
 
-  return (
-    <div className="p-5">
-      {/* Tiêu đề và thanh tìm kiếm */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Quản lý Album</h1>
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Tìm kiếm album..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              ))
+            }
           </div>
         </div>
+
       </div>
+    );
+  };
+  const FormUpdateAlbum = ({ album }) => {
+    const [selectValueStatus, setSelectValueStatus] = useState(album.status);
+    const optionsStatus = [
+      { value: album.status, label: album.status == 3 ? "Chờ duyệt" : album.status == 1 ? "Công khai" : "Riêng tư" }
+    ];
+    if (album.status == 3) {
+      optionsStatus.push({ value: 0, label: "Riêng tư" });
+      optionsStatus.push({ value: 1, label: "Công khai" });
+    }
+    if (album.status == 1) {
+      optionsStatus.push({ value: 0, label: "Riêng tư" });
+    }
+    if (album.status == 0) {
+      optionsStatus.push({ value: 1, label: "Công khai" });
+    }
+    const handleUpdateAlbum = async () => {
+      let data = {};
+      if (selectValueStatus != album.status) {
+        data.status = selectValueStatus;
+      }
+      if (Object.keys(data).length > 0) {
+        try {
+          const updateAlbumResponse = await fetchData(`update-album/?id=${album.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
 
-      {/* Bảng danh sách album */}
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="p-3 text-left">#</th>
-            <th className="p-3 text-left">Ảnh bìa</th>
-            <th className="p-3 text-left">Tên album</th>
-            <th className="p-3 text-left">Nghệ sĩ</th>
-            <th className="p-3 text-left">Số bài hát</th>
-            <th className="p-3 text-left">Ngày phát hành</th>
-            <th className="p-3 text-left">Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {/* Album 1 */}
-          <tr className="border-b border-gray-200 hover:bg-gray-50">
-            <td className="p-3">1</td>
-            <td className="p-3">
-              <img src="/ChiPu.jpg" alt="Ảnh bìa" className="w-12 h-12" />
-            </td>
-            <td className="p-3">Album One</td>
-            <td className="p-3">Artist One</td>
-            <td className="p-3">10</td>
-            <td className="p-3">2023-01-01</td>
-            <td className="p-3">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={openEditModal}
-                  className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600"
-                >
-                  <FaEdit className="text-lg" />
-                </button>
-                <button
-                  onClick={openDeleteModal}
-                  className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
-                >
-                  <FaTrash className="text-lg" />
-                </button>
-              </div>
-            </td>
-          </tr>
+          });
 
-          {/* Album 2 */}
-          <tr className="border-b border-gray-200 hover:bg-gray-50">
-            <td className="p-3">2</td>
-            <td className="p-3">
-              <img src="/DuongDomic.jpg" alt="Ảnh bìa" className="w-12 h-12" />
-            </td>
-            <td className="p-3">Album Two</td>
-            <td className="p-3">Artist Two</td>
-            <td className="p-3">8</td>
-            <td className="p-3">2023-02-15</td>
-            <td className="p-3">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={openEditModal}
-                  className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600"
-                >
-                  <FaEdit className="text-lg" />
-                </button>
-                <button
-                  onClick={openDeleteModal}
-                  className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
-                >
-                  <FaTrash className="text-lg" />
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          {/* Album 3 */}
-          <tr className="border-b border-gray-200 hover:bg-gray-50">
-            <td className="p-3">3</td>
-            <td className="p-3">
-              <img src="/HTH.jpg" alt="Ảnh bìa" className="w-12 h-12" />
-            </td>
-            <td className="p-3">Album Three</td>
-            <td className="p-3">Artist Three</td>
-            <td className="p-3">12</td>
-            <td className="p-3">2023-03-10</td>
-            <td className="p-3">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={openEditModal}
-                  className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600"
-                >
-                  <FaEdit className="text-lg" />
-                </button>
-                <button
-                  onClick={openDeleteModal}
-                  className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
-                >
-                  <FaTrash className="text-lg" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Popup xác nhận xóa */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white border rounded-lg p-6 w-96">
-            <div className="flex justify-end items-center mb-2">
-              <button
-                onClick={closeDeleteModal}
-                className="flex text-gray-500 hover:text-gray-700"
-              >
-                <FaTimes className="text-lg" />
-              </button>
-            </div>
-
-            {/* Header */}
-            <h2 className="text-xl font-semibold text-center mb-4">
-              Xác nhận xóa
-            </h2>
-
-            {/* Nội dung */}
-            <p className="text-gray-700 mb-8">
-              Bạn có chắc chắn muốn xóa album{" "}
-              <span className="font-semibold"></span> không? Hành động này không
-              thể hoàn tác.
-            </p>
-
-            {/* Nút hành động */}
-            <div className="flex justify-center gap-10 mt-5">
-              <button
-                onClick={closeDeleteModal}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleDeleteAlbum}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-              >
-                Xóa
-              </button>
+          if (updateAlbumResponse?.status === 200) {
+            setAlbums(prev => prev.map(item => item.id === album.id ? updateAlbumResponse.message : item));
+            setAlbum({});
+            message.success("Cập nhật album thành công");
+          } else {
+            message.error(updateAlbumResponse?.message);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        message.error("Vui lòng chọn giá trị");
+      }
+    }
+    return (
+      <div className="z-10 absolute top-0 left-0 w-full h-full bg-black/80 flex flex-col items-center justify-center gap-2">
+        <div className="p-5 bg-[var(--dark-gray)] rounded-md shadow-md w-1/4 h-fit flex flex-col gap-2">
+          <CiCircleRemove className="text-white text-3xl cursor-pointer self-end" onClick={() => setAlbum({})} />
+          <div className="flex gap-5 items-center w-full h-fit ">
+            <img src={album.image} alt="Ảnh album" className="w-1/2 h-1/2 object-cover rounded-md " />
+            <div className="text-white ">
+              <div className="text-2xl font-bold">{album.name}</div>
+              <div className="text-sm text-gray-400">{album.artist_data?.name}</div>
             </div>
           </div>
+          <div className="flex gap-5 my-5 items-center">
+            Trạng thái:
+            <Select
+              style={{ width: 120 }}
+              onChange={setSelectValueStatus}
+              defaultValue={selectValueStatus}
+            >
+              {optionsStatus.map((item) => (
+                <>
+                  {
+                    item.value !== -1 && <Option key={item.value} value={item.value}>
+                      {item.label}
+                    </Option>
+
+                  }
+                </>
+              ))}
+            </Select>
+          </div>
+          <button onClick={handleUpdateAlbum} className="cursor-pointer self-center bg-[var(--light-gray2)] w-fit text-white p-2 rounded-sm my-2" >Lưu</button>
+
         </div>
-      )}
 
-      {/* Popup sửa album */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            {/* Header */}
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={closeEditModal}
-                className="flex text-gray-500 hover:text-gray-700"
-              >
-                <FaTimes className="text-lg" />
-              </button>
-            </div>
+      </div>
+    );
+  }
+  return (
+    <div>
+      {loading ? (
+        <div className="loader-container min-h-[50vh] flex justify-center items-center">
+          <span className="loader">&nbsp;</span>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-7">
+          {
+            !!Object.keys(album).length && <FormUpdateAlbum album={album} />
+          }
+          {/* Hiển thị detail album */}
+          {!!Object.keys(detailAlbum).length && (
+            <ComponentDetailAlbum detailAlbum={detailAlbum} />
+          )}
 
-            {/* Form */}
-            <form>
-              {/* Tên Album */}
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">Tên Album</label>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-5">
+              <div className="relative">
                 <input
                   type="text"
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  placeholder="Nhập tên album"
+                  placeholder="Tên album"
+                  className="bg-[var(--light-gray2)] text-white p-2 rounded-full w-full focus:outline-none placeholder-[var(--light-gray3)] text-sm pl-10"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
                 />
+                <FaSearch className="absolute left-2 top-0 translate-x-[50%] translate-y-[50%] text-[var(--light-gray3)]" />
               </div>
-
-              {/* Ngày Phát Hành */}
-              <div className="mb-4">
-                <label className="block text-gray-700 mb-2">
-                  Ngày Phát Hành
-                </label>
-                <input
-                  type="date"
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-
-              {/* Nút lưu */}
-              <button
-                onClick={handleSave}
-                className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+              <Select
+                style={{ width: 120 }}
+                placeholder="Chọn một mục"
+                onChange={setSelectValue}
+                defaultValue={selectValue}
               >
-                Lưu
-              </button>
-            </form>
+                {options.map((item) => (
+                  <Option key={item.value} value={item.value}>
+                    {item.label}
+                  </Option>
+                ))}
+              </Select>
+            </div>
           </div>
+
+          <Table
+            columns={columns}
+            dataSource={filteredAlbums}
+            pagination={{ pageSize: 6 }}
+            scrollToFirstRowOnChange={true}
+            rowKey="id"
+          />
         </div>
       )}
     </div>
   );
-}
+};
+
+export default ManageAlbums;

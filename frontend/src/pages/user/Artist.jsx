@@ -40,7 +40,7 @@ const Artist = () => {
 
     loadArtist();
   }, [id]); // Chạy lại khi id thay đổi
-  
+
   const SectionTitle = ({ title }) => (
     <div className="flex justify-between items-center  mb-5">
       <h2 className="text-white text-2xl font-bold">{title}</h2>
@@ -52,25 +52,29 @@ const Artist = () => {
 
   const AlbumCard = ({ album }) => {
     return (
-      <div
-        onClick={() => navigate(`/album/${album.id}`)}
-        className=" w-40 h-fit  rounded-lg hover:scale-105 cursor-pointer flex flex-col"
-      >
-        <img
-          src={album.image}
-          alt={album.name}
-          className="w-full h-auto object-cover aspect-square rounded-sm"
-        />
+      <>
+        {
+          album.status == 1 && <div
+            onClick={() => navigate(`/album/${album.id}`)}
+            className=" w-40 h-fit  rounded-lg hover:scale-105 cursor-pointer flex flex-col"
+          >
+            <img
+              src={album.image}
+              alt={album.name}
+              className="w-full h-auto object-cover aspect-square rounded-sm"
+            />
 
-        {/* Bọc phần nội dung text để canh lề trái */}
-        <div className="w-full mt-2">
-          <h3 className="text-white font-semibold overflow-hidden whitespace-nowrap text-ellipsis w-full">
-            {album.name}
-          </h3>
+            {/* Bọc phần nội dung text để canh lề trái */}
+            <div className="w-full mt-2">
+              <h3 className="text-white font-semibold overflow-hidden whitespace-nowrap text-ellipsis w-full">
+                {album.name}
+              </h3>
 
-          <p className="text-gray-400 text-sm">{transformFormatDate(album.release_date)}</p>
-        </div>
-      </div>
+              <p className="text-gray-400 text-sm">{transformFormatDate(album.release_date)}</p>
+            </div>
+          </div>
+        }
+      </>
 
 
     );
@@ -90,8 +94,8 @@ const Artist = () => {
               <p>Artist</p>
               <h1 className="text-5xl font-bold mb-4 md:text-7xl">{artist.name}</h1>
               <p className="mt-1 flex items-center text-gray-400 text-sm">
-                <b className="pl-2">{artist.albums_data?.reduce((sum, item) => sum + (item.status !== 0 ? 1 : 0), 0) ?? 0} album • </b>
-                <b className="pl-2">{artist.songs_data?.reduce((sum, item) => sum + (item.status !== 0 ? 1 : 0), 0) ?? 0} bài hát</b>
+                <b className="pl-2">{artist.albums_data?.reduce((sum, item) => sum + (item.status !== 0 && item.status !== 3 ? 1 : 0), 0) ?? 0} album • </b>
+                <b className="pl-2">{artist.songs_data?.reduce((sum, item) => sum + (item.status !== 0 && item.status !== 3 ? 1 : 0), 0) ?? 0} bài hát</b>
               </p>
             </div>
           </div>
@@ -107,9 +111,9 @@ const Artist = () => {
                   <SongHeader />
                   {artist.songs_data?.map((song, index) => (
                     <>
-                    {
-                      song.status != 0 && <SongCard key={index} song={song} index={index} />
-                    }
+                      {
+                        song.status != 0 && <SongCard key={index} song={song} index={index} />
+                      }
                     </>
                   ))}
                 </ul>
@@ -121,9 +125,9 @@ const Artist = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
                 {artist.albums_data?.map((album, index) => (
                   <>
-                  {
-                    album.status != 0 && <AlbumCard key={index} album={album} />
-                  }
+                    {
+                      album.status != 0 && <AlbumCard key={index} album={album} />
+                    }
                   </>
                 ))}
               </div>

@@ -3,14 +3,16 @@ import { FaHome, FaSearch, FaBell, FaGlobe } from 'react-icons/fa';
 import { BsFillChatTextFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import PopupMenu from '../PopupMenu';
+import { useMusic } from '../../context/MusicContext';
 import "../../index.css";
 import { useApi } from '../../context/ApiContext';
-const AppBar = ({ radios, albums, artists, podcasts }) => {
+const AppBar = () => {
     const { user } = useApi();
     const [isLogin, setIsLogin] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const {isShowChatList, setIsShowChatList} = useMusic();
     const avatarRef = useRef(null);
     const navigate = useNavigate();
     const handleSearch = () => {
@@ -81,7 +83,9 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
-
+    const handleShowChatRealtime = () => {
+        setIsShowChatList(!isShowChatList);
+    }
     return (
         <div>
             <div className=" p-3 flex justify-between items-center text-white ">
@@ -125,7 +129,7 @@ const AppBar = ({ radios, albums, artists, podcasts }) => {
                     <FaGlobe className='cursor-pointer w-5 h-5' />
                     {localStorage.getItem('user') ? user.id &&
                         <>
-                            <BsFillChatTextFill className="text-white cursor-pointer w-5 h-5" />
+                            <BsFillChatTextFill className="text-white cursor-pointer w-5 h-5" onClick={() => handleShowChatRealtime()} />
                             <PopupMenu role={user.role} />
                         </> :
                         <>
