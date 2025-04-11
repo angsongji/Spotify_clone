@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useApi } from "../../context/ApiContext";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { HiDotsVertical } from "react-icons/hi";
 import { FaLock, FaSearch, FaPlus } from "react-icons/fa";
 import { Select, Dropdown, Button, Modal, Form, Input, DatePicker } from "antd";
@@ -57,10 +57,10 @@ const ArtistAlbums = () => {
       },
     ];
     return (
-  
-        <Dropdown menu={{ items }} trigger={['click']}>  
-         <HiDotsVertical />
-        </Dropdown>
+
+      <Dropdown menu={{ items }} trigger={['click']}>
+        <HiDotsVertical />
+      </Dropdown>
     );
   };
 
@@ -92,26 +92,26 @@ const ArtistAlbums = () => {
     console.log("add album ", values);
     try {
       let image = "";
-  
+
       // Upload image
       if (values.image) {
         const imageData = new FormData();
         imageData.append("file", values.image);
-  
+
         const uploadImageResponse = await fetchData("upload/", {
           method: "POST",
           body: imageData,
         });
-  
+
         if (uploadImageResponse?.status === 200) {
           image = encodeURI(uploadImageResponse.message); // Trả về URL ảnh
         } else {
           throw new Error("Image upload failed");
         }
       }
-  
+
       console.log("image ", image);
-  
+
       // Tạo album sau khi upload xong ảnh
       const albumData = {
         name: values.name,
@@ -119,19 +119,19 @@ const ArtistAlbums = () => {
         image,
         release_date: values.release_date,
       };
-  
+
       const addAlbumResponse = await fetchData("add-album/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(albumData),
       });
-  
+
       if (addAlbumResponse?.status === 201) {
         setUser((prevState) => ({
           ...prevState,
           albums_data: [...prevState.albums_data, addAlbumResponse.message],
         }));
-  
+
         // Cập nhật album_id cho từng bài hát
         await Promise.all(
           values.songs.map(async (songId) => {
@@ -149,7 +149,7 @@ const ArtistAlbums = () => {
       console.error("Error adding song:", error);
     }
   };
-  
+
 
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -284,6 +284,7 @@ const ArtistAlbums = () => {
         className="relative w-40 bg-[var(--light-gray2)] h-fit p-3 rounded-lg transition-transform transform hover:scale-105 duration-300 cursor-pointer flex flex-col"
       >
         <img
+          loading="lazy"
           src={album.image}
           alt={album.name}
           className="w-full h-32 object-cover aspect-square rounded-sm"
@@ -299,13 +300,13 @@ const ArtistAlbums = () => {
         </div>
         <div className="z-1 absolute bottom-0 right-0 hover:text-white translate-x-[-50%] translate-y-[-100%]">
           <DropdownMenu />
-          </div>
+        </div>
         {
           album.status == 0 && <div className="absolute top-0 left-0 bg-[var(--light-gray1)] opacity-50  transition-opacity duration-300  bottom-0 right-0 flex items-center justify-center">
-          <div className="text-gray-500 text-sm font-semibold flex items-center gap-2">
-            <FaLock /> Riêng tư
+            <div className="text-gray-500 text-sm font-semibold flex items-center gap-2">
+              <FaLock /> Riêng tư
+            </div>
           </div>
-        </div>
         }
       </div>
 
@@ -318,21 +319,21 @@ const ArtistAlbums = () => {
       <div className="flex items-center justify-between m-5 mb-7">
         {
           user.albums_data == null ? <div className="text-center text-white text-sm">Bạn chưa có album nào</div>
-          : <div className="flex items-center gap-5 ">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Nhập tên album"
-              className="bg-[var(--light-gray2)] !text-white p-2 rounded-full w-96 focus:outline-none placeholder-[var(--light-gray3)] text-sm pl-10"
-              value={searchValue}
-              onChange={handleInputChange}
-            />
-            <FaSearch className="absolute left-2 top-0 translate-x-[50%] translate-y-[50%] text-[var(--light-gray3)]" />
-          </div>
-          <ComboBox options={options} onChange={handleChange} />
-        </div>
+            : <div className="flex items-center gap-5 ">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Nhập tên album"
+                  className="bg-[var(--light-gray2)] !text-white p-2 rounded-full w-96 focus:outline-none placeholder-[var(--light-gray3)] text-sm pl-10"
+                  value={searchValue}
+                  onChange={handleInputChange}
+                />
+                <FaSearch className="absolute left-2 top-0 translate-x-[50%] translate-y-[50%] text-[var(--light-gray3)]" />
+              </div>
+              <ComboBox options={options} onChange={handleChange} />
+            </div>
         }
-        
+
         <div
           onClick={() => showModal({ type: "add" })}
           className="group rounded-xl transition-all duration-300 hover:bg-[var(--main-green)] hover:text-black text-[var(--light-gray3)] text-base cursor-pointer w-fit bg-[var(--light-gray1)] p-2 flex items-center gap-2"
@@ -347,7 +348,7 @@ const ArtistAlbums = () => {
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 justify-items-center">
           {user.albums_data?.map((album, index) => (
             (album.status != 2 && (album.name.toLowerCase().includes(searchValue.toLowerCase()) && (selectValue == -1 || (album.status == selectValue)))) && <AlbumCard key={index} album={album} />
-             
+
           ))}
 
         </div>

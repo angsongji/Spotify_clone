@@ -16,13 +16,31 @@ const Video = () => {
     const [song, setSong] = useState(currentSong);
     console.log(song);
     const VideoPlayer = ({ src }) => (
-        <div className="w-[40vw] h-auto  aspect-video flex items-center justify-center">
+        <div className="w-[40vw] h-auto aspect-video flex items-center justify-center">
             <Plyr
                 source={{
-                    type: "video",
-                    sources: [{ src, type: "video/mp4" }],
+                    type: 'video',
+                    sources: [
+                        {
+                            src,
+                            type: 'video/mp4',
+                        },
+                    ],
                 }}
-
+                options={{
+                    controls: [
+                        'rewind',
+                        'play',
+                        'fast-forward',
+                        'progress',
+                        'current-time',
+                        'mute',
+                        'volume',
+                        'fullscreen',
+                    ],
+                    autoplay: true,
+                    preload: 'metadata', // 👈 Giảm lỗi load và cache
+                }}
             />
         </div>
     );
@@ -31,7 +49,7 @@ const Video = () => {
             {song ? (
                 <div
                     className='z-1 absolute top-0 left-0 w-screen h-screen bg-black/80 flex flex-col items-center justify-center ' >
-                
+
                     <div className="self-end translate-x-[-10vw] cursor-pointer slide-down"
                         onClick={() => {
                             if (isPlaying) {
@@ -46,7 +64,7 @@ const Video = () => {
                         <div className=" w-[30vw] flex flex-col justify-between">
                             <div className=" text-base  text-white">Bạn đang xem video</div>
                             <div className="flex flex-col gap-5 items-center py-5 ">
-                                <img src={song.image} alt="" className="h-25 w-25 rounded-sm object-cover transition-transform duration-500" />
+                                <img loading="lazy" src={song.image} alt="" className="h-25 w-25 rounded-sm object-cover transition-transform duration-500" />
 
                                 <div className="flex flex-col gap-2">
                                     <div className="text-2xl font-bold text-white">{song.name}</div>
@@ -55,7 +73,7 @@ const Video = () => {
                                 </div>
                             </div>
                             <div className="flex gap-2 items-center">
-                                <img src={song.artists_data[0].avatar} alt="" className="h-8 w-8 rounded-full object-cover transition-transform duration-500" />
+                                <img loading="lazy" src={song.artists_data[0].avatar} alt="" className="h-8 w-8 rounded-full object-cover transition-transform duration-500" />
                                 <div className="text-xs text-white font-bold">{song.artists_data[0].name}</div>
                             </div>
                         </div>

@@ -14,7 +14,7 @@ function PopupMenu({ role }) {
             "1": () => alert("Hiện div hiện thông tin về email, tên, avatar,...\nCó nút cập nhật thông tin"),
             "2": () => alert("Hiện div để đổi pass: input pass hiện tại, input pass mới, input nhập lại pass mới"),
             "3": () => navigate("/artist", { replace: true }),
-            "4": () => {setUser({}); localStorage.removeItem('user'); navigate("/", { replace: true })},
+            "4": () => { setUser({}); localStorage.removeItem('user'); navigate("/", { replace: true }) },
         };
         actions[key]?.();
     };
@@ -41,7 +41,7 @@ function PopupMenu({ role }) {
 
     return (
         <Dropdown overlay={menu} trigger={["hover"]} placement="bottomRight">
-            <Avatar src={user.avatar? user.avatar : "/user.png"} size={40} className="cursor-pointer" />
+            <Avatar src={user.avatar ? user.avatar : "/user.png"} size={40} className="cursor-pointer" />
         </Dropdown>
     );
 }

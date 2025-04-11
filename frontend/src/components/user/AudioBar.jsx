@@ -1,14 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
+import { lazy } from "react";
 import { FaPlay, FaRandom } from "react-icons/fa";
 import { IoMdPause, IoMdDownload } from "react-icons/io";
 import { MdSkipNext, MdSkipPrevious, MdOutlineOndemandVideo } from "react-icons/md";
 import { SlLoop } from "react-icons/sl";
 import { FiPlusCircle } from "react-icons/fi";
 import { GoMute, GoUnmute } from "react-icons/go";
-import { } from "react-icons/io";
 import { useMusic } from "../../context/MusicContext";
-import Video from "../../pages/user/Video";
+const Video = lazy(() => import('../../pages/user/Video'));
 import "../../index.css";
 
 
@@ -43,7 +42,7 @@ export default function AudioBar() {
                     {isPlayingVideo && <Video />}
                     <div className="fixed bottom-0 h-fit bg-black flex items-center justify-between text-white w-full py-3 px-4">
                         <div className="flex items-center gap-4 w-[30vw] h-full">
-                            <img
+                            <img loading="lazy"
                                 className={`shadow-sm shadow-gray-300 h-15 w-15 rounded-full object-cover transition-transform duration-500 ${isPlaying ? "slow-spin" : "rotate-0"
                                     }`}
                                 src={currentSong?.image}

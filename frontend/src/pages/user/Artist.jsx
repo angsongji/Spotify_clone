@@ -59,6 +59,7 @@ const Artist = () => {
             className=" w-40 h-fit  rounded-lg hover:scale-105 cursor-pointer flex flex-col"
           >
             <img
+              loading="lazy"
               src={album.image}
               alt={album.name}
               className="w-full h-auto object-cover aspect-square rounded-sm"
@@ -89,7 +90,7 @@ const Artist = () => {
             className="text-white flex gap-8 flex-col md:flex-row md:items-center p-5 pt-10"
             style={{ background: backgroundStyle }} // Đã cập nhật đúng màu sau khi get
           >
-            <img className="w-48 h-48 rounded-full object-cover" src={artist.avatar} alt={artist.name} />
+            <img loading="lazy" className="w-48 h-48 rounded-full object-cover" src={artist.avatar} alt={artist.name} />
             <div className="flex flex-col justify-center">
               <p>Artist</p>
               <h1 className="text-5xl font-bold mb-4 md:text-7xl">{artist.name}</h1>

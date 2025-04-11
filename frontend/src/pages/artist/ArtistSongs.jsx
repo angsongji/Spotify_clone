@@ -482,7 +482,7 @@ const ArtistSongs = () => {
       // onClick={() => handleClickSong(song.id)}
 
       >
-        <img src={song.image} alt="Album Cover" className="group-hover:scale-105 w-15 h-15 object-cover aspect-square rounded-sm" />
+        <img loading="lazy" src={song.image} alt="Album Cover" className="group-hover:scale-105 w-15 h-15 object-cover aspect-square rounded-sm" />
         <div className="text-[var(--light-gray3)] w-full flex flex-col">
           <div className="grid grid-cols-[1fr_auto] items-center">
             <div className="text-base  font-semibold text-white w-full overflow-hidden whitespace-nowrap text-ellipsis"
