@@ -6,7 +6,7 @@ class Song(models.Model):
     image = models.URLField()
     date = models.DateField()
     duration = models.IntegerField()
-    status = models.IntegerField(null=True, default=0)  
+    status = models.IntegerField(null=True, default=3)  
     artists = ArrayField(models.CharField(max_length=24)) 
     categories = ArrayField(models.CharField(max_length=24)) 
     file_url = models.URLField()

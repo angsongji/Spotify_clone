@@ -1,10 +1,9 @@
 from django.db import models
+from django_mongodb_backend.fields import ArrayField
 class Chat(models.Model):
-    # _id = models.CharField(max_length=24, primary_key=True)
-    user1_id = models.CharField(max_length=24)
-    user2_id = models.CharField(max_length=24)
-    created_at = models.DateTimeField()
-    
+    # Sử dụng ArrayField để lưu danh sách user tham gia chat
+    users = ArrayField(models.CharField(max_length=24))  # Danh sách user_id
+    name = models.CharField(max_length=255)
     class Meta:
         db_table = "chats"
         app_label = 'spotify'
