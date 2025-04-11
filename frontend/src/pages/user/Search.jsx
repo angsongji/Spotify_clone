@@ -78,7 +78,7 @@ const Search = () => {
 
     const ArtistCard = ({ artist }) => {
         return <div className='cursor-pointer w-1/6 h-fit hover:bg-[var(--light-gray2)] p-2 rounded-sm'>
-            <img src="https://i.scdn.co/image/ab67616d00001e02f6b55ca93bd33211227b502b" alt="Album Cover" className="w-full h-auto object-cover aspect-square rounded-full" />
+            <img loading="lazy" src="https://i.scdn.co/image/ab67616d00001e02f6b55ca93bd33211227b502b" alt="Album Cover" className="w-full h-auto object-cover aspect-square rounded-full" />
             <div className='text-xl text-white mt-3 mb-2'>{artist.name}</div>
             <div className='text-gray-500'>Nghe si</div>
         </div>

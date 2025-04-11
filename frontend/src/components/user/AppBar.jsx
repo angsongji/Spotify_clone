@@ -12,7 +12,7 @@ const AppBar = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const {isShowChatList, setIsShowChatList} = useMusic();
+    const { isShowChatList, setIsShowChatList } = useMusic();
     const avatarRef = useRef(null);
     const navigate = useNavigate();
     const handleSearch = () => {
@@ -91,22 +91,22 @@ const AppBar = () => {
             <div className=" p-3 flex justify-between items-center text-white ">
                 {/* Logo + Home */}
                 <div className="flex items-center gap-3 ">
-                    <img src="/logoSpotify.png" alt="Spotify" className="w-10 h-10" />
+                    <img loading="lazy" src="/logoSpotify.png" alt="Spotify" className="w-10 h-10" />
                     <button className="p-2 rounded-full bg-[var(--light-gray1)] hover:bg-gray-700" onClick={() => { setSearchTerm(""); navigate("/"); }}>
                         <FaHome className="text-white w-5 h-5 cursor-pointer" />
                     </button>
                     <div className="relative overflow-hidden w-[300px] h-[25px]" >
-                        <div className="top-0 absolute overflow-hidden h-[30px] w-[200%]" style={{animation: 'marquee 5s linear infinite'}}>
-                        <span style={{float: 'left', width: '50%'}}>
-                        {
-                            localStorage.getItem('user') ? user.id && `Xin chào, ${user.name}` :'Hôm nay, bạn muốn nghe gì?'
-                        }
-                        </span>
-                        <span style={{float: 'left', width: '50%'}}>
-                        {
-                            localStorage.getItem('user') ? user.id && `Xin chào, ${user.name}` :'Hôm nay, bạn muốn nghe gì?'
-                        }
-                        </span>
+                        <div className="top-0 absolute overflow-hidden h-[30px] w-[200%]" style={{ animation: 'marquee 5s linear infinite' }}>
+                            <span style={{ float: 'left', width: '50%' }}>
+                                {
+                                    localStorage.getItem('user') ? user.id && `Xin chào, ${user.name}` : 'Hôm nay, bạn muốn nghe gì?'
+                                }
+                            </span>
+                            <span style={{ float: 'left', width: '50%' }}>
+                                {
+                                    localStorage.getItem('user') ? user.id && `Xin chào, ${user.name}` : 'Hôm nay, bạn muốn nghe gì?'
+                                }
+                            </span>
                         </div>
                     </div>
                 </div>

@@ -66,7 +66,7 @@ const ManageAlbums = () => {
       key: "image",
       render: (image) => (
         <div className="flex justify-center">
-          <img src={image} alt="Ảnh album" className="w-10 h-auto aspect-square rounded-sm object-cover" />
+          <img loading="lazy" src={image} alt="Ảnh album" className="w-10 h-auto aspect-square rounded-sm object-cover" />
         </div>
       ),
     },
@@ -122,7 +122,7 @@ const ManageAlbums = () => {
         <CiCircleRemove className=" text-white text-3xl cursor-pointer" onClick={() => setDetailAlbum({})} />
         <div className="bg-[var(--dark-gray)] p-4 rounded-md">
           <div className="rounded-md shadow-md flex gap-5 items-center mb-5 ">
-            <img src={detailAlbum.image} alt="Ảnh album" className="w-[10vw] h-[10vw] object-cover rounded-md mb-2" />
+            <img loading="lazy" src={detailAlbum.image} alt="Ảnh album" className="w-[10vw] h-[10vw] object-cover rounded-md mb-2" />
             <div className="flex flex-col gap-2">
               <div className="text-xs">{detailAlbum.status === 1 ? <span className="text-green-500">Công khai</span> : detailAlbum.status === 3 ? <span className="text-yellow-500">Chờ duyệt</span> : <span className="text-red-500">Riêng tư</span>}</div>
               <h2 className="text-xl font-semibold text-white">{detailAlbum.name}</h2>
@@ -137,7 +137,7 @@ const ManageAlbums = () => {
                 <div key={index} className="flex gap-2 items-center justify-between">
                   <div className="flex gap-2 items-center">
                     <div>{index + 1}</div>
-                    <img src={song.image} alt="Ảnh bài hát" className="w-10 h-10 object-cover rounded-md" />
+                    <img loading="lazy" src={song.image} alt="Ảnh bài hát" className="w-10 h-10 object-cover rounded-md" />
                     <div className="text-white">{song.name}</div>
                   </div>
                   <div>{formatTime(song.duration)}</div>
@@ -199,7 +199,7 @@ const ManageAlbums = () => {
         <div className="p-5 bg-[var(--dark-gray)] rounded-md shadow-md w-1/4 h-fit flex flex-col gap-2">
           <CiCircleRemove className="text-white text-3xl cursor-pointer self-end" onClick={() => setAlbum({})} />
           <div className="flex gap-5 items-center w-full h-fit ">
-            <img src={album.image} alt="Ảnh album" className="w-1/2 h-1/2 object-cover rounded-md " />
+            <img loading="lazy" src={album.image} alt="Ảnh album" className="w-1/2 h-1/2 object-cover rounded-md " />
             <div className="text-white ">
               <div className="text-2xl font-bold">{album.name}</div>
               <div className="text-sm text-gray-400">{album.artist_data?.name}</div>

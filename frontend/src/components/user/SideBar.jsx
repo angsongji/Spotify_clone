@@ -82,7 +82,8 @@ const SideBar = () => {
                                 <div className="flex items-center justify-center w-12 h-12 rounded-md bg-gradient-to-r from-[#DBE6F6] to-[#636FA4] relative">
                                     <div className="grid grid-cols-2 w-full h-full ">
                                         {playlist.songs_data && playlist.songs_data.slice(0, 4).map((song, index) => (
-                                            <img key={index}
+                                            <img loading="lazy"
+                                                key={index}
                                                 src={song.image || "https://i.scdn.co/image/ab67616d0000b273c5716278a8f2d7d77d5f5d1e"}
                                                 alt={song.name}
                                                 className="w-full h-full object-cover "
@@ -100,7 +101,7 @@ const SideBar = () => {
                             <div className="p-2 hover:bg-[var(--light-gray2)] rounded-md cursor-pointer"
                                 onClick={() => navigate(`/album/${album.id}`)}
                             >
-                                <img key={album.id} src={album.image} className="w-12 h-12 rounded-md" />
+                                <img loading="lazy" key={album.id} src={album.image} className="w-12 h-12 rounded-md" />
                             </div>
 
                         ))}
@@ -144,7 +145,8 @@ const SideBar = () => {
                 <div key={playlist.id} className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-[#DBE6F6] to-[#636FA4] relative">
                     <div className="grid grid-cols-2 w-full h-full " >
                         {playlist.songs_data && playlist.songs_data.slice(0, 4).map((song, index) => (
-                            <img key={index}
+                            <img loading="lazy"
+                                key={index}
                                 src={song.image || "https://i.scdn.co/image/ab67616d0000b273c5716278a8f2d7d77d5f5d1e"}
                                 alt={song.name}
                                 className="w-full h-full object-cover "
@@ -172,7 +174,7 @@ const SideBar = () => {
         <div className="flex items-center gap-3 cursor-pointer p-2 hover:bg-[var(--light-gray2)] rounded-md"
             onClick={() => navigate(`/album/${album.id}`)}
         >
-            <img src={album.image} className="w-12 h-12 rounded-md" />
+            <img loading="lazy" src={album.image} className="w-12 h-12 rounded-md" />
             <div className="flex flex-col justify-center h-full gap-1">
                 <div className="text-white font-bold">{album.name}</div>
                 <div className="text-gray-400 text-sm">Album • {album.artist_data.name} • {album.release_date.split("-")[0]}</div>

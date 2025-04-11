@@ -36,7 +36,6 @@ const Home = () => {
         setLoading(false); // Dừng loading khi tất cả API đã hoàn thành
       }
     };
-
     fetchData();
   }, []);
   const filteredAlbums = activeFilter === 'Tất cả' || activeFilter === 'Album' ? albums : [];
@@ -81,15 +80,15 @@ const Home = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
           {artists.map((artist, index) => (
             <>
-            {
-              artist.status != 0 && <div onClick={() => navigate(`/artist/${artist.id}`)} key={index} className="flex flex-col items-center w-full cursor-pointer">
-              <img src={artist.avatar} alt={artist.name} className="w-full aspect-square rounded-full object-cover border-4 border-gray-700 hover:border-[var(--main-green)]" />
-              <h3 className="text-white mt-2 font-medium text-center text-base">{artist.name}</h3>
-              <p className="text-gray-400 text-sm">Nghệ sĩ</p>
-            </div>
-            }
+              {
+                artist.status != 0 && <div onClick={() => navigate(`/artist/${artist.id}`)} key={index} className="flex flex-col items-center w-full cursor-pointer">
+                  <img loading="lazy" src={artist.avatar} alt={artist.name} className="w-full aspect-square rounded-full object-cover border-4 border-gray-700 hover:border-[var(--main-green)]" />
+                  <h3 className="text-white mt-2 font-medium text-center text-base">{artist.name}</h3>
+                  <p className="text-gray-400 text-sm">Nghệ sĩ</p>
+                </div>
+              }
             </>
-            
+
           ))}
         </div>
       </div>
@@ -101,7 +100,7 @@ const Home = () => {
       <div className="w-full cursor-pointer flex gap-3 shadow-lg overflow-hidden items-center hover:bg-[var(--light-gray1)] p-2 rounded-sm"
         onClick={() => handleClickSong(song.id)}
       >
-        <img src={song.image} alt="Album Cover" className="w-15 h-15 object-cover aspect-square rounded-sm" />
+        <img loading="lazy" src={song.image} alt="Album Cover" className="w-15 h-15 object-cover aspect-square rounded-sm" />
         <div className="text-[var(--light-gray3)] w-full flex flex-col">
           <div className="grid grid-cols-[1fr_auto] items-center">
             <div className="text-base  font-semibold text-white w-full overflow-hidden whitespace-nowrap text-ellipsis"
@@ -146,11 +145,11 @@ const Home = () => {
             <div className="  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 2xl:grid-cols-6 gap-5">
               {filteredAlbums.map((album, index) => (
                 <>
-                {
-                  album.status == 1 && < AlbumCard key={index} album={album} />
-                }
+                  {
+                    album.status == 1 && < AlbumCard key={index} album={album} />
+                  }
                 </>
-                
+
               ))}
             </div>
           </div>
@@ -159,11 +158,11 @@ const Home = () => {
         <div>
           <SectionTitle title="Thịnh hành" />
           <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-             {songs.map((song, index) => (
+            {songs.map((song, index) => (
               <>
-              {
-                song.status == 1 && <SongCard key={index} song={song} />
-              }
+                {
+                  song.status == 1 && <SongCard key={index} song={song} />
+                }
               </>
             ))}
           </div>
@@ -174,9 +173,9 @@ const Home = () => {
           <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {songs.map((song, index) => (
               <>
-              {
-                song.status == 1 && <SongCard key={index} song={song} />
-              }
+                {
+                  song.status == 1 && <SongCard key={index} song={song} />
+                }
               </>
             ))}
           </div>

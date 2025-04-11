@@ -103,7 +103,7 @@ const ChatList = () => {
                 <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--light-gray3)]">
                     <div className="flex items-center gap-2">
                         <div className="relative bg-[var(--light-gray3)] rounded-full">
-                            <img
+                            <img loading="lazy"
                                 src={chat.users_data.length < 3
                                     ? chat.users_data.find((item) => item.id !== user.id)?.avatar
                                     : "/user.png"}
@@ -160,7 +160,7 @@ const ChatList = () => {
 
                                 <div className={`flex items-end gap-2 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
                                     {!isCurrentUser && !isSameSenderAsPrevious && sender && (
-                                        <img
+                                        <img loading="lazy"
                                             src={sender.avatar}
                                             alt="Avatar"
                                             className="w-8 h-8 object-cover rounded-full"
@@ -211,7 +211,7 @@ const ChatList = () => {
             onClick={() => handleShowMessage(chat.id)}
             className="text-[var(--light-gray3)] flex items-center gap-2 cursor-pointer hover:text-white"
         >
-            <img
+            <img loading="lazy"
                 src={chat.users_data.length < 3
                     ? chat.users_data.find((item) => item.id !== user.id)?.avatar
                     : "/user.png"}
@@ -247,7 +247,7 @@ const ChatList = () => {
             className="text-[var(--light-gray3)] flex items-center gap-2  hover:text-white justify-between"
         >
             <div className="flex gap-2 items-center">
-                <img
+                <img loading="lazy"
                     src={user_by_name.avatar}
                     alt=""
                     className="w-7 h-7 object-cover aspect-square rounded-full"

@@ -62,7 +62,7 @@ const ManageUsers = () => {
             key: "avatar",
             render: (avatar) => (
                 <div className="flex justify-center">
-                    <img src={avatar || "/user.png"} alt="Ảnh đại diện" className="w-10 h-auto aspect-square rounded-full object-cover" />
+                    <img loading="lazy" src={avatar || "/user.png"} alt="Ảnh đại diện" className="w-10 h-auto aspect-square rounded-full object-cover" />
                 </div>
             ),
         },
@@ -212,7 +212,7 @@ const ManageUsers = () => {
                 <div className="p-5 bg-[var(--dark-gray)] rounded-md shadow-md w-1/4 h-fit flex flex-col gap-5">
                     <CiCircleRemove className="text-white text-3xl cursor-pointer self-end" onClick={() => setUser({})} />
                     <div className="flex gap-5 items-center w-full h-fit ">
-                        <img src={user.avatar} alt="Ảnh người dùng" className="w-1/3 h-auto object-cover rounded-md " />
+                        <img loading="lazy" src={user.avatar} alt="Ảnh người dùng" className="w-1/3 h-auto object-cover rounded-md " />
                         <div className="text-white flex flex-col gap-2">
                             <div className="text-2xl font-bold">{user.name}</div>
                             <div className="text-sm text-gray-400">{user.created_at}</div>

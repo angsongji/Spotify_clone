@@ -4,7 +4,7 @@ import { FaPlay, FaPlus } from 'react-icons/fa'; // Import icons
 const Song = ({ song }) => {
   return (
     <div className="p-6">
-      <img src={song.album.image} alt={song.name} className="w-64 h-64 rounded-lg mb-4" />
+      <img loading="lazy" src={song.album.image} alt={song.name} className="w-64 h-64 rounded-lg mb-4" />
       <h1 className="text-white text-3xl font-bold mb-2">{song.name}</h1>
       <h2 className="text-gray-400 text-lg mb-2">{song.artist}</h2>
       <p className="text-gray-400 mb-4">{song.album.name}</p>
