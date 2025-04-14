@@ -14,7 +14,6 @@ const Video = () => {
         currentSong
     } = useMusic();
     const [song, setSong] = useState(currentSong);
-    console.log(song);
     const VideoPlayer = ({ src }) => (
         <div className="w-[40vw] h-auto aspect-video flex items-center justify-center">
             <Plyr
