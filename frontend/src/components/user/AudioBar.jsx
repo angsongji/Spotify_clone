@@ -37,10 +37,15 @@ export default function AudioBar() {
         {
             musicIndex == -1 ? <div className="fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-5 px-4 m-1">
                 Chọn bài hát bạn muốn nghe!
-            </div> :
-                <div>
-                    {isPlayingVideo && <Video />}
-                    <div className="fixed bottom-0 h-fit bg-black flex items-center justify-between text-white w-full py-3 px-4">
+            </div> : <div>
+                {isPlayingVideo && <Video />}
+                <div className="fixed bottom-0 h-fit   w-full">
+
+                    {
+                        currentSong?.price != 0 && <div className="bg-[var(--main-green)] text-[var(--light-gray2)] p-2 text-sm font-bold">Đăng ký Premium để tận hưởng trọn bài hát, và xem video âm nhạc của bài hát</div>
+                    }
+                    <div className=" bg-black flex  items-center justify-between text-white  py-3 px-2">
+
                         <div className="flex items-center gap-4 w-[30vw] h-full">
                             <img loading="lazy"
                                 className={`shadow-sm shadow-gray-300 h-15 w-15 rounded-full object-cover transition-transform duration-500 ${isPlaying ? "slow-spin" : "rotate-0"
@@ -79,20 +84,20 @@ export default function AudioBar() {
                                 </div>
                                 <div className="flex gap-2 w-full items-center my-1">
                                     <span>{formatTime(currentTime)}</span>
-                                    <div className="w-full bg-gray-900 h-1 rounded  relative cursor-pointer" onClick={(e) => {
-                                        const width = e.currentTarget.clientWidth;
-                                        const clickX = e.nativeEvent.offsetX;
-                                        audioRef.current.currentTime = (clickX / width) * audioRef.current.duration;
-                                    }}>
-                                        {
-                                            currentSong.price !== 0 ? <div className="w-[10%] h-2 border-r-2" style={{ width: `calc(${(30 / currentSong.duration) * 100}%)` }}>
-                                                <div ref={progressRef} className="bg-white  h-1 rounded" style={{ width: "0%" }}></div>
-                                            </div> : <div ref={progressRef} className="bg-white  h-1 rounded" style={{ width: "0%" }}></div>
-                                        }
+                                    <div className="w-full bg-gray-900 h-1 rounded  relative cursor-pointer"
+                                        onClick={(e) => {
+                                            const width = e.currentTarget.clientWidth;
+                                            const clickX = e.nativeEvent.offsetX;
 
+                                            const limit = currentSong?.price !== 0 ? 30 : audioRef.current.duration;
+                                            const newTime = (clickX / width) * limit;
 
+                                            audioRef.current.currentTime = Math.min(newTime, limit);
+                                        }}
+                                    >
+                                        <div ref={progressRef} className="bg-white  h-1 rounded" style={{ width: "0%" }}></div>
                                     </div>
-                                    <span>{formatTime(currentSong.duration)}</span>
+                                    <span>{formatTime(currentSong.price == 0 ? currentSong.duration : 30)}</span>
                                 </div>
                             </div>
 
@@ -104,7 +109,7 @@ export default function AudioBar() {
                         <div className="hidden lg:flex items-center gap-2 opacity-75 text-xl">
                             <IoMdDownload className="cursor-pointer" />
                             {
-                                currentSong.video_url ?
+                                currentSong.video_url && (currentSong.price == 0 ?
                                     < MdOutlineOndemandVideo className="cursor-pointer"
                                         onClick={() => {
                                             if (isPlaying) {
@@ -112,7 +117,7 @@ export default function AudioBar() {
                                             }
                                             setIsPlayingVideo(true);
                                         }}
-                                    /> : null
+                                    /> : < MdOutlineOndemandVideo className="cursor-not-allowed" />)
                             }
                             {isMuted ? (
                                 <GoMute onClick={handleMuteClick} className="cursor-pointer" />
@@ -131,6 +136,8 @@ export default function AudioBar() {
                         </div>
                     </div>
                 </div>
+            </div>
+
 
         }
 
