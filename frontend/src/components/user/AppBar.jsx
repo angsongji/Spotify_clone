@@ -125,8 +125,9 @@ const AppBar = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
-                    {/* <button className=" text-black px-4 py-2 rounded-full text-sm bg-gradient-to-r from-purple-500 to-pink-500">Khám phá Premium</button> */}
+                    <button onClick={() => navigate("/premium")} className=" px-4 py-2 rounded-full !text-[var(--light-gray1)] !text-sm font-bold bg-[var(--main-green)] cursor-pointer ">Premium</button>
                     <FaGlobe className='cursor-pointer w-5 h-5' />
+
                     {localStorage.getItem('user') ? user.id &&
                         <>
                             <BsFillChatTextFill className="text-white cursor-pointer w-5 h-5" onClick={() => handleShowChatRealtime()} />
