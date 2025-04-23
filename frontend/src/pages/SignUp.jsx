@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { FaSpotify } from 'react-icons/fa';
 import { message, Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-
+import { signUp } from "../services/authService";
 const SignUp = () => {
     const [formData, setFormData] = useState({
         name: '',
@@ -16,37 +16,26 @@ const SignUp = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Kiểm tra password match
         if (formData.password !== formData.confirmPassword) {
-          console.log('sai');
-          message.error('Mật khẩu không khớp!');
-          alert('Mật khẩu không khớp!');
+            console.log('sai');
+            message.error('Mật khẩu không khớp!');
             return;
         }
 
         setIsLoading(true);
 
         try {
-            console.log('Sending request with data:', {
+
+            const dataAccount = {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password
-            });
+            };
+            const response = await signUp(dataAccount);
 
-            const response = await fetch('http://127.0.0.1:8000/api/users/register/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: formData.name,
-                    email: formData.email,
-                    password: formData.password
-                })
-            });
-
-            const data = await response.json();
+            const data = response.data;
             console.log('Response:', data);
 
             if (data.success) {
@@ -54,7 +43,6 @@ const SignUp = () => {
                     content: 'Đăng ký thành công!',
                     duration: 2
                 });
-                alert('Đăng ký thành công!');
                 setTimeout(() => {
                     navigate('/sign-in');
                 }, 1000);
@@ -63,7 +51,6 @@ const SignUp = () => {
                     content: data.message || 'Đăng ký thất bại',
                     duration: 3
                 });
-                alert(data.message);
             }
         } catch (error) {
             console.error('Error during registration:', error);
@@ -71,7 +58,7 @@ const SignUp = () => {
                 content: 'Lỗi kết nối server',
                 duration: 3
             });
-            alert('Lỗi kết nối server!');
+
         } finally {
             setIsLoading(false);
         }
@@ -96,7 +83,7 @@ const SignUp = () => {
                             type="text"
                             name="name"
                             value={formData.name}
-                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             className="w-full px-4 py-3 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
                             required
                             disabled={isLoading}
@@ -111,7 +98,7 @@ const SignUp = () => {
                             type="email"
                             name="email"
                             value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             className="w-full px-4 py-3 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
                             required
                             disabled={isLoading}
@@ -126,7 +113,7 @@ const SignUp = () => {
                             type="password"
                             name="password"
                             value={formData.password}
-                            onChange={(e) => setFormData({...formData, password: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             className="w-full px-4 py-3 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
                             required
                             minLength={6}
@@ -142,7 +129,7 @@ const SignUp = () => {
                             type="password"
                             name="confirmPassword"
                             value={formData.confirmPassword}
-                            onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                             className="w-full px-4 py-3 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
                             required
                             minLength={6}
@@ -154,13 +141,13 @@ const SignUp = () => {
                         type="submit"
                         disabled={isLoading}
                         className={`w-full py-3 rounded-full font-medium text-white flex items-center justify-center
-                            ${isLoading ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#1DB954] hover:bg-[#1ed760] hover:scale-105'}`}
+                            ${isLoading ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#1DB954] hover:bg-[#1ed760] hover:scale-105 cursor-pointer'}`}
                     >
                         {isLoading ? (
-                            <>
-                                <Spin indicator={antIcon} className="mr-2" />
+                            <div className='flex gap-2'>
+                                <Spin indicator={antIcon} />
                                 Đang xử lý...
-                            </>
+                            </div>
                         ) : 'Đăng ký'}
                     </button>
                 </form>

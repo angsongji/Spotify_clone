@@ -1,32 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlay, FaPlus } from 'react-icons/fa';
+import { FaPlay } from 'react-icons/fa';
 import { FastAverageColor } from "fast-average-color";
 import { useParams, useNavigate } from "react-router-dom";
-import "../../index.css";
-import { useApi } from "../../context/ApiContext";
-import { useMusic } from "../../context/MusicContext";
-
-
+import { fetchArtistById } from "../../services/musicService";
+import { useColorUtils } from "../../hooks/useColorUtils";
+import SongHeader from "../../components/user/SongHeader";
+import SongCard from "../../components/user/SongCard";
+import { usePlayerMusic } from '../../context/PlayerMusicContext';
 const Artist = () => {
-  const { generateLinearGradient, fetchArtistById, loading, transformFormatDate, setLoading } = useApi();
-  const { SongCard, SongHeader } = useMusic();
+  const { generateLinearGradient } = useColorUtils();
   const navigate = useNavigate();
   const { id } = useParams(); // Đây là id của album, từ id này gọi api để truyền dữ liệu cho biến album
   const [colorMain, setColorMain] = useState("#ffffff");
   const [backgroundStyle, setBackgroundStyle] = useState("#2A2A2A");
   const [artist, setArtist] = useState({});
-  //Mảng album này là dữ liệu test thôi, lúc sau sẽ là từ id album gọi api lên để lấy dữ lệu album
+  const [loading, setLoading] = useState(false);
+  const { handleListenListSong } = usePlayerMusic();
   const fac = new FastAverageColor();
   useEffect(() => {
     const loadArtist = async () => {
       try {
+        setLoading(true);
         const data = await fetchArtistById(id);
-        setArtist(data.message[0]); // Cập nhật album
+        setArtist(data.data.message);
 
         // Lấy màu chủ đạo sau khi album được tải
-        if (data.message[0].avatar) {
-          const color = await fac.getColorAsync(data.message[0].avatar);
-          console.log("Màu " + color.hex);
+        if (data.data.message.avatar) {
+          const color = await fac.getColorAsync(data.data.message.avatar);
           setColorMain(color.hex);
           const bg = generateLinearGradient(color.hex, 0.7, 0.4, 180);
           setBackgroundStyle(bg);
@@ -44,7 +44,7 @@ const Artist = () => {
   const SectionTitle = ({ title }) => (
     <div className="flex justify-between items-center  mb-5">
       <h2 className="text-white text-2xl font-bold">{title}</h2>
-      <button className="text-gray-400 hover:text-white transition cursor-pointer text-sm">Show all</button>
+      <button className="!text-gray-400 transition cursor-pointer text-xs">Hiện tất cả</button>
     </div>
   );
 
@@ -71,7 +71,7 @@ const Artist = () => {
                 {album.name}
               </h3>
 
-              <p className="text-gray-400 text-sm">{transformFormatDate(album.release_date)}</p>
+              <p className="text-gray-400 text-sm">{album.release_date}</p>
             </div>
           </div>
         }
@@ -91,12 +91,20 @@ const Artist = () => {
             style={{ background: backgroundStyle }} // Đã cập nhật đúng màu sau khi get
           >
             <img loading="lazy" className="w-48 h-48 rounded-full object-cover" src={artist.avatar} alt={artist.name} />
-            <div className="flex flex-col justify-center">
-              <p>Artist</p>
-              <h1 className="text-5xl font-bold mb-4 md:text-7xl">{artist.name}</h1>
-              <p className="mt-1 flex items-center text-gray-400 text-sm">
-                <b className="pl-2">{artist.albums_data?.reduce((sum, item) => sum + (item.status !== 0 && item.status !== 3 ? 1 : 0), 0) ?? 0} album • </b>
-                <b className="pl-2">{artist.songs_data?.reduce((sum, item) => sum + (item.status !== 0 && item.status !== 3 ? 1 : 0), 0) ?? 0} bài hát</b>
+            <div className="flex flex-col justify-end  gap-2 h-48">
+              <p className='!m-0'>Artist</p>
+              <h1 className="text-5xl font-bold  md:text-8xl p-0  !m-0">{artist.name}</h1>
+              <p className="flex items-center text-gray-300 text-sm  !m-0">
+                <span className="">
+                  {artist.albums_data?.length != 0
+                    ? artist.albums_data?.reduce((sum, item) => sum + (item.status !== 0 && item.status !== 3 ? 1 : 0), 0)
+                    : 'Chưa có'} album •
+                </span>
+                <span className="pl-2">
+                  {artist.songs_data?.length != 0
+                    ? artist.songs_data?.reduce((sum, item) => sum + (item.status !== 0 && item.status !== 3 ? 1 : 0), 0)
+                    : 'Chưa có'} bài hát
+                </span>
               </p>
             </div>
           </div>
@@ -104,10 +112,11 @@ const Artist = () => {
           <div className='px-5 flex flex-col gap-10'>
 
             <div className='flex flex-col gap-5'>
-              <button className="bg-green-500 px-6 py-3 rounded-full  flex items-center cursor-pointer w-fit flex gap-2">
-                <FaPlay className="" /> Play
-              </button>
+
               <div>
+                <button onClick={() => handleListenListSong(artist.songs_data)} className="bg-green-500 px-6 py-3 rounded-full  flex items-center cursor-pointer w-fit flex gap-2">
+                  <FaPlay className="" /> Play
+                </button>
                 <ul>
                   <SongHeader />
                   {artist.songs_data?.map((song, index) => (
@@ -122,16 +131,22 @@ const Artist = () => {
 
             </div>
             <div>
-              <SectionTitle title="Danh sách Album" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
-                {artist.albums_data?.map((album, index) => (
-                  <>
-                    {
-                      album.status != 0 && <AlbumCard key={index} album={album} />
-                    }
-                  </>
-                ))}
-              </div>
+              {
+                artist.albums_data?.length != 0 &&
+                <>
+                  <SectionTitle title="Danh sách Album" />
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+                    {artist.albums_data?.map((album, index) => (
+                      <>
+                        {
+                          album.status != 0 && <AlbumCard key={index} album={album} />
+                        }
+                      </>
+                    ))}
+                  </div>
+                </>
+              }
+
             </div>
 
           </div>

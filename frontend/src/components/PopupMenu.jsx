@@ -3,11 +3,12 @@ import { GrUserAdmin } from "react-icons/gr";
 import { HiKey } from "react-icons/hi";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, Avatar } from "antd";
-import { useApi } from "../context/ApiContext";
+import { useSelector } from 'react-redux';
+import { setUser } from '../redux/slices/userSlice';
 
 function PopupMenu({ role }) {
     const navigate = useNavigate();
-    const { user, setUser } = useApi();
+    const user = useSelector(state => state.user.user);
 
     const handleMenuClick = ({ key }) => {
         const actions = {
@@ -41,7 +42,9 @@ function PopupMenu({ role }) {
 
     return (
         <Dropdown overlay={menu} trigger={["hover"]} placement="bottomRight">
-            <Avatar src={user.avatar ? user.avatar : "/user.png"} size={40} className="cursor-pointer" />
+            <div className="cursor-pointer p-0.5 bg-[var(--light-gray2)] rounded-full" >
+                <Avatar src={user?.avatar ? user?.avatar : "/user.png"} size={40} />
+            </div>
         </Dropdown>
     );
 }

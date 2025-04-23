@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { Select, Table, Dropdown, message } from "antd";
 import { FaSearch, FaEllipsisV } from "react-icons/fa";
-import { useApi } from "../../context/ApiContext";
 import { useMusic } from "../../context/MusicContext";
-import { BsCalendarDate } from "react-icons/bs";
-import { CiCircleRemove } from "react-icons/ci";
+import { HiX } from "react-icons/hi";
+import { fetchSongs, updateSong } from "../../services/musicService";
 const { Option } = Select;
 
 const options = [
@@ -19,15 +18,21 @@ const ManageSongs = () => {
   const [selectValue, setSelectValue] = useState(-1);
   const [songs, setSongs] = useState([]);
   const [filteredSongs, setFilteredSongs] = useState([]);
-  const { fetchSongs, loading, fetchData } = useApi();
   const { formatTime } = useMusic();
   const [song, setSong] = useState({});
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchDataSongs = async () => {
-      const fetchedSongs = await fetchSongs();
-      setSongs(fetchedSongs.message);
-      setFilteredSongs(fetchedSongs.message);
+      try {
+        const fetchedSongs = await fetchSongs();
+        setSongs(fetchedSongs.data.message);
+        setFilteredSongs(fetchedSongs.data.message);
+      } catch (error) {
+        console.log("Lỗi lấy bài hát: ", error);
+      } finally {
+        setLoading(false);
+      }
+
     };
     fetchDataSongs();
   }, []);
@@ -147,22 +152,15 @@ const ManageSongs = () => {
       }
       if (Object.keys(data).length > 0) {
         try {
-          const updateSongResponse = await fetchData(`update-song/?id=${song.id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-
-          });
-
+          const updateSongResponse = await updateSong(song.id, data);
+          console.log(updateSongResponse)
           if (updateSongResponse?.status === 200) {
-            setSongs(prev => prev.map(item => item.id === song.id ? updateSongResponse.message : item));
+            setSongs(prev => prev.map(item => item.id === song.id ? updateSongResponse.data.message : item));
             setSong({});
             message.success("Cập nhật bài hát thành công");
-          } else {
-            message.error(updateSongResponse?.message);
           }
         } catch (error) {
-          console.log(error);
+          message.error(error.message);
         }
       } else {
         message.error("Vui lòng chọn giá trị");
@@ -170,52 +168,57 @@ const ManageSongs = () => {
     }
     return (
       <div className="z-10 absolute top-0 left-0 w-full h-full bg-black/80 flex flex-col items-center justify-center gap-2">
-        <div className="p-5 bg-[var(--dark-gray)] rounded-md shadow-md w-1/4 h-fit flex flex-col gap-2">
-          <CiCircleRemove className="text-white text-3xl cursor-pointer self-end" onClick={() => setSong({})} />
-          <div className="flex gap-5 items-center w-full h-fit ">
-            <img loading="lazy" src={song.image} alt="Ảnh bài hát" className="w-1/2 h-1/2 object-cover rounded-md " />
-            <div className="text-white ">
-              <div className="text-2xl font-bold">{song.name}</div>
-              <div className="text-sm text-gray-400">{song.artists_data?.map((artist) => artist.name).join(", ")}</div>
+        <div className="flex flex-col gap-2 w-fit" >
+          <HiX className="text-white text-3xl cursor-pointer self-end translate-x-[100%]" onClick={() => setSong({})} />
+          <div className="p-5 bg-[var(--dark-gray)] rounded-md shadow-md w-full h-fit flex flex-col gap-5">
+            <div className="flex gap-5 items-center w-full h-fit ">
+              <img loading="lazy" src={song.image} alt="Ảnh bài hát" className="w-[10vw] square object-cover rounded-md " />
+              <div className="text-white flex flex-col gap-2 justify-end h-full">
+                <div className="text-sm ">Bài hát</div>
+                <div className="text-2xl font-bold">{song.name}</div>
+                <div className="text-sm text-gray-400">{song.artists_data?.map((artist) => artist.name).join(", ")}</div>
+                <div className="text-sm text-gray-400">{song.date}</div>
+              </div>
             </div>
-          </div>
 
-          <div className="flex gap-5 items-center ">
-            Nghe:
-            <Select
-              style={{ width: 120 }}
-              onChange={setSelectValueBuy}
-              defaultValue={selectValueBuy}
-            >
-              {optionsBuy.map((item) => (
-                <Option key={item.value} value={item.value}>
-                  {item.label}
-                </Option>
-              ))}
-            </Select>
-          </div>
-          <div className="flex gap-5 my-5 items-center">
-            Trạng thái:
-            <Select
-              style={{ width: 120 }}
-              onChange={setSelectValueStatus}
-              defaultValue={selectValueStatus}
-            >
-              {optionsStatus.map((item) => (
-                <>
-                  {
-                    item.value !== -1 && <Option key={item.value} value={item.value}>
-                      {item.label}
-                    </Option>
+            <div className="flex gap-5 items-center ">
+              Nghe:
+              <Select
+                style={{ width: 120 }}
+                onChange={setSelectValueBuy}
+                defaultValue={selectValueBuy}
+              >
+                {optionsBuy.map((item) => (
+                  <Option key={item.value} value={item.value}>
+                    {item.label}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+            <div className="flex gap-5  items-center">
+              Trạng thái:
+              <Select
+                style={{ width: 120 }}
+                onChange={setSelectValueStatus}
+                defaultValue={selectValueStatus}
+              >
+                {optionsStatus.map((item) => (
+                  <>
+                    {
+                      item.value !== -1 && <Option key={item.value} value={item.value}>
+                        {item.label}
+                      </Option>
 
-                  }
-                </>
-              ))}
-            </Select>
-          </div>
-          <button onClick={handleUpdateSong} className="cursor-pointer self-center bg-[var(--light-gray2)] w-fit text-white p-2 rounded-sm my-2" >Lưu</button>
+                    }
+                  </>
+                ))}
+              </Select>
+            </div>
+            <button onClick={handleUpdateSong} className="cursor-pointer self-center bg-[var(--light-gray2)] w-fit text-white p-2 rounded-sm my-2" >Lưu</button>
 
+          </div>
         </div>
+
 
       </div>
     );

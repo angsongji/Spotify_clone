@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { Select, Table, Dropdown, message } from "antd";
 import { FaSearch, FaEllipsisV } from "react-icons/fa";
-import { CiCircleRemove } from "react-icons/ci";
-import { useApi } from "../../context/ApiContext";
+import { HiX } from "react-icons/hi";
 import { useMusic } from "../../context/MusicContext";
-import { BsCalendarDate } from "react-icons/bs";
+import { fetchAlbums, fetchAlbumById, updateAlbum } from "../../services/musicService";
 
 const { Option } = Select;
 
@@ -22,14 +21,21 @@ const ManageAlbums = () => {
   const [filteredAlbums, setFilteredAlbums] = useState([]);
   const [detailAlbum, setDetailAlbum] = useState({});
   const [album, setAlbum] = useState({});
-  const { fetchAlbums, loading, fetchAlbumById, fetchData } = useApi();
+  const [loading, setLoading] = useState(true);
   const { formatTime } = useMusic();
 
   useEffect(() => {
     const fetchDataAlbums = async () => {
-      const fetchedAlbums = await fetchAlbums();
-      setAlbums(fetchedAlbums.message);
-      setFilteredAlbums(fetchedAlbums.message);
+      try {
+        const fetchedAlbums = await fetchAlbums();
+        setAlbums(fetchedAlbums.data.message);
+        setFilteredAlbums(fetchedAlbums.data.message);
+
+      } catch (error) {
+        console.error("Lỗi khi tải album:", error);
+      } finally {
+        setLoading(false); // Đặt loading thành false khi quá trình tải hoàn tất
+      }
     };
     fetchDataAlbums();
   }, []);
@@ -109,8 +115,16 @@ const ManageAlbums = () => {
 
   const handleShowDetailAlbum = (record) => {
     const fetchDetailAlbum = async () => {
-      const fetchedAlbum = await fetchAlbumById(record.id);
-      setDetailAlbum(fetchedAlbum.message[0]);
+      try {
+        message.loading({ content: "Đang tải chi tiết album...", key: "detail" });
+        const fetchedAlbum = await fetchAlbumById(record.id);
+        setDetailAlbum(fetchedAlbum.data.message[0]);
+      } catch (error) {
+        console.error("Lỗi khi tải video:", error);
+      } finally {
+        message.success({ content: "Đã tải xong!", key: "detail", duration: 2 });
+      }
+
     };
     fetchDetailAlbum();
   };
@@ -118,35 +132,37 @@ const ManageAlbums = () => {
   const ComponentDetailAlbum = ({ detailAlbum }) => {
     return (
       <div className="z-10 fixed top-0 left-0 w-full h-full bg-black/80 flex flex-col items-center justify-center gap-2">
+        <div className="flex flex-col gap-2 ">
+          <HiX className=" text-white text-3xl cursor-pointer self-end translate-x-[100%]" onClick={() => setDetailAlbum({})} />
+          <div className="bg-[var(--dark-gray)] p-4 rounded-md">
+            <div className="rounded-md shadow-md flex gap-5 items-center mb-5 ">
+              <img loading="lazy" src={detailAlbum.image} alt="Ảnh album" className="w-[10vw] h-[10vw] object-cover rounded-md mb-2" />
+              <div className="flex flex-col gap-2">
+                <div className="text-xs">{detailAlbum.status === 1 ? <span className="text-green-500">Công khai</span> : detailAlbum.status === 3 ? <span className="text-yellow-500">Chờ duyệt</span> : <span className="text-red-500">Riêng tư</span>}</div>
+                <h2 className="text-xl font-semibold text-white">{detailAlbum.name}</h2>
+                <p className="text-sm text-gray-400">Ngày phát hành: {detailAlbum.release_date}</p>
+                <p className="text-sm text-gray-400">Nghệ sĩ: {detailAlbum.artist_data?.name}</p>
+              </div>
 
-        <CiCircleRemove className=" text-white text-3xl cursor-pointer" onClick={() => setDetailAlbum({})} />
-        <div className="bg-[var(--dark-gray)] p-4 rounded-md">
-          <div className="rounded-md shadow-md flex gap-5 items-center mb-5 ">
-            <img loading="lazy" src={detailAlbum.image} alt="Ảnh album" className="w-[10vw] h-[10vw] object-cover rounded-md mb-2" />
-            <div className="flex flex-col gap-2">
-              <div className="text-xs">{detailAlbum.status === 1 ? <span className="text-green-500">Công khai</span> : detailAlbum.status === 3 ? <span className="text-yellow-500">Chờ duyệt</span> : <span className="text-red-500">Riêng tư</span>}</div>
-              <h2 className="text-xl font-semibold text-white">{detailAlbum.name}</h2>
-              <p className="text-sm text-gray-400">Ngày phát hành: {detailAlbum.release_date}</p>
-              <p className="text-sm text-gray-400">Nghệ sĩ: {detailAlbum.artist_data?.name}</p>
             </div>
-
-          </div>
-          <div className="flex flex-col gap-5 w-full justify-center">
-            {
-              detailAlbum.songs_data.map((song, index) => (
-                <div key={index} className="flex gap-2 items-center justify-between">
-                  <div className="flex gap-2 items-center">
-                    <div>{index + 1}</div>
-                    <img loading="lazy" src={song.image} alt="Ảnh bài hát" className="w-10 h-10 object-cover rounded-md" />
-                    <div className="text-white">{song.name}</div>
+            <div className="flex flex-col gap-5 w-full justify-center">
+              {
+                detailAlbum.songs_data.map((song, index) => (
+                  <div key={index} className="flex gap-2 items-center justify-between">
+                    <div className="flex gap-2 items-center">
+                      <div>{index + 1}</div>
+                      <img loading="lazy" src={song.image} alt="Ảnh bài hát" className="w-10 h-10 object-cover rounded-md" />
+                      <div className="text-white">{song.name}</div>
+                    </div>
+                    <div>{formatTime(song.duration)}</div>
                   </div>
-                  <div>{formatTime(song.duration)}</div>
-                </div>
 
-              ))
-            }
+                ))
+              }
+            </div>
           </div>
         </div>
+
 
       </div>
     );
@@ -173,19 +189,14 @@ const ManageAlbums = () => {
       }
       if (Object.keys(data).length > 0) {
         try {
-          const updateAlbumResponse = await fetchData(`update-album/?id=${album.id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-
-          });
+          const updateAlbumResponse = await updateAlbum(album.id, data);
 
           if (updateAlbumResponse?.status === 200) {
-            setAlbums(prev => prev.map(item => item.id === album.id ? updateAlbumResponse.message : item));
+            setAlbums(prev => prev.map(item => item.id === album.id ? updateAlbumResponse.data.message : item));
             setAlbum({});
             message.success("Cập nhật album thành công");
           } else {
-            message.error(updateAlbumResponse?.message);
+            message.error(updateAlbumResponse?.data.message);
           }
         } catch (error) {
           console.log(error);
@@ -196,37 +207,43 @@ const ManageAlbums = () => {
     }
     return (
       <div className="z-10 absolute top-0 left-0 w-full h-full bg-black/80 flex flex-col items-center justify-center gap-2">
-        <div className="p-5 bg-[var(--dark-gray)] rounded-md shadow-md w-1/4 h-fit flex flex-col gap-2">
-          <CiCircleRemove className="text-white text-3xl cursor-pointer self-end" onClick={() => setAlbum({})} />
-          <div className="flex gap-5 items-center w-full h-fit ">
-            <img loading="lazy" src={album.image} alt="Ảnh album" className="w-1/2 h-1/2 object-cover rounded-md " />
-            <div className="text-white ">
-              <div className="text-2xl font-bold">{album.name}</div>
-              <div className="text-sm text-gray-400">{album.artist_data?.name}</div>
+        <div className="flex flex-col gap-2 w-fit">
+          <HiX className="text-white text-3xl cursor-pointer self-end translate-x-[100%]" onClick={() => setAlbum({})} />
+          <div className="p-5 bg-[var(--dark-gray)] rounded-md shadow-md w-full h-fit flex flex-col gap-2">
+
+            <div className="flex gap-5 items-end w-full h-fit">
+              <img loading="lazy" src={album.image} alt="Ảnh album" className="w-[10vw] h-auto square object-cover rounded-md " />
+              <div className="text-white flex flex-col gap-2">
+                <div className="text-sm">{selectValueStatus == 1 ? "Công khai" : selectValueStatus == 0 ? "Riêng tư" : "Chờ duyệt"}</div>
+                <div className="text-3xl font-bold">{album.name}</div>
+                <div className="text-sm text-gray-400">{album.artist_data?.name}</div>
+                <div className="text-sm text-gray-400">{album.release_date}</div>
+              </div>
             </div>
-          </div>
-          <div className="flex gap-5 my-5 items-center">
-            Trạng thái:
-            <Select
-              style={{ width: 120 }}
-              onChange={setSelectValueStatus}
-              defaultValue={selectValueStatus}
-            >
-              {optionsStatus.map((item) => (
-                <>
-                  {
-                    item.value !== -1 && <Option key={item.value} value={item.value}>
-                      {item.label}
-                    </Option>
+            <div className="flex gap-5 my-5 items-center">
+              Trạng thái:
+              <Select
+                style={{ width: 120 }}
+                onChange={setSelectValueStatus}
+                defaultValue={selectValueStatus}
+              >
+                {optionsStatus.map((item) => (
+                  <>
+                    {
+                      item.value !== -1 && <Option key={item.value} value={item.value}>
+                        {item.label}
+                      </Option>
 
-                  }
-                </>
-              ))}
-            </Select>
-          </div>
-          <button onClick={handleUpdateAlbum} className="cursor-pointer self-center bg-[var(--light-gray2)] w-fit text-white p-2 rounded-sm my-2" >Lưu</button>
+                    }
+                  </>
+                ))}
+              </Select>
+            </div>
+            <button onClick={handleUpdateAlbum} className="cursor-pointer self-center bg-[var(--light-gray2)] w-fit text-white p-2 rounded-sm my-2" >Lưu</button>
 
+          </div>
         </div>
+
 
       </div>
     );

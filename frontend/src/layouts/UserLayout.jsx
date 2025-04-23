@@ -1,15 +1,13 @@
-import { useEffect } from "react";
-import { Outlet, Link } from "react-router-dom";
+
+import { Outlet } from "react-router-dom";
 import AppBar from "../components/user/AppBar";
 import SideBar from "../components/user/SideBar";
-// import MusicQueue from "../components/user/MusicQueue";
-import AudioBar from "../components/user/AudioBar";
+import AudioBar from "../components/user/AudioBar/AudioBar";
 import Footer from "../components/user/Footer";
 import ChatList from "../components/user/ChatList";
-import '../index.css';
-import { useApi } from "../context/ApiContext";
+import { useSelector } from "react-redux"
 const UserLayout = () => {
-    
+    const user = useSelector(state => state.user.user);
     return (
         <div className="bg-black flex flex-col h-screen">
             <AppBar />
@@ -34,9 +32,12 @@ const UserLayout = () => {
 
 
                 {/* Right Panel - Panel phải */}
-                <div className="w-fit bg-[var(--dark-gray)] rounded-lg">
-                    <ChatList />
-                </div>
+                {
+                    user && <div className="w-fit bg-[var(--dark-gray)] rounded-lg">
+                        <ChatList />
+                    </div>
+                }
+
             </div>
             <AudioBar />
         </div>

@@ -14,7 +14,8 @@ const Artist = lazy(() => import("../pages/user/Artist"));
 const Song = lazy(() => import("../pages/user/Song"));
 const Album = lazy(() => import("../pages/user/Album"));
 const Premium = lazy(() => import("../pages/user/Premium"));
-const PaymentMessage = lazy(() => import("../pages/user/PaymentMessage"));
+const ChatDeepSeek = lazy(() => import("../pages/user/ChatDeepSeek"));
+const Favorite = lazy(() => import("../pages/user/Favorite"));
 
 const SignIn = lazy(() => import("../pages/SignIn"));
 const SignUp = lazy(() => import("../pages/SignUp"));
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
         children: [
             { path: "", element: <Home /> },
             { path: "search", element: <Search /> },
+            { path: "chatAI", element: <ChatDeepSeek /> },
             { path: "artist/:id", element: <Artist /> },
             { path: "song/:songId", element: <Song /> },
             { path: "album/:id", element: <Album /> },
@@ -43,6 +45,7 @@ const router = createBrowserRouter([
                 path: "premium",
                 element: <Premium />,
             },
+            { path: "favorite", element: <Favorite /> },
         ],
     },
     {
@@ -52,10 +55,6 @@ const router = createBrowserRouter([
     {
         path: "/sign-up",
         element: <SignUp />,
-    },
-    {
-        path: "/payment-message",
-        element: <PaymentMessage />,
     },
     {
         path: "/admin", // Layout admin
