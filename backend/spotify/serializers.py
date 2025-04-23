@@ -1,36 +1,50 @@
 from bson import ObjectId
 from rest_framework import serializers
 from .models import User, Song, Album, Category, Chat, Message, Purchase, Playlist 
-
+import json
 class FileUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
 class UserSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
-    created_at = serializers.SerializerMethodField()
+    created_at = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
     class Meta:
         model = User
-        fields = ["id","name", "email", "avatar","role", "created_at", "status"]
+        fields = ["id","name", "email", "avatar","role", "created_at", "status", "liked_albums", "liked_songs"]
     def get_id(self, obj):
         return str(obj.id)
-    def get_created_at(self, obj):
-        if obj.created_at:
-            return obj.created_at.strftime("%d-%m-%Y %H:%M:%S")  # Format chuẩn
-        return None
 
 class UserFullInforSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     playlists_data = serializers.SerializerMethodField()
     liked_albums_data = serializers.SerializerMethodField()
     liked_songs_data = serializers.SerializerMethodField()
-    chats_data = serializers.SerializerMethodField()
+    # chats_data = serializers.SerializerMethodField()
+    purchases_data = serializers.SerializerMethodField()
+    
+    liked_albums = serializers.SerializerMethodField()
+    liked_songs = serializers.SerializerMethodField()
+
+    created_at = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
     class Meta:
         model = User
-        fields = ["id","name", "email", "avatar","role", "created_at", "status", "liked_albums_data", "playlists_data", "liked_songs_data", "chats_data" ]
+        fields = ["id","name", "email", "avatar","role", "created_at", "status", "liked_albums_data", "playlists_data", "liked_songs_data",  "purchases_data", "liked_albums", "liked_songs"]
     def get_id(self, obj):
         return str(obj.id)
+    
+    def get_liked_albums(self, obj):
+        # Trả về mảng thật sự (list of strings)
+        if isinstance(obj.liked_albums, str):
+            return json.loads(obj.liked_albums)
+        return obj.liked_albums
+
+    def get_liked_songs(self, obj):
+        if isinstance(obj.liked_songs, str):
+            return json.loads(obj.liked_songs)
+        return obj.liked_songs
+
     def get_playlists_data(self, obj):
-        playlists = Playlist.objects.filter(user_id=obj.id)  # Tìm album theo album_id
-        return PlaylistSerializer(playlists, many = True).data if playlists else None  # Serialize nếu có album
+        playlists = Playlist.objects.filter(user_id=obj.id)
+        return PlaylistSerializer(playlists, many = True).data if playlists.exists() else []  # Serialize nếu có album
     def get_liked_albums_data(self, obj):
         # Lấy danh sách các album mà người dùng đã like từ mảng liked_albums
         liked_albums_ids = obj.liked_albums  # Đây là mảng chứa ID của các album người dùng đã thích
@@ -46,11 +60,13 @@ class UserFullInforSerializer(serializers.ModelSerializer):
             songs = Song.objects.filter(id__in=liked_songs_ids)
             return SongSerializer(songs, many=True).data  if songs.exists() else []# Serialize các bài hát và trả về dữ liệu chi tiết
         return []
-    def get_chats_data(self, obj):
-        chats = Chat.objects.filter(users__contains=[str(obj.id)])
-        return ChatSerializer(chats, many=True).data  if chats.exists() else []
-
+    # def get_chats_data(self, obj):
+    #     chats = Chat.objects.filter(users__contains=[str(obj.id)])
+    #     return ChatSerializer(chats, many=True).data  if chats.exists() else []
     
+    def get_purchases_data(self, obj):
+        purchases = Purchase.objects.filter(user_id=str(obj.id)).order_by("-purchase_date")
+        return PurchaseSerializer(purchases, many = True).data if purchases.exists() else []
 
 
 class SongSerializer(serializers.ModelSerializer):
@@ -154,7 +170,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ChatSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     users_data = serializers.SerializerMethodField()
-    messages_data = serializers.SerializerMethodField()
+    # messages_data = serializers.SerializerMethodField()
     class Meta:
         model = Chat
         fields = "__all__"
@@ -164,9 +180,9 @@ class ChatSerializer(serializers.ModelSerializer):
         users_id = obj.users
         users = User.objects.filter(id__in = users_id)
         return UserSerializer(users, many=True).data if users.exists() else []
-    def get_messages_data(self, obj):
-        messages = Message.objects.filter(chat_id=str(obj.id)).order_by("timestamp")
-        return MessageSerializer(messages, many=True).data if messages.exists() else []
+    # def get_messages_data(self, obj):
+    #     messages = Message.objects.filter(chat_id=str(obj.id)).order_by("timestamp")
+    #     return MessageSerializer(messages, many=True).data if messages.exists() else []
 
 class MessageSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
@@ -179,13 +195,18 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class PurchaseSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
     class Meta:
         model = Purchase
         fields = "__all__"
-    
+    def get_id(self, obj):
+        return str(obj.id)
+   
+
 class PlaylistSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     songs_data = serializers.SerializerMethodField()
+    release_date = serializers.DateField(format="%d-%m-%Y", read_only=True)
     class Meta:
         model = Playlist
         fields = "__all__"

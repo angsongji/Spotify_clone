@@ -19,6 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include("spotify.urls")),  # Thêm dòng này để kết nối API
-    path('momo_api/', include('momo_api.urls')),
+    path("api/", include("spotify.urls")),        
+    path("momo_api/", include("momo_api.urls")),   
+    path("deepseek_api/", include("deepseek_ai.urls")),  
 ]

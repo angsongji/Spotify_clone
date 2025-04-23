@@ -16,13 +16,15 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from django.urls import path
 from chat.consumers import ChatConsumer
+import chat.routing 
 
 # Khởi tạo ứng dụng Django
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),  # Xử lý các request HTTP
     "websocket": AuthMiddlewareStack(
-        URLRouter([  # Định tuyến cho WebSocket
-            path('ws/chat/<room_id>/', ChatConsumer.as_asgi()),  # Đảm bảo URL khớp
-        ])
+        URLRouter(  # Định tuyến cho WebSocket
+            chat.routing.websocket_urlpatterns
+            # path('ws/chat/<room_id>/', ChatConsumer.as_asgi()),  # Đảm bảo URL khớp
+        )
     ),
 })
