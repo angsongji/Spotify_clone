@@ -25,7 +25,11 @@ urlpatterns = [
 
     path('upload/', upload_file, name='upload_file'),
 
+    path("chats/filter/", get_chats_by_userid, name="get_chats_by_userid"),
     path("add-chat/", add_chat, name="add_chat"),
     
+    path("add-playlist/", add_playlist, name="add_playlist"),
+
+    path("messages/filter/", get_messages_by_chatid, name="get_messages_by_chatid"),
 ]   
     
