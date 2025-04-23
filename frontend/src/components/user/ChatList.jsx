@@ -1,31 +1,41 @@
-import { FaSearch, FaTimes, FaPlus, FaPaperPlane, FaRunning } from "react-icons/fa";
+import { FaSearch, FaTimes, FaPaperPlane } from "react-icons/fa";
 import { useState, useEffect, useRef } from "react";
 import { HiMiniArrowRight } from "react-icons/hi2";
-import { useMusic } from "../../context/MusicContext";
 import { HiX } from "react-icons/hi";
-import { useApi } from "../../context/ApiContext";
-import { IoMdText, IoMdPersonAdd } from "react-icons/io";
+import { IoMdText } from "react-icons/io";
 import { MdOutlineGroupAdd } from "react-icons/md";
 import { Select, message } from "antd";
+import { fetchUsers } from "../../services/musicService";
+import { addChat } from "../../services/messageService";
+import { useSelector, useDispatch } from 'react-redux';
+import { setIsShowChatList, setChats, updateMessageStatus } from '../../redux/slices/chatSlice';
+import { sendGlobalMessage } from "../../redux/websocketGlobal";
+
 const { Option } = Select;
 const ChatList = () => {
-    const { user, fetchUsers, fetchData } = useApi();
-    const [chats, setChats] = useState(user.chats_data || []);
+    const user = useSelector(state => state.user.user);
+    const isShowChatList = useSelector(state => state.chat.isShowChatList);
+    const onlineUsers = useSelector(state => state.chat.onlineUsers);
+    const chats = useSelector(state => state.chat.chats);
+    const messages = useSelector(state => state.chat.messages);
     const [searchValue, setSearchValue] = useState("");
-    const { isShowChatList, setIsShowChatList } = useMusic();
+    const dispatch = useDispatch();
     const [isShowFormAdd, setIsShowFormAdd] = useState(false);
     const [isShowMessage, setIsShowMessage] = useState(false);
-    const [selectedChatId, setSelectedChatId] = useState(null);
+    const [selectedChatId, setSelectedChatId] = useState("");
     const [users, setUsers] = useState([]);
 
 
     useEffect(() => {
         const fetchDataUsers = async () => {
             const fetchedUsers = await fetchUsers();
-            setUsers(fetchedUsers.message);
+            const filterUsers = fetchedUsers.data.message.filter((item) => item.id !== user.id)
+            setUsers(filterUsers);
         };
         fetchDataUsers();
     }, []);
+
+
 
     const handleInputChange = (e) => {
         setSearchValue(e.target.value);
@@ -37,80 +47,108 @@ const ChatList = () => {
     };
 
     const ChatWindow = ({ chat }) => {
-        const [socket, setSocket] = useState(null);
+        const messagesByChatId = messages.filter((msg) => msg.chat_id === chat.id);
+        messagesByChatId.forEach(item => {
+            if (item.status === "not seen") {
+                dispatch(updateMessageStatus({
+                    chatId: chat.id,
+                    fromStatus: "not seen",
+                    toStatus: ""
+                }));
+            }
+        });
+
         const [message, setMessage] = useState('');
-        const [messages, setMessages] = useState(chat.messages_data || []);
         const messagesEndRef = useRef(null);
-
-        // Cập nhật messages khi chat thay đổi
+        const online = onlineUsers.some((item) => item != user.id && chat.users_data.some(u => u.id === item));
         useEffect(() => {
-            setMessages(chat.messages_data || []);
-        }, [chat]);
-
-        // Tự động cuộn xuống cuối khung chat
-        useEffect(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, [messages]);
-
-        // Thiết lập WebSocket
-        useEffect(() => {
-            const socketInstance = new WebSocket(`ws://localhost:8000/ws/chat/${chat.id}/`);
-
-            socketInstance.onopen = () => {
-                console.log("✅ Connected to WebSocket");
-            };
-
-            socketInstance.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    setMessages((prev) => [...prev, data]);
-                } catch (err) {
-                    console.error("❌ JSON parse error:", err);
-                }
-            };
-
-            socketInstance.onerror = (error) => {
-                console.error("WebSocket Error:", error);
-            };
-
-            socketInstance.onclose = () => {
-                console.log("WebSocket connection closed");
-            };
-
-            setSocket(socketInstance);
-
-            return () => {
-                socketInstance.close();
-            };
-        }, [chat.id]);
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, [messagesByChatId]);
 
         const sendMessage = (e) => {
             e.preventDefault();
-            if (socket && message) {
-                const data = {
-                    chat_id: chat.id,
-                    sender_id: user.id,
-                    content: message
-                };
-                socket.send(JSON.stringify(data));
-                setMessage('');
-            }
+            if (!message.trim()) return;
+
+            sendGlobalMessage({
+                chatId: chat.id,
+                senderId: user.id,
+                content: message,
+            });
+
+            setMessage('');
         };
 
+        const renderMessages = () => {
+            if (!messagesByChatId) return null;
+
+            return messagesByChatId.map((msg, index) => {
+                const isCurrentUser = msg.sender_id === user.id;
+                const isSameSenderAsPrevious = index > 0 && messagesByChatId[index - 1].sender_id === msg.sender_id;
+                const sender = chat.users_data.find((u) => u.id === msg.sender_id);
+
+                const currentDateObj = new Date(msg.timestamp);
+                const previousDateObj = index > 0 ? new Date(messagesByChatId[index - 1].timestamp) : null;
+
+                const currentDate = currentDateObj.toLocaleDateString('vi-VN');
+                const previousDate = previousDateObj?.toLocaleDateString('vi-VN');
+
+                const time = currentDateObj.toLocaleTimeString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+
+                return (
+                    <div key={index}>
+                        {currentDate !== previousDate && (
+                            <div className="text-center text-xs text-gray-500 my-2">{currentDate}</div>
+                        )}
+
+                        <div className={`flex items-end gap-2 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
+                            {!isCurrentUser && !isSameSenderAsPrevious && sender && (
+                                <img
+                                    loading="lazy"
+                                    src={sender.avatar}
+                                    alt="Avatar"
+                                    className="w-8 h-8 object-cover rounded-full"
+                                />
+                            )}
+                            {!isCurrentUser && isSameSenderAsPrevious && <div className="w-8 h-8" />}
+
+                            <div className="flex flex-col max-w-[75%]">
+                                <div className={`px-4 py-2 rounded-xl text-sm ${isCurrentUser
+                                    ? 'bg-gradient-to-tl from-green-600 to-[var(--main-green)] text-white rounded-br-none'
+                                    : 'bg-gray-200 text-black rounded-bl-none'}`}>
+                                    {msg.content}
+                                </div>
+                                <span className={`text-[10px] text-gray-400 mt-1 ${isCurrentUser ? 'text-right' : 'text-left'}`}>
+                                    {time}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                );
+            });
+        };
+
+        if (!chat) {
+            return <div className="p-4 text-gray-500">Không tìm thấy phòng chat.</div>;
+        }
+
         return (
-            <div className="w-[25vw] h-[70vh] flex flex-col absolute bottom-0 top-0 right-[10vw] rounded-xl shadow-lg bg-white border">
+            <div className="w-[25vw] h-[70vh] flex flex-col absolute  bottom-2 right-[75%] rounded-xl shadow-lg bg-white border">
                 {/* HEADER */}
                 <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--light-gray3)]">
                     <div className="flex items-center gap-2">
-                        <div className="relative bg-[var(--light-gray3)] rounded-full">
-                            <img loading="lazy"
+                        <div className="relative bg-[var(--light-gray3)] rounded-full ">
+                            <img
+                                loading="lazy"
                                 src={chat.users_data.length < 3
                                     ? chat.users_data.find((item) => item.id !== user.id)?.avatar
-                                    : "/user.png"}
+                                    : '/user.png'}
                                 alt=""
                                 className="w-8 h-8 object-cover aspect-square rounded-full"
                             />
-                            <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>
+                            {online && <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>}
                         </div>
                         <div className="flex flex-col w-fit">
                             <span className="text-sm font-bold overflow-hidden whitespace-nowrap text-ellipsis">
@@ -118,71 +156,19 @@ const ChatList = () => {
                                     ? chat.users_data.find((item) => item.id !== user.id)?.name
                                     : chat.name}
                             </span>
-                            <span className="text-xs text-[var(--light-gray3)]">Đang hoạt động</span>
+                            {online && <span className="text-xs text-[var(--light-gray3)]">Đang hoạt động</span>}
                         </div>
                     </div>
                     <div className="flex items-center gap-3 text-[var(--main-purple)] text-xl">
-                        {/* Nếu có chức năng thì thêm vào */}
-                        {/* <FaPlus className="cursor-pointer" /> */}
-                        {/* <IoMdPersonAdd className="cursor-pointer" /> */}
-                        {/* <FaRunning className="cursor-pointer" /> */}
-                        <div className="cursor-pointer" onClick={() => setIsShowMessage(false)}>
+                        <div className="cursor-pointer" onClick={() => { setSelectedChatId(""); setIsShowMessage(false) }}>
                             <FaTimes />
                         </div>
-
                     </div>
                 </div>
 
                 {/* KHUNG HIỂN THỊ TIN NHẮN */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                    {messages.map((msg, index) => {
-                        const isCurrentUser = msg.sender_id === user.id;
-                        const isSameSenderAsPrevious = index > 0 && messages[index - 1].sender_id === msg.sender_id;
-                        const sender = chat.users_data.find((u) => u.id === msg.sender_id);
-
-                        const currentDateObj = new Date(msg.timestamp);
-                        const previousDateObj = index > 0 ? new Date(messages[index - 1].timestamp) : null;
-
-                        const currentDate = currentDateObj.toLocaleDateString('vi-VN');
-                        const previousDate = previousDateObj?.toLocaleDateString('vi-VN');
-
-                        const time = currentDateObj.toLocaleTimeString('vi-VN', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                        });
-
-                        return (
-                            <div key={index}>
-                                {/* Hiển thị ngày nếu khác với tin nhắn trước */}
-                                {currentDate !== previousDate && (
-                                    <div className="text-center text-xs text-gray-500 my-2">{currentDate}</div>
-                                )}
-
-                                <div className={`flex items-end gap-2 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                                    {!isCurrentUser && !isSameSenderAsPrevious && sender && (
-                                        <img loading="lazy"
-                                            src={sender.avatar}
-                                            alt="Avatar"
-                                            className="w-8 h-8 object-cover rounded-full"
-                                        />
-                                    )}
-                                    {!isCurrentUser && isSameSenderAsPrevious && <div className="w-8 h-8" />}
-
-                                    <div className="flex flex-col max-w-[75%]">
-                                        <div className={`px-4 py-2 rounded-xl text-sm ${isCurrentUser
-                                            ? 'bg-gradient-to-tl from-green-600 to-[var(--main-green)] text-white rounded-br-none'
-                                            : 'bg-gray-200 text-black rounded-bl-none'}`}>
-                                            {msg.content}
-                                        </div>
-                                        <span className={`text-[10px] text-gray-400 mt-1 ${isCurrentUser ? 'text-right' : 'text-left'}`}>
-                                            {time}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-
+                    {renderMessages()}
                     <div ref={messagesEndRef} />
                 </div>
 
@@ -201,32 +187,45 @@ const ChatList = () => {
                         </button>
                     </div>
                 </form>
-
             </div>
         );
     };
 
-    const ComponentChat = ({ chat }) => (
-        <div
+    const ComponentChat = ({ chat }) => {
+
+        const notSeenCount = selectedChatId !== chat.id ? messages.filter((msg) => msg.chat_id === chat.id && msg.status === 'not seen').length : 0;
+        const online = onlineUsers.some((item) => item != user.id && chat.users_data.some(u => u.id === item));
+        return <div
             onClick={() => handleShowMessage(chat.id)}
-            className="text-[var(--light-gray3)] flex items-center gap-2 cursor-pointer hover:text-white"
+            className="text-[var(--light-gray3)] cursor-pointer hover:text-white flex justify-between items-center"
         >
-            <img loading="lazy"
-                src={chat.users_data.length < 3
-                    ? chat.users_data.find((item) => item.id !== user.id)?.avatar
-                    : "/user.png"}
-                alt=""
-                className="w-7 h-7 object-cover aspect-square rounded-full"
-            />
-            <div className="text-sm overflow-hidden whitespace-nowrap text-ellipsis">
-                {chat.users_data.length > 2
-                    ? chat.name
-                    : chat.users_data.find((item) => item.id !== user.id)?.name}
+            <div className="flex items-center gap-2 ">
+                <img
+                    loading="lazy"
+                    src={chat.users_data.length < 3
+                        ? chat.users_data.find((item) => item.id !== user.id)?.avatar
+                        : '/user.png'}
+                    alt=""
+                    className="w-8 h-8 object-cover aspect-square rounded-full"
+                />
+
+                <div className="flex flex-col ">
+                    <div className="text-sm overflow-hidden whitespace-nowrap text-ellipsis">
+                        {chat.users_data.length > 2
+                            ? chat.name
+                            : chat.users_data.find((item) => item.id !== user.id)?.name}
+                    </div>
+                    {online && <div className="text-[var(--main-green)] text-[10px]">Đang hoạt động</div>}
+                </div>
             </div>
+
+            {notSeenCount != 0 && <div className="text-black bg-[var(--main-green)] p-1 rounded-full w-5 h-5 flex justify-center items-center text-sm">{notSeenCount}</div>}
         </div>
-    );
+    };
 
     const SearchUser = ({ user_by_name }) => {
+        const online = onlineUsers.some((item) => item == user_by_name.id);
+
         const handleTextMessage = () => {
             const existingPrivateChat = chats.find(chat =>
                 chat.users_data.length === 2 &&
@@ -237,7 +236,33 @@ const ChatList = () => {
                 setSearchValue("");
                 handleShowMessage(existingPrivateChat.id);
             } else {
-                alert('Chưa tồn tại đoạn chat 2 người với user này');
+                const userChatTo = users.find((item) => item.id === user_by_name.id);
+                const handleAddChat = async () => {
+
+                    const chatData = {
+                        name: "",
+                        users: [...new Set([userChatTo.id, user.id])],  // thêm user.id và loại bỏ trùng lặp
+                    };
+                    try {
+                        message.loading({ content: "Đang tạo đoạn chat...", key: "add" });
+                        const addChatResponse = await addChat(chatData);
+
+                        if (addChatResponse && addChatResponse.data.status === 201) {
+                            dispatch(setChats([addChatResponse.data.message]));
+                            setSearchValue("");
+                            message.success({ content: "Tạo đoạn chat thành công!", key: "add", duration: 2 });
+
+
+                        }
+                    } catch (error) {
+                        console.error("Error adding chat:", error);
+                        message.error({ content: "Tạo đoạn chat thất bại!", key: "add", duration: 2 });
+                    }
+                };
+                handleAddChat();
+                console.log("Chưa tồn tại đoạn chat 2 người với user này");
+
+
             }
 
         };
@@ -247,11 +272,18 @@ const ChatList = () => {
             className="text-[var(--light-gray3)] flex items-center gap-2  hover:text-white justify-between"
         >
             <div className="flex gap-2 items-center">
-                <img loading="lazy"
-                    src={user_by_name.avatar}
-                    alt=""
-                    className="w-7 h-7 object-cover aspect-square rounded-full"
-                />
+                <div className="relative bg-[var(--light-gray3)] rounded-full">
+                    <img loading="lazy"
+                        src={user_by_name.avatar}
+                        alt=""
+                        className="w-8 h-8 object-cover aspect-square rounded-full"
+                    />
+                    {
+                        online && <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>
+                    }
+
+                </div>
+
                 <div className="text-sm overflow-hidden whitespace-nowrap text-ellipsis self-left">
                     {user_by_name.name}
                 </div>
@@ -263,7 +295,7 @@ const ChatList = () => {
         </div>
     }
 
-    const FormAddChatGroup = ({ setChats }) => {
+    const FormAddChatGroup = () => {
         const [nameGroup, setNameGroup] = useState("");
         const [selectedValues, setSelectedValues] = useState([]);
         const handleAddChatGroup = async (e) => {
@@ -278,16 +310,10 @@ const ChatList = () => {
             };
 
             try {
-                const addChatResponse = await fetchData("add-chat/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(chatData),
-                });
+                const addChatResponse = await addChat(chatData);
 
-                if (addChatResponse && addChatResponse.status === 201) {
-                    setChats((prevChats) => [...prevChats, addChatResponse.message]);
+                if (addChatResponse && addChatResponse.data.status === 201) {
+                    dispatch(setChats([addChatResponse.data.message]));
                     message.success("Tạo nhóm thành công!");
                     setIsShowFormAdd(false);
 
@@ -352,10 +378,10 @@ const ChatList = () => {
     }
     return (
         <>
-            {isShowChatList && (
-                <div className="w-full h-full p-2">
+            {isShowChatList && (<>
+                <div className="w-full h-[80vh]  p-2 relative flex flex-col">
 
-                    <div className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center h-10">
                         <div className="relative">
                             <input
                                 type="text"
@@ -369,14 +395,14 @@ const ChatList = () => {
                         <div className="flex items-center justify-end" onClick={() => setIsShowFormAdd(true)}>
                             <MdOutlineGroupAdd className="text-[var(--light-gray3)] cursor-pointer" size={25} />
                         </div>
-                        <div className="flex items-center justify-end " onClick={() => setIsShowChatList(false)}>
+                        <div className="flex items-center justify-end " onClick={() => dispatch(setIsShowChatList(false))}>
                             <HiMiniArrowRight className="text-[var(--light-gray3)] cursor-pointer" size={25} />
                         </div>
                     </div >
 
                     {
                         searchValue !== "" ? (
-                            <div className="flex flex-col gap-2 py-4 pr-2">
+                            <div className="flex flex-col gap-2 py-4 pr-2 h-[70vh]  overflow-y-auto custom-scroll">
                                 {
                                     users
                                         .filter(item =>
@@ -389,7 +415,7 @@ const ChatList = () => {
 
                             </div>
                         ) : (
-                            <div className="relative flex flex-col gap-2 py-4 pr-2">
+                            <div className=" flex flex-col gap-2 py-4 pr-2  flex-1">
                                 {chats?.map((chat, index) => (
                                     <div key={index}>
                                         <ComponentChat chat={chat} />
@@ -399,9 +425,10 @@ const ChatList = () => {
                             </div>
                         )
                     }
-                    {isShowFormAdd && <FormAddChatGroup setChats={setChats} />}
+
                 </div >
-            )}
+                {isShowFormAdd && <FormAddChatGroup />}
+            </>)}
         </>
     );
 };

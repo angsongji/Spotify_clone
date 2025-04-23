@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useApi } from '../../context/ApiContext';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { createPayment } from '../../services/paymentService';
+import { fetchUserById } from "../../services/musicService";
+import { useSelector } from 'react-redux';
+import {
+    setUser
+} from '../../redux/slices/userSlice';
 const premiumData = [
     {
         id: 1,
@@ -26,7 +31,7 @@ const premiumData = [
     },
 ]
 const Premium = () => {
-    const { user } = useApi();
+    const user = useSelector(state => state.user.user);
     const [message, setMessage] = useState('');
     const [status, setStatus] = useState('');
     const location = useLocation();
@@ -35,7 +40,7 @@ const Premium = () => {
         if (status === 'success' || status === 'fail') {
             const timeout = setTimeout(() => {
                 navigate('/');
-            }, 5000); // chuyển sau 5s
+            }, 2000); // chuyển sau 2s
             return () => clearTimeout(timeout); // cleanup khi unmount
         }
     }, [status]);
@@ -47,8 +52,16 @@ const Premium = () => {
 
         if (orderId) {
             if (resultCode === '0') {
-                setStatus('success');
-                setMessage("Thanh toán thành công")
+
+                const fetchDataUser = async () => {
+                    const fetchedUser = await fetchUserById(user.id); // Giả sử storedUser có id.
+                    console.log("fetchedUser", fetchedUser);
+                    setUser(fetchedUser.data.message); // Cập nhật trạng thái user.
+                    setStatus('success');
+                    setMessage("Thanh toán thành công")
+                };
+                fetchDataUser(); // Gọi hàm bất đồng bộ để lấy dữ liệu người dùng.
+
             } else {
                 setMessage("Thanh toán thất bại")
                 setStatus('fail');
@@ -60,25 +73,32 @@ const Premium = () => {
         const handlePay = async () => {
 
             try {
-                const response = await fetch('http://localhost:8000/momo_api/create/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ amount: price, userId: user.id, duration: duration, content: title }),
-                });
-
-                const data = await response.json();
-
-                if (data.payUrl) {
-                    window.open(data.payUrl, '_blank');
-                    setMessage('Đang tiến hành thanh toán! Vui lòng quét mã để thanh toán ở trang momo vừa được mở!');
+                const response = await createPayment(price, user.id, duration, title);
+                const data = response.data;
+                const statusCode = response.status;
+                if (statusCode >= 200 && statusCode < 300) {
+                    if (data.payUrl) {
+                        window.location.href = data.payUrl;
+                        setMessage('Đang tiến hành thanh toán! Vui lòng quét mã để thanh toán ở trang MoMo vừa được mở!');
+                    } else {
+                        setMessage('Không tạo được thanh toán. MoMo không trả về đường dẫn thanh toán.');
+                    }
+                } else if (statusCode >= 400 && statusCode < 500) {
+                    setMessage('Lỗi gửi yêu cầu thanh toán. Vui lòng kiểm tra lại thông tin và thử lại!');
+                    console.error('Lỗi 4xx:', data);
+                } else if (statusCode >= 500) {
+                    setMessage('Hệ thống thanh toán phía Momo đang gặp sự cố. Vui lòng thử lại sau!');
+                    console.error('Lỗi 5xx:', data);
                 } else {
-                    setMessage('Không tạo được thanh toán.');
+                    setMessage('Đã xảy ra lỗi không xác định.');
+                    console.error('Lỗi không xác định:', statusCode, data);
                 }
+
             } catch (err) {
-                setMessage('Lỗi khi tạo thanh toán.');
+                console.error("❌ Lỗi fetch MoMo:", err);
+                setMessage('Lỗi khi tạo thanh toán. Không thể kết nối đến hệ thống.');
             }
+
         };
 
         return (

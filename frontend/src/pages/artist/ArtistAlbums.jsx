@@ -1,24 +1,26 @@
 import React, { useState } from "react";
-import { useApi } from "../../context/ApiContext";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { HiDotsVertical } from "react-icons/hi";
 import { FaLock, FaSearch, FaPlus } from "react-icons/fa";
-import { Select, Dropdown, Button, Modal, Form, Input, DatePicker } from "antd";
+import { Select, Dropdown, Modal, Form, Input, DatePicker } from "antd";
 import UploadImage from "../../components/artist/UploadImage"
+import { uploadFile, addAlbum, updateSong } from "../../services/musicService";
+import { setUser } from '../../redux/slices/userSlice';
 const { Option } = Select;
-import "../../index.css";
 const options = [
   { value: -1, label: "Tất cả" },
   { value: 0, label: "Riêng tư" },
   { value: 1, label: "Công khai" },
 ];
 const ArtistAlbums = () => {
-  const { setUser, user, transformFormatDate, setLoading, loading, fetchData } = useApi();
+  const user = useSelector(state => state.user.user);
   const [searchValue, setSearchValue] = useState("");
   const [selectValue, setSelectValue] = useState(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formAdd] = Form.useForm();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const ComboBox = ({ options, onChange }) => {
     return (
       <Select
@@ -98,13 +100,9 @@ const ArtistAlbums = () => {
         const imageData = new FormData();
         imageData.append("file", values.image);
 
-        const uploadImageResponse = await fetchData("upload/", {
-          method: "POST",
-          body: imageData,
-        });
-
-        if (uploadImageResponse?.status === 200) {
-          image = encodeURI(uploadImageResponse.message); // Trả về URL ảnh
+        const res = await uploadFile(imageData);
+        if (res.status === 200) {
+          image = encodeURI(res.data.message);
         } else {
           throw new Error("Image upload failed");
         }
@@ -120,26 +118,21 @@ const ArtistAlbums = () => {
         release_date: values.release_date,
       };
 
-      const addAlbumResponse = await fetchData("add-album/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(albumData),
-      });
-
+      const addAlbumResponse = await addAlbum(albumData);
       if (addAlbumResponse?.status === 201) {
         setUser((prevState) => ({
           ...prevState,
-          albums_data: [...prevState.albums_data, addAlbumResponse.message],
+          albums_data: [...prevState.albums_data, addAlbumResponse.data.message],
         }));
 
         // Cập nhật album_id cho từng bài hát
         await Promise.all(
           values.songs.map(async (songId) => {
-            await fetchData(`update-song/?id=${songId}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ album_id: addAlbumResponse.message.id }),
-            });
+            try {
+              await updateSong(songId, { album_id: addAlbumResponse.data.message.id });
+            } catch (err) {
+              console.error(`❌ Cập nhật thất bại cho song ${songId}`, err);
+            }
           })
         );
       } else {
@@ -296,7 +289,7 @@ const ArtistAlbums = () => {
             {album.name}
           </div>
 
-          <div className="text-gray-400 text-sm">{transformFormatDate(album.release_date)}</div>
+          <div className="text-gray-400 text-sm">{album.release_date}</div>
         </div>
         <div className="z-1 absolute bottom-0 right-0 hover:text-white translate-x-[-50%] translate-y-[-100%]">
           <DropdownMenu />

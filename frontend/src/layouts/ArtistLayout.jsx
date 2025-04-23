@@ -1,7 +1,6 @@
 import { Outlet } from "react-router-dom";
 import AppBar from "../components/user/AppBar";
 import SideBar from "../components/artist/SideBar";
-import '../index.css';
 const ArtistLayout = () => {
     return (
         <div className="bg-black flex flex-col h-screen">
@@ -17,9 +16,9 @@ const ArtistLayout = () => {
                 <div className="bg-gradient-to-tl from-stone-900 to-neutral-700 relative flex-1  rounded-lg ">
 
                     <div>
-                    <Outlet />
+                        <Outlet />
                     </div>
-                    
+
 
 
                 </div>

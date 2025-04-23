@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useMusic } from "../../context/MusicContext";
-import { useApi } from "../../context/ApiContext";
-import { FaLock, FaSearch, FaPlus, FaPen } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
+import { FaLock, FaSearch, FaPlus } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
+import { useSelector } from "react-redux";
 import { Select, Button, Modal, Form, Input, Upload, DatePicker, TimePicker, Dropdown } from "antd";
 import { VideoCameraOutlined, FileOutlined } from "@ant-design/icons";
 import UploadImage from "../../components/artist/UploadImage"
-import "../../index.css";
+import { uploadFile, addSong, fetchCategories, fetchArtists } from "../../services/musicService";
+import { setUser } from "../../redux/slices/userSlice"
 const { Option } = Select;
 // Dữ liệu mẫu
 const options = [
@@ -18,10 +17,12 @@ const options = [
 const ArtistSongs = () => {
   const [artists, setArtists] = useState([]);
   const [categories, setcategories] = useState([]);
-  const { setUser, user, transformFormatDate, fetchData, fetchCategories, fetchArtist, setLoading, loading } = useApi();
+  const user = useSelector(state => state.user.user);
+
   const [searchValue, setSearchValue] = useState("");
   const [selectValue, setSelectValue] = useState(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formAdd] = Form.useForm();
   useEffect(() => {
     if (!isModalOpen) return; // Nếu modal chưa mở, không chạy effect
@@ -31,11 +32,11 @@ const ArtistSongs = () => {
 
       try {
         const [artistsData, categoriesData] = await Promise.all([
-          fetchArtist(),
+          fetchArtists(),
           fetchCategories()
         ]);
-        setcategories(categoriesData.message);
-        setArtists(artistsData.message);
+        setcategories(categoriesData.data.message);
+        setArtists(artistsData.data.message);
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
       } finally {
@@ -98,9 +99,9 @@ const ArtistSongs = () => {
 
 
     try {
-      let image = "https://s3-django-app-spotify-bucket.s3.us-east-1.amazonaws.com/images/giothiaicuoi.jpg";
-      let audio = "https://s3-django-app-spotify-bucket.s3.us-east-1.amazonaws.com/audio/Gi%E1%BB%9D+Th%C3%AC+Ai+C%C6%B0%E1%BB%9Di+-+HIEUTHUHAI.mp3";
-      let video = "https://s3-django-app-spotify-bucket.s3.us-east-1.amazonaws.com/videos/gi%E1%BB%9D-th%C3%AC-ai-c%C6%B0%E1%BB%9Di-prod-by-kewtiie-l-official-video---hieuthuhai.mp4";
+      let image = "";
+      let audio = "";
+      let video = "";
 
       // Danh sách promises upload
       const uploadPromises = [];
@@ -109,38 +110,26 @@ const ArtistSongs = () => {
       if (values.image) {
         const imageData = new FormData();
         imageData.append("file", values.image);
-        const uploadImagePromise = fetchData("upload/", {
-          method: "POST",
-          body: imageData,
-        }).then(response => {
-          if (response && response.status === 200) {
-
-            return response.message; // Trả về URL
-          } else {
+        const uploadImagePromise = uploadFile(imageData)
+          .then(res => {
+            if (res.status === 200) return res.data.message;
             throw new Error("Image upload failed");
-          }
-        });
+          });
 
         uploadPromises.push(uploadImagePromise);
       } else {
-        uploadPromises.push(Promise.resolve("")); // Giữ chỗ để không lỗi
+        uploadPromises.push(Promise.resolve(""));
       }
 
       // Upload audio
       if (values.file_url) {
         const audioData = new FormData();
         audioData.append("file", values.file_url);
-        const uploadAudioPromise = fetchData("upload/", {
-          method: "POST",
-          body: audioData,
-        }).then(response => {
-          if (response && response.status === 200) {
-
-            return response.message;
-          } else {
+        const uploadAudioPromise = uploadFile(audioData)
+          .then(res => {
+            if (res.status === 200) return res.data.message;
             throw new Error("Audio upload failed");
-          }
-        });
+          });
 
         uploadPromises.push(uploadAudioPromise);
       } else {
@@ -151,15 +140,11 @@ const ArtistSongs = () => {
       if (values.video_url) {
         const videoData = new FormData();
         videoData.append("file", values.video_url);
-        const uploadVideoPromise = fetchData("upload/", {
-          method: "POST",
-          body: videoData,
-        }).then(response => {
-          if (response && response.status === 200) {
-
-            return response.message;
-          }
-        });
+        const uploadVideoPromise = uploadFile(videoData)
+          .then(res => {
+            if (res.status === 200) return res.data.message;
+            throw new Error("Video upload failed");
+          });
 
         uploadPromises.push(uploadVideoPromise);
       } else {
@@ -186,20 +171,12 @@ const ArtistSongs = () => {
         video_url: encodeURI(video),
       };
 
-
-      const addSongResponse = await fetchData("add-song/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(songData),
-      });
-
-      if (addSongResponse && addSongResponse.status === 201) {
+      const addSongResponse = await addSong(songData);
+      if (addSongResponse.status === 201) {
 
         setUser(prevState => ({
           ...prevState,  // Giữ lại các giá trị trước trong user.
-          songs_data: [...prevState.songs_data, addSongResponse.message]  // Thêm bài hát mới vào mảng songs_data.
+          songs_data: [...prevState.songs_data, addSongResponse.data.message]  // Thêm bài hát mới vào mảng songs_data.
         }));
 
       } else {
@@ -502,7 +479,7 @@ const ArtistSongs = () => {
           <div className="text-xs">{song.artists_data?.map((item) => item.name).join(", ")}</div>
           <div className="text-xs mt-1 flex justify-between">
             <span>
-              {transformFormatDate(song.date)}
+              {song.date}
             </span>
           </div>
 

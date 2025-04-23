@@ -1,21 +1,26 @@
 import { useState, useEffect } from "react";
 import { FaSearch, FaPlusCircle } from "react-icons/fa";
-import { useApi } from "../../context/ApiContext";
-import { CiCircleRemove } from "react-icons/ci";
+import { HiX } from "react-icons/hi";
 import { Table, message } from "antd";
-
+import { fetchCategories, addCategory } from "../../services/musicService";
 const ManageCategorys = () => {
     const [searchValue, setSearchValue] = useState("");
     const [categorys, setCategorys] = useState([]);
     const [filteredCategorys, setFilteredCategorys] = useState([]);
-    const { fetchCategories, loading, fetchData } = useApi();
     const [showFormAddCategory, setShowFormAddCategory] = useState(false);
-
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchDataCategorys = async () => {
-            const fetchedCategorys = await fetchCategories();
-            setCategorys(fetchedCategorys.message);
-            setFilteredCategorys(fetchedCategorys.message);
+            try {
+                const fetchedCategorys = await fetchCategories();
+                setCategorys(fetchedCategorys.data.message);
+                setFilteredCategorys(fetchedCategorys.data.message);
+            } catch (error) {
+                console.log("Lỗi lấy thể loại ", error.message);
+            } finally {
+                setLoading(false);
+            }
+
         };
         fetchDataCategorys();
     }, []);
@@ -47,47 +52,37 @@ const ManageCategorys = () => {
         const handleAddCategory = async (e) => {
             e.preventDefault();
             try {
-                const addCategoryResponse = await fetchData("add-category/", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: value }),
-                });
-                console.log(addCategoryResponse);
-                if (addCategoryResponse?.status === 201) {
-                    setCategorys((prev) => [...prev, addCategoryResponse.message]);
+                message.loading({ content: "Đang lưu...", key: "save" });
+
+                const addCategoryResponse = await addCategory({ name: value });
+                if (addCategoryResponse?.data.status === 201) {
+                    setCategorys((prev) => [...prev, addCategoryResponse.data.message]);
                     setShowFormAddCategory(false);
                     setValue("");
-                    message.success("Thêm thể loại thành công");
-                } else if (addCategoryResponse?.status === 400) {
-                    // Giải thích rõ lỗi
-                    const errorData = addCategoryResponse;
-                    if (errorData?.name) {
-                        message.error(`Lỗi: ${errorData.name[0]}`);
-                    } else {
-                        message.error("Thêm thể loại thất bại!");
-                    }
-                } else {
-                    message.error("Thêm thất bại!");
+                    message.success({ content: "Thêm thể loại thành công!", key: "save", duration: 2 });
                 }
             } catch (error) {
                 console.error("API Error", error);
-                message.error("Lỗi mạng hoặc máy chủ!");
+                message.error({ content: "Lỗi mạng hoặc máy chủ!", key: "save", duration: 2 });
             }
 
 
         };
         return (
             <div className="z-10 absolute top-0 left-0 w-full h-full bg-black/80 flex flex-col items-center justify-center gap-2">
+                <div className="flex flex-col gap-2 w-1/4">
+                    <HiX className="text-white text-3xl cursor-pointer self-end translate-x-[100%]" onClick={() => setShowFormAddCategory(false)} />
+                    <form onSubmit={handleAddCategory} className="p-2 bg-[var(--dark-gray)] rounded-md shadow-md w-full h-fit flex flex-col gap-2">
 
-                <form onSubmit={handleAddCategory} className="p-2 bg-[var(--dark-gray)] rounded-md shadow-md w-1/4 h-fit flex flex-col gap-2">
-                    <CiCircleRemove className="text-white text-3xl cursor-pointer self-end " onClick={() => setShowFormAddCategory(false)} />
-                    <div className="flex flex-col gap-5  p-2">
-                        <label htmlFor="name">Tên thể loại</label>
-                        <input required className="outline-none border-1 border-[var(--light-gray2)] rounded-sm p-1" name="name" type="text" value={value} onChange={(e) => setValue(e.target.value)} />
-                        <button className="cursor-pointer self-center bg-[var(--light-gray2)] w-fit text-white p-2 rounded-sm" type="submit" >Thêm thể loại</button>
+                        <div className="flex flex-col gap-5  p-2">
+                            <label htmlFor="name">Tên thể loại</label>
+                            <input required className="outline-none border-1 border-[var(--light-gray2)] rounded-sm p-1" name="name" type="text" value={value} onChange={(e) => setValue(e.target.value)} />
+                            <button className="cursor-pointer self-center bg-[var(--light-gray2)] w-fit text-white p-2 rounded-sm" type="submit" >Thêm thể loại</button>
 
-                    </div>
-                </form>
+                        </div>
+                    </form>
+                </div>
+
             </div>
 
         );
