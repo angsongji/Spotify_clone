@@ -39,7 +39,7 @@ URI_MONGODB_DATABASE = os.getenv("URI_MONGODB_DATABASE")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True #Chuyen sang false sang khi day len public
 
-ALLOWED_HOSTS = ['44.201.223.156', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['3.92.179.198', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -147,7 +147,7 @@ MIGRATION_MODULES = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Nếu frontend chạy local
-    "http://44.201.223.156:5173"
+    "http://3.92.179.198:80"
 ]
 
 ASGI_APPLICATION = 'backend.asgi.application'  
