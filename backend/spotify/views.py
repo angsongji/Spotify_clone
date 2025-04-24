@@ -44,8 +44,6 @@ def upload_file(request):
         saved_file_path = storage_instance.save(file_path, uploaded_file)
         file_url = f"{settings.AWS_S3_CUSTOM_DOMAIN}/{saved_file_path}"
 
-        print(f"Saved file path: {saved_file_path}")  
-        print("File URL:", file_url)
 
         return Response({"message": file_url, "status": 200}, status=200)
 
@@ -67,36 +65,39 @@ def get_users(request):
     except Exception as e:  # Bắt lỗi chung nếu có lỗi xảy ra
         return Response({"error": str(e), "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(["GET"])
 def get_user(request):
     try:
         filter_params = request.query_params  # Lấy các tham số bộ lọc từ query parameters
 
         # Áp dụng bộ lọc nếu có tham số từ query_params
-        # Lọc theo 'id' (sử dụng 'exact' cho ObjectId)
         if 'id' in filter_params:
             try:
                 user_id = ObjectId(filter_params['id'])  # Chuyển id sang ObjectId
                 user = User.objects.filter(id=user_id).first()
+                if not user:
+                    return Response({"message": [], "status": 200}, status=status.HTTP_200_OK)
+              
                 if user.role == "artist":
+                    
                     artist_data = ArtistFullInforSerializer(user).data
+                    
                     user_data = UserFullInforSerializer(user).data
-                    serializer = {**user_data, **artist_data}  
-                    # Gộp hai dictionary, Nếu hai serializer có cùng key, dữ liệu của artist_data sẽ ghi đè lên user_data.
+                    
+                    serializer = {**user_data, **artist_data}
                 else:
                     serializer = UserFullInforSerializer(user).data
+
             except Exception:
                 return Response({"error": "Invalid id format, should be a valid ObjectId", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Nếu không có user nào sau khi lọc
-        if not user.DoesNotExist():
-            return Response({"message": [], "status": 200}, status=status.HTTP_200_OK)
-        
-        # Serialize các user
+        else:
+            return Response({"error": "Missing id query parameter", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response({"message": serializer, "status": 200}, status=status.HTTP_200_OK)
 
     except Exception as e:
-        # Trả về lỗi chi tiết hơn
         return Response({"error": f"Error occurred: {str(e)}", "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -232,7 +233,9 @@ def update_user(request):
 
     serializer = UserSerializer(user, data=request.data, partial=True)
     if serializer.is_valid():
+     
         serializer.save()
+        print(serializer.data)
         return Response({"message": serializer.data, "status": 200}, status=status.HTTP_200_OK)
 
     return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
@@ -382,21 +385,14 @@ def get_artist_by_filter(request):
         if 'id' in filter_params:
             try:
                 artist_id = ObjectId(filter_params['id'])  # Chuyển id sang ObjectId
-                artists = artists.filter(id=artist_id)  # Lọc theo ObjectId chính xác
+                artists = artists.filter(id=artist_id).first()  # Lọc theo ObjectId chính xác
             except Exception:
                 return Response({"error": "Invalid id format, should be a valid ObjectId", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Lọc theo 'name' (sử dụng 'icontains' cho trường chuỗi)
-        if 'name' in filter_params:
-            artists = artists.filter(name__icontains=filter_params['name'])  # Lọc theo tên album
-
-        # Nếu không có album nào sau khi lọc
-        if not artists.exists():
-            return Response({"message": [], "status": 200}, status=status.HTTP_200_OK)
+       
+        
         
         # Serialize các album với thông tin bài hát
-        serializer = ArtistFullInforSerializer(artists, many=True)
-        return Response({"message": serializer.data, "status": 200}, status=status.HTTP_200_OK)
+        return Response({"message": ArtistFullInforSerializer(artists).data if artists else None, "status": 200}, status=status.HTTP_200_OK)
 
     except Exception as e:
         # Trả về lỗi chi tiết hơn
@@ -440,6 +436,62 @@ def add_chat(request):
     else:    
         print(str(serializer.errors))
         return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+@api_view(["GET"])
+def get_chats_by_userid(request):
+    try:
+        user_id_str = request.query_params.get('userId')
+        print(user_id_str)
+        if not user_id_str:
+            return Response({"error": "Missing userId", "status": 400}, status=400)
 
+        # Lọc chats có user trong danh sách
+        chats = Chat.objects.filter(users__contains=[user_id_str])
+        print(chats)
+        return Response({
+            "message": ChatSerializer(chats, many=True).data,
+            "status": 200
+        }, status=200)
+
+    except Exception as e:
+        return Response({
+            "error": f"Error occurred: {str(e)}",
+            "status": 500
+        }, status=500)
 
 #message
+@api_view(["GET"])
+def get_messages_by_chatid(request):
+    try:
+        filter_params = request.query_params
+        messages = Message.objects.all()
+        if not messages.exists():
+            return Response({"message": [], "status": 200}, status=status.HTTP_200_OK)
+        
+        if 'chatId' in filter_params:
+            try:
+                chat_id = ObjectId(filter_params['chatId'])  # Chuyển id sang ObjectId
+                messages = messages.filter(chat_id=chat_id).all()  # Lọc theo ObjectId chính xác
+            except Exception:
+                return Response({"error": "Invalid id format, should be a valid ObjectId", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+       
+        
+        
+        # Serialize các album với thông tin bài hát
+        return Response({"message": MessageSerializer(messages, many=True).data if messages else None, "status": 200}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Trả về lỗi chi tiết hơn
+        return Response({"error": f"Error occurred: {str(e)}", "status": 500}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+#playlist
+@api_view(["POST"])
+def add_playlist(request):
+    serializer = PlaylistSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": serializer.data, "status": 201}, status=status.HTTP_201_CREATED)
+    else:    
+        print(str(serializer.errors))
+        return Response({"message": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
