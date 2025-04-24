@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Select, Table, Dropdown, message } from "antd";
 import { FaSearch, FaEllipsisV } from "react-icons/fa";
 import { HiX } from "react-icons/hi";
-import { useMusic } from "../../context/MusicContext";
+import { usePlayerMusic } from "../../context/PlayerMusicContext";
 import { fetchAlbums, fetchAlbumById, updateAlbum } from "../../services/musicService";
 
 const { Option } = Select;
@@ -22,7 +22,7 @@ const ManageAlbums = () => {
   const [detailAlbum, setDetailAlbum] = useState({});
   const [album, setAlbum] = useState({});
   const [loading, setLoading] = useState(true);
-  const { formatTime } = useMusic();
+  const { formatTime } = usePlayerMusic();
 
   useEffect(() => {
     const fetchDataAlbums = async () => {

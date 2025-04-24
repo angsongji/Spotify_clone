@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Select, Table, Dropdown, message } from "antd";
 import { FaSearch, FaEllipsisV } from "react-icons/fa";
-import { useMusic } from "../../context/MusicContext";
+import { usePlayerMusic } from "../../context/PlayerMusicContext";
 import { HiX } from "react-icons/hi";
 import { fetchSongs, updateSong } from "../../services/musicService";
 const { Option } = Select;
@@ -18,7 +18,7 @@ const ManageSongs = () => {
   const [selectValue, setSelectValue] = useState(-1);
   const [songs, setSongs] = useState([]);
   const [filteredSongs, setFilteredSongs] = useState([]);
-  const { formatTime } = useMusic();
+  const { formatTime } = usePlayerMusic();
   const [song, setSong] = useState({});
   const [loading, setLoading] = useState(true);
   useEffect(() => {
