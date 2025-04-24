@@ -27,8 +27,8 @@ def create_payment(request):
     secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
 
     orderInfo = "Thanh toan " + content + duration + " ngày"
-    redirectUrl = "http://localhost:5173/premium"
-    ipnUrl = "http://localhost:8000/momo_api/ipn/"
+    redirectUrl = "http://44.201.223.156:5173/premium"
+    ipnUrl = "http://44.201.223.156:8000/momo_api/ipn/"
     orderId = f"order_{int(time.time())}_{uuid.uuid4().hex[:6]}"
     requestId = f"req_{int(time.time())}_{uuid.uuid4().hex[:6]}"
     requestType = "captureWallet"
@@ -108,7 +108,7 @@ def momo_ipn(request):
         date_use = int(date_use)
 
         if result_code == 0:
-            print(f"✅ Đơn hàng {order_id} thanh toán THÀNH CÔNG")
+            print(f"✅ Thanh toán {order_id} THÀNH CÔNG")
 
             try:
                 user = User.objects.get(id=user_id)
