@@ -37,9 +37,9 @@ URI_MONGODB_DATABASE = os.getenv("URI_MONGODB_DATABASE")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True #Chuyen sang false sang khi day len public
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['44.201.223.156', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -147,6 +147,7 @@ MIGRATION_MODULES = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Nếu frontend chạy local
+    "http://44.201.223.156:5173"
 ]
 
 ASGI_APPLICATION = 'backend.asgi.application'  
@@ -155,7 +156,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("0.0.0.0", 6379)],
         },
     },
 }
