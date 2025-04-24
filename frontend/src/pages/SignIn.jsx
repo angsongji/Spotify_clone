@@ -63,53 +63,21 @@ const SignIn = () => {
         }
     };
 
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-black ">
-            <div className='flex gap-2 self-start ml-[5vw] items-center cursor-pointer' onClick={() => navigate("/")}>
+            <div className='absolute flex gap-2 top-[3vw] left-[3vw]  items-center cursor-pointer' onClick={() => navigate("/")}>
                 <FaSpotify className="text-[var(--main-green)] text-4xl " />
                 <div className='text-3xl font-bold text-[var(--light-gray3)]'>Spotify</div>
             </div>
-
-            <div className="w-full max-w-[30vw] bg-[var(--dark-gray)]/60 rounded-lg shadow-lg pt-20 px-10 pb-2">
+            <div className="w-full max-w-[30vw] bg-[var(--dark-gray)] rounded-lg shadow-lg pt-20 px-10 pb-2" style={{ 'box-shadow': 'rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px' }}>
                 <div className="flex flex-col items-center mb-10">
 
                     <div className="text-[var(--light-gray3)] text-xl font-bold">Đăng nhập</div>
                 </div>
 
                 <form onSubmit={handleSubmit} className=" w-full  flex flex-col justify-center gap-10  !text-[var(--light-gray3)]">
-                    {/* <div>
-                        <label htmlFor="email" className="block text-gray-300 text-sm font-medium mb-2">
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
-                            placeholder="name@domain.com"
-                            required
-                            disabled={isLoading}
-                        />
-                    </div> */}
 
-                    {/* <div>
-                        <label htmlFor="password" className="block text-gray-300 text-sm font-medium mb-2">
-                            Mật khẩu
-                        </label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 bg-[#2a2a2a] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
-                            placeholder="••••••••"
-                            required
-                            disabled={isLoading}
-                        />
-                    </div> */}
                     <div className=''>
                         <div className="input-animation ">
                             <input name="email"
@@ -135,6 +103,7 @@ const SignIn = () => {
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
+                                    minLength={6}
                                     disabled={isLoading}
                                 />
                                 <label htmlFor="password">Mật khẩu</label>

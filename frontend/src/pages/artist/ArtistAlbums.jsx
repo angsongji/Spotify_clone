@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { HiDotsVertical } from "react-icons/hi";
 import { FaLock, FaSearch, FaPlus } from "react-icons/fa";
 import { Select, Dropdown, Modal, Form, Input, DatePicker } from "antd";
-import UploadImage from "../../components/artist/UploadImage"
+import UploadImage from "../../components/UploadImage"
 import { uploadFile, addAlbum, updateSong } from "../../services/musicService";
 import { setUser } from '../../redux/slices/userSlice';
 const { Option } = Select;
