@@ -4,7 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.utils import timezone
 from asgiref.sync import sync_to_async
 
-REDIS = aioredis.from_url("redis://44.201.223.156:6379", decode_responses=True)
+REDIS = aioredis.from_url("redis://3.92.179.198:6379", decode_responses=True)
 ONLINE_USERS_KEY = "online_users"
 
 class GlobalChatConsumer(AsyncWebsocketConsumer):
