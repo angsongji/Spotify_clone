@@ -4,7 +4,7 @@ import { HiDotsVertical } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { Select, Button, Modal, Form, Input, Upload, DatePicker, TimePicker, Dropdown } from "antd";
 import { VideoCameraOutlined, FileOutlined } from "@ant-design/icons";
-import UploadImage from "../../components/artist/UploadImage"
+import UploadImage from "../../components/UploadImage"
 import { uploadFile, addSong, fetchCategories, fetchArtists } from "../../services/musicService";
 import { setUser } from "../../redux/slices/userSlice"
 const { Option } = Select;
