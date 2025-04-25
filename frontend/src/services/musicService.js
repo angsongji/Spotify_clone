@@ -1,12 +1,12 @@
 import axiosClient from './axiosClient';
 
-const fetchSongs = () => axiosClient.get('api/songs');
-const fetchUsers = () => axiosClient.get('api/users');
-const fetchAlbums = () => axiosClient.get('api/albums');
+const fetchSongs = () => axiosClient.get('api/songs/');
+const fetchUsers = () => axiosClient.get('api/users/');
+const fetchAlbums = () => axiosClient.get('api/albums/');
 const fetchAlbumById = (id) => axiosClient.get(`api/albums/filter/?id=${id}`);
-const fetchArtists = () => axiosClient.get('api/artists');
+const fetchArtists = () => axiosClient.get('api/artists/');
 const fetchArtistById = (id) => axiosClient.get(`api/artists/filter/?id=${id}`);
-const fetchCategories = () => axiosClient.get('api/categories');
+const fetchCategories = () => axiosClient.get('api/categories/');
 const fetchUserById = (id) => axiosClient.get(`api/users/filter/?id=${id}`);
 const uploadFile = (data) => {
     return axiosClient.post('api/upload/', data, {
