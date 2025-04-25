@@ -6,7 +6,7 @@ let globalSocket = null;
 export const initGlobalWebSocket = async (dispatch, userId) => {
     if (globalSocket) return;
 
-    globalSocket = new WebSocket(`ws://3.92.179.198:8000/ws/chat/global/${userId}/`);
+    globalSocket = new WebSocket(`ws://100.24.32.198:8000/ws/chat/global/${userId}/`);
 
     globalSocket.onopen = async () => {
         console.log('✅ Global WebSocket connected');
