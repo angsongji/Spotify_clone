@@ -19,20 +19,16 @@ const musicSlice = createSlice({
             state.musicIndex = action.payload;
         },
         setIsPlaying: (state, action) => {
-            console.log("isplaying: ", action.payload);
             state.isPlaying = action.payload;
         },
         setCurrentSong: (state, action) => {
             // Chỉ cập nhật nếu bài hát thực sự thay đổi
             if (state.currentSong.id !== action.payload.id) {
-                console.log("setCurrentSong dispatch:", action.payload.id);
                 state.currentSong = action.payload;
             }
         },
         setSongsQueue: (state, action) => {
-            console.log("lluu ", action.payload)
             state.songsQueue = action.payload;
-            console.log("sau lluu ", state.songsQueue)
         },
         setIsPlayingVideo: (state, action) => {
             state.isPlayingVideo = action.payload;

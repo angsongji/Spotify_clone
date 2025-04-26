@@ -26,7 +26,7 @@ const Album = () => {
   const [isLiked, setLiked] = useState(false);
   const { handleListenListSong } = usePlayerMusic();
   useEffect(() => {
-    const isLiked = user.liked_albums.includes(id);
+    const isLiked = user?.liked_albums?.includes(id);
     setLiked(isLiked);
   }, [id]);
   useEffect(() => {
@@ -141,13 +141,15 @@ const Album = () => {
                   <button onClick={() => handleListenListSong(album.songs_data)} className="bg-green-500 px-6 py-3 rounded-full mr-4 flex items-center cursor-pointer flex gap-2">
                     <FaPlay className="mr-2" /> Play
                   </button>
-                  <button className="text-gray-400 flex items-center cursor-pointer" >
-                    <FaHeart
-                      className="mr-2 text-2xl"
-                      color={isLiked ? "darkred" : "gray"}
-                      onClick={() => handleLikeAlbum()}
-                    />
-                  </button>
+                  {
+                    user && <button className="text-gray-400 flex items-center cursor-pointer" >
+                      <FaHeart
+                        className="mr-2 text-2xl"
+                        color={isLiked ? "darkred" : "gray"}
+                        onClick={() => handleLikeAlbum()}
+                      />
+                    </button>
+                  }
                 </div>
                 <SongHeader />
                 {album.songs_data?.map((track, index) => (

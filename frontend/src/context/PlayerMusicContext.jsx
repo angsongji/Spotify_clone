@@ -20,7 +20,7 @@ export const PlayerMusicProvider = ({ children }) => {
     const musicIndex = useSelector(state => state.music.musicIndex);
     const [isMuted, setIsMuted] = useState(false);
     const [volume, setVolume] = useState(0.5);
-
+    const [isLoadingMusic, setLoadingMusic] = useState(false);
     const audioRef = useRef(null); // Không khởi tạo new Audio() ở đây
     const progressRef = useRef(null);
     const [objectUrl, setObjectUrl] = useState(null);
@@ -90,14 +90,14 @@ export const PlayerMusicProvider = ({ children }) => {
     useEffect(() => {
         const loadAndPlayAudio = async () => {
             if (!songsQueue[musicIndex]) return;
-            dispatch(setCurrentSong({ ...songsQueue[musicIndex] }));
+
             const audioUrl = songsQueue[musicIndex].file_url;
             const blobUrl = await fetchUrlAsBlob(audioUrl);
 
             if (!blobUrl || !audioRef.current) return;
 
             audioRef.current.src = blobUrl;
-
+            dispatch(setCurrentSong({ ...songsQueue[musicIndex] }));
             if (isPlaying) {
                 try {
                     await audioRef.current.play();

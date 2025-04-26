@@ -1,14 +1,15 @@
 
 
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import SideBar from "../components/admin/SideBar";
 import PopupMenu from "../components/PopupMenu";
 
 const AdminLayout = () => {
+    const user = useSelector(state => state.user.user);
     const [title, setTitle] = useState("");
     const location = useLocation();
-    const user = useSelector(state => state.user.user);
     useEffect(() => {
         if (location.pathname === "/admin") {
             setTitle("Người dùng");
@@ -23,6 +24,9 @@ const AdminLayout = () => {
             setTitle("Thể loại");
         }
     }, [location.pathname]);
+    if (user?.role !== "admin") {
+        return <Navigate to="/" />;
+    }
     return (
         <div className="flex w-full min-h-screen bg-black py-5 px-3 gap-3">
             <div className="w-1/6 bg-[var(--dark-gray)]  flex flex-col items-center rounded-2xl">

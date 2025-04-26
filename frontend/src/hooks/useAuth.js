@@ -27,7 +27,6 @@ export function useAuth() {
             }
         };
 
-        console.log(userId, " ", !user, " ", loading);
         if (userId && !user && loading) {
             loadUser();
         } else setLoading(false);

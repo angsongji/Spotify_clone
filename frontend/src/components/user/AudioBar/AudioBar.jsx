@@ -61,11 +61,11 @@ export default function AudioBar() {
     return (<>
         {
             localStorage.getItem('user') ? (
-                musicIndex == -1 ? <div className="fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-5 px-4 m-1">
+                musicIndex == -1 ? <div className="flex justify-between items-center fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-5 px-4 m-1">
                     Chọn bài hát bạn muốn nghe!
                 </div> : <div>
                     {isPlayingVideo && <Video />}
-                    <div className="fixed bottom-0 h-fit   w-full">
+                    <div className="fixed bottom-0  w-full">
 
                         {
                             currentSong?.price != 0 && <div className="bg-[var(--main-green)] text-[var(--light-gray2)] p-2 text-sm font-bold"> <span className="underline cursor-pointer" onClick={() => navigate("/premium")}>Đăng ký Premium</span> để tận hưởng trọn bài hát, và xem video âm nhạc của bài hát</div>
@@ -157,7 +157,7 @@ export default function AudioBar() {
                         </div>
                     </div>
                 </div>
-            ) : <div className="flex justify-between items-center fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-3 px-4 m-1">
+            ) : <div className="flex justify-between items-center fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-5 px-4 m-1">
                 <div>Đăng ký để tận hưởng âm nhạc, video và các tiện ích khác!</div>
                 <div onClick={() => navigate("/sign-up")} className="cursor-pointer bg-white text-black text-base font-bold py-2 px-4 rounded-full w-fit">Đăng kí ngay</div>
             </div>

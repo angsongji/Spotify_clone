@@ -3,19 +3,18 @@ import { GrUserAdmin } from "react-icons/gr";
 import { HiKey } from "react-icons/hi";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, Avatar } from "antd";
-import { useSelector } from 'react-redux';
-import { setUser } from '../redux/slices/userSlice';
-
+import { logout } from '../redux/slices/userSlice';
+import { useDispatch, useSelector } from "react-redux";
 function PopupMenu({ role }) {
     const navigate = useNavigate();
     const user = useSelector(state => state.user.user);
-
+    const dispatch = useDispatch();
     const handleMenuClick = ({ key }) => {
         const actions = {
             "1": () => alert("Hiện div hiện thông tin về email, tên, avatar,...\nCó nút cập nhật thông tin"),
             "2": () => alert("Hiện div để đổi pass: input pass hiện tại, input pass mới, input nhập lại pass mới"),
             "3": () => navigate("/artist", { replace: true }),
-            "4": () => { setUser({}); localStorage.removeItem('user'); navigate("/", { replace: true }) },
+            "4": () => dispatch(logout()),
         };
         actions[key]?.();
     };

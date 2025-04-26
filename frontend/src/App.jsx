@@ -9,8 +9,9 @@ import { initGlobalWebSocket } from './redux/websocketGlobal';
 const WebSocketInitializer = () => {
   const dispatch = useDispatch();
   const userId = useSelector(state => state.user.userId);
+  const user = useSelector(state => state.user.user);
   useEffect(() => {
-    if (userId != "") {
+    if (userId != "" && user?.role != "admin") {
       initGlobalWebSocket(dispatch, userId);
     }
   }, [dispatch, userId]);

@@ -181,9 +181,6 @@ const SideBar = () => {
             <div className="flex flex-col justify-center h-full gap-1">
                 <div className="text-white font-bold">{playlist.name}</div>
                 <div className="text-gray-400 text-sm">
-                    {
-                        console.log(playlist.songs_data)
-                    }
                     Của tôi • {playlist.songs_data?.reduce((sum, item) => sum + (item.status !== 0 ? 1 : 0), 0) ?? 0} songs
                 </div>
             </div>
@@ -215,7 +212,6 @@ const SideBar = () => {
                 };
 
                 const addPlaylistResponse = await addPlaylist(playlistData);
-                console.log(addPlaylistResponse)
                 if (addPlaylistResponse.status === 201) {
                     const newUser = { ...user, playlists_data: [...user.playlists_data, addPlaylistResponse.data.message] }
                     dispatch(setUser(newUser));

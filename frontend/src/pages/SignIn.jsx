@@ -27,9 +27,6 @@ const SignIn = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        console.log('Sending login data:', {
-            formData
-        });
         try {
             const response = await signIn(formData);
 
