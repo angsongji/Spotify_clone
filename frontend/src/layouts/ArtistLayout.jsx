@@ -1,7 +1,12 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import AppBar from "../components/user/AppBar";
 import SideBar from "../components/artist/SideBar";
+import { useSelector } from "react-redux";
 const ArtistLayout = () => {
+    const user = useSelector(state => state.user.user);
+    if (user?.role !== "artist") {
+        return <Navigate to="/" />;
+    }
     return (
         <div className="bg-black flex flex-col h-screen">
             <AppBar />

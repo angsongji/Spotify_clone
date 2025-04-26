@@ -153,7 +153,6 @@ const ManageSongs = () => {
       if (Object.keys(data).length > 0) {
         try {
           const updateSongResponse = await updateSong(song.id, data);
-          console.log(updateSongResponse)
           if (updateSongResponse?.status === 200) {
             setSongs(prev => prev.map(item => item.id === song.id ? updateSongResponse.data.message : item));
             setSong({});

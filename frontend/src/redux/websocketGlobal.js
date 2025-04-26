@@ -32,7 +32,6 @@ export const initGlobalWebSocket = async (dispatch, userId) => {
 
         switch (data.type) {
             case 'online_users':
-                console.log("online server gui: ", data.users)
                 dispatch(setOnlineUsers({ userId, users: data.users }));
                 break;
 

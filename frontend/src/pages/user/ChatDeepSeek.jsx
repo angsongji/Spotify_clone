@@ -37,14 +37,12 @@ const ChatDeepSeek = () => {
           aiResponse = boxedMatch[1].trim();
         }
       } else {
-        console.log(data)
         handleClickSong(data.id);
       }
 
 
       setMessages([...newMessages, { text: aiResponse, sender: 'ai' }]);
     } catch (error) {
-      console.log("Bị lỗi", error);
       console.error('Error fetching AI response', error);
       setMessages([
         ...newMessages,

@@ -91,7 +91,6 @@ const ArtistAlbums = () => {
   };
 
   const handleAddAlbum = async (values) => {
-    console.log("add album ", values);
     try {
       let image = "";
 
@@ -108,7 +107,6 @@ const ArtistAlbums = () => {
         }
       }
 
-      console.log("image ", image);
 
       // Tạo album sau khi upload xong ảnh
       const albumData = {

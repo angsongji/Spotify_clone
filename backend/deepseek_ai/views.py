@@ -36,9 +36,13 @@ def chat_handler(request):
                     f"Trả kết quả gọn gàng, kèm đường link nếu có thể."
                 )
                 ai_response = call_deepseek(prompt)
+                if artist_name:
+                    message_text = f"Không tìm thấy bài hát '{song_name}' của ca sĩ '{artist_name}' trong ứng dụng.\n{ai_response}"
+                else:
+                    message_text = f"Không tìm thấy bài hát '{song_name}' trong ứng dụng.\n{ai_response}"
                 return JsonResponse({
                     "type": "ai",
-                    "message": f"Không tìm thấy bài hát '{song_name}' trong ứng dụng.\n{ai_response}"
+                    "message": message_text
                 })
 
         # Không phải yêu cầu phát nhạc → xử lý bình thường
@@ -55,17 +59,19 @@ def search_song_in_db(song_name, artist_name=None):
     normalized_song = unidecode(song_name).lower()
     normalized_artist = unidecode(artist_name).lower() if artist_name else None
 
-    songs = Song.objects.filter(status = 1)
+    songs = Song.objects.filter(status=1)
     best_match = None
     highest_score = 0
 
     for song in songs:
         song_name_normalized = unidecode(song.name).lower()
-        name_score = fuzz.token_sort_ratio(normalized_song, song_name_normalized)
+
+        # dùng token_set_ratio để tolerant hơn
+        name_score = fuzz.token_set_ratio(normalized_song, song_name_normalized)
 
         if normalized_artist:
             artist_scores = [
-                fuzz.token_sort_ratio(normalized_artist, unidecode(artist).lower())
+                fuzz.token_set_ratio(normalized_artist, unidecode(artist).lower())
                 for artist in song.artists
             ]
             artist_score = max(artist_scores) if artist_scores else 0
@@ -82,6 +88,7 @@ def search_song_in_db(song_name, artist_name=None):
             best_match = song
 
     if highest_score > 70:
-        return best_match  # 👈 trả về object Song thay vì dict
+        return best_match
 
     return None
+    

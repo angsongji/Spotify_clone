@@ -122,7 +122,6 @@ const ManageUsers = () => {
                 message.loading({ content: "Đang tạo tài khoản...", key: "add" });
                 const addUserResponse = await signUp(userData);
                 if (addUserResponse?.data.status === 201) {
-                    console.log(addUserResponse);
                     setUsers((prev) => [...prev, addUserResponse.data.data.user]);
                     setShowFormAddUser(false);
                     setValueName("");
@@ -182,7 +181,6 @@ const ManageUsers = () => {
         const handleUpdateUser = async () => {
             let data = {};
             if (selectValueRole != user.role) {
-                console.log(selectValueRole)
                 data.role = selectValueRole;
             }
             if (selectValueStatus != user.status) {
@@ -194,7 +192,6 @@ const ManageUsers = () => {
                     const updateUserResponse = await updateUser(user.id, data);
 
                     if (updateUserResponse?.status === 200) {
-                        console.log(updateUserResponse);
                         setUsers(prev => prev.map(item => item.id === user.id ? updateUserResponse.data.message : item));
                         setUser({});
                         message.success({ content: "Cập nhật người dùng thành công", key: "update", duration: 2 });

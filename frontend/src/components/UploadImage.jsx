@@ -6,7 +6,6 @@ const UploadImage = ({ form }) => {
 
   const handleChange = (info) => {
     const file = info.file; // Lấy file được chọn
-    console.log("file ", file);
     const url = URL.createObjectURL(file);
     setImageUrl(url);
     form.setFieldsValue({ image: file });

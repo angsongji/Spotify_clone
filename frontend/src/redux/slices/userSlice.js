@@ -19,10 +19,11 @@ const userSlice = createSlice({
             state.user = action.payload;
         },
         logout: (state) => {
-            state.userId = null;
+            localStorage.removeItem("user");
+            state.userId = "";
             state.user = null;
             state.isAuthenticated = false;
-            localStorage.removeItem("user");
+
         },
     },
 });
