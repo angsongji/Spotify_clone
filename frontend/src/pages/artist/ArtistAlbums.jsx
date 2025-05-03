@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { HiDotsVertical } from "react-icons/hi";
 import { FaLock, FaSearch, FaPlus } from "react-icons/fa";
 import { Select, Dropdown, Modal, Form, Input, DatePicker } from "antd";
@@ -19,7 +19,7 @@ const ArtistAlbums = () => {
   const [selectValue, setSelectValue] = useState(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formAdd] = Form.useForm();
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const ComboBox = ({ options, onChange }) => {
     return (
@@ -118,10 +118,8 @@ const ArtistAlbums = () => {
 
       const addAlbumResponse = await addAlbum(albumData);
       if (addAlbumResponse?.status === 201) {
-        setUser((prevState) => ({
-          ...prevState,
-          albums_data: [...prevState.albums_data, addAlbumResponse.data.message],
-        }));
+        const newUser = { ...user, albums_data: [...user.albums_data, addAlbumResponse.data.message] };
+        dispatch(setUser(newUser));
 
         // Cập nhật album_id cho từng bài hát
         await Promise.all(

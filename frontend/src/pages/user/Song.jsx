@@ -4,16 +4,23 @@ import { FaPlay } from 'react-icons/fa';
 import { FastAverageColor } from "fast-average-color";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useColorUtils } from "../../hooks/useColorUtils";
 import { usePlayerMusic } from '../../context/PlayerMusicContext';
-import { setUser } from '../../redux/slices/userSlice';
-import { message } from "antd";
 import ArtistCard from '../../components/user/ArtistCard';
+import { Dropdown, Menu, message } from 'antd';
+const handleMenuClick = (e) => {
+  message.info(`Bạn đã chọn mục ${e.key}`);
+};
+const menuMain = (
+  <Menu onClick={handleMenuClick}>
+    <Menu.Item key="1">Thêm vào danh sách phát</Menu.Item>
+    <Menu.Item key="2">Yêu thích</Menu.Item>
+  </Menu>
+);
 const Song = () => {
   const songs = useSelector(state => state.music.songs);
   const albums = useSelector(state => state.music.albums);
-  const user = useSelector(state => state.user.user);
   const { generateLinearGradient } = useColorUtils();
   const { songId } = useParams(); // Đây là id của song
   const [colorMain, setColorMain] = useState("#ffffff");
@@ -112,11 +119,12 @@ const Song = () => {
                 <button onClick={() => handleListenListSong([song])} className="bg-green-500 px-6 py-3 rounded-full mr-4 flex items-center cursor-pointer flex gap-2">
                   <FaPlay className="mr-2" /> Play
                 </button>
-                <button className="text-gray-400 flex items-center cursor-pointer" >
-                  <HiDotsHorizontal
-                    className="mr-2 text-2xl text-gray-300"
-                  />
-                </button>
+
+                <Dropdown overlay={menuMain} trigger={['click']}>
+                  <HiDotsHorizontal className="mr-2 text-2xl text-gray-300 cursor-pointer" />
+                </Dropdown>
+
+
               </div>
             </> : <div className='m-5 text-white'>Cùng đón chờ những bài hát sắp ra mắt trong album!</div>
 
@@ -134,6 +142,7 @@ const Song = () => {
             }
           </div >
         </div>
+
 
       </div> :
       <div className='loader-container min-h-[50vh]'>

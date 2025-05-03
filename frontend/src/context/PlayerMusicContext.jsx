@@ -20,11 +20,9 @@ export const PlayerMusicProvider = ({ children }) => {
     const musicIndex = useSelector(state => state.music.musicIndex);
     const [isMuted, setIsMuted] = useState(false);
     const [volume, setVolume] = useState(0.5);
-    const [isLoadingMusic, setLoadingMusic] = useState(false);
     const audioRef = useRef(null); // Không khởi tạo new Audio() ở đây
     const progressRef = useRef(null);
     const [objectUrl, setObjectUrl] = useState(null);
-
 
 
     // Cleanup khi component unmount
@@ -200,19 +198,22 @@ export const PlayerMusicProvider = ({ children }) => {
     }
 
     const handleListenListSong = (list) => {
-        // Lọc các bài trong songsQueue không bị trùng với list
+        if (!userId || !user) {
+            message.error("Vui lòng đăng nhập để nghe bài hát");
+            return;
+        }
+
+        if (list.length === 0) return;
+
         const filtered = songsQueue.filter(
             (newSong) => !list.some((queued) => queued.id === newSong.id)
         );
 
         const updatedQueue = [...list, ...filtered];
-
         dispatch(setSongsQueue(updatedQueue));
-
-        if (filtered.length > 0) {
-            handleClickSong(filtered[0].id);
-        }
+        handleClickSong(list[0].id);
     };
+
 
 
 

@@ -22,4 +22,5 @@ urlpatterns = [
     path("api/", include("spotify.urls")),        
     path("momo_api/", include("momo_api.urls")),   
     path("deepseek_api/", include("deepseek_ai.urls")),  
+    path("prompt_api/", include("askPrompt.urls")),  
 ]

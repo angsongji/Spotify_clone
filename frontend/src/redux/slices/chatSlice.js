@@ -15,6 +15,11 @@ const chatSlice = createSlice({
         setChats: (state, action) => {
             state.chats = [...state.chats, ...action.payload];
         },
+
+        addChat: (state, action) => {
+            state.chats = [...state.chats, action.payload];
+        },
+
         setMessages: (state, action) => {
             state.messages = [...state.messages, ...action.payload];
         },
@@ -71,7 +76,7 @@ const chatSlice = createSlice({
     },
 });
 
-export const { setChats, setMessages, addMessage, setIsShowChatList, setGlobalSocket, setSocketStatus, setOnlineUsers, updateUserStatus, updateMessageStatus } = chatSlice.actions;
+export const { setChats, addChat, setMessages, addMessage, setIsShowChatList, setGlobalSocket, setSocketStatus, setOnlineUsers, updateUserStatus, updateMessageStatus } = chatSlice.actions;
 export default chatSlice.reducer;
 // selectors/chatSelectors.js (hoặc cùng file chatSlice.js cũng được)
 

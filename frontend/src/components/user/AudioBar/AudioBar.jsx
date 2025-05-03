@@ -80,10 +80,18 @@ export default function AudioBar() {
                                     alt="Song Thumbnail"
                                 />
                                 <div className="flex flex-col gap-2">
-                                    <div className="font-semibold">{currentSong?.name}</div>
+                                    <div className="font-semibold cursor-pointer hover:underline" onClick={() => navigate(`/song/${currentSong?.id}`)}>{currentSong?.name}</div>
                                     <div className="text-xs text-gray-400">
-                                        {/* {currentSong ? currentSong.artists_data[0].name : "Artist Name"} */}
-                                        {currentSong.artists_data?.map((item) => item.name).join(", ")}
+                                        <div className="flex-1 text-xs text-gray-400">
+                                            {currentSong.artists_data?.map((item, index) => (
+                                                <span key={item.id} className="cursor-pointer hover:text-gray-300" onClick={(e) => {
+                                                    e.stopPropagation(); // Ngăn click lan ra div bao ngoài
+                                                    navigate(`/artist/${item.id}`);
+                                                }}>
+                                                    {item.name}{index < currentSong.artists_data.length - 1 ? ', ' : ''}
+                                                </span>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -156,7 +164,7 @@ export default function AudioBar() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div >
             ) : <div className="flex justify-between items-center fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-5 px-4 m-1">
                 <div>Đăng ký để tận hưởng âm nhạc, video và các tiện ích khác!</div>
                 <div onClick={() => navigate("/sign-up")} className="cursor-pointer bg-white text-black text-base font-bold py-2 px-4 rounded-full w-fit">Đăng kí ngay</div>
