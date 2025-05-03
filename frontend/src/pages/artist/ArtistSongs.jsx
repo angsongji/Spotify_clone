@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaLock, FaSearch, FaPlus } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Select, Button, Modal, Form, Input, Upload, DatePicker, TimePicker, Dropdown } from "antd";
 import { VideoCameraOutlined, FileOutlined } from "@ant-design/icons";
 import UploadImage from "../../components/UploadImage"
@@ -18,7 +18,7 @@ const ArtistSongs = () => {
   const [artists, setArtists] = useState([]);
   const [categories, setcategories] = useState([]);
   const user = useSelector(state => state.user.user);
-
+  const dispatch = useDispatch();
   const [searchValue, setSearchValue] = useState("");
   const [selectValue, setSelectValue] = useState(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -173,11 +173,9 @@ const ArtistSongs = () => {
 
       const addSongResponse = await addSong(songData);
       if (addSongResponse.status === 201) {
+        const newUser = { ...user, songs_data: [...user.songs_data, addSongResponse.data.message] };
+        dispatch(setUser(newUser));
 
-        setUser(prevState => ({
-          ...prevState,  // Giữ lại các giá trị trước trong user.
-          songs_data: [...prevState.songs_data, addSongResponse.data.message]  // Thêm bài hát mới vào mảng songs_data.
-        }));
 
       } else {
         throw new Error("Failed to add song");

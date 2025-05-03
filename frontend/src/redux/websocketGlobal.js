@@ -1,12 +1,12 @@
-import { addMessage, updateUserStatus, setOnlineUsers, setChats, setMessages } from "./slices/chatSlice";
+import { addMessage, updateUserStatus, setOnlineUsers, setChats, setMessages, addChat } from "./slices/chatSlice";
 import { fetchChats, fetchMessages } from "../services/messageService";
-
+import { message } from "antd";
 let globalSocket = null;
 
 export const initGlobalWebSocket = async (dispatch, userId) => {
     if (globalSocket) return;
 
-    globalSocket = new WebSocket(`ws://100.24.32.198:8000/ws/chat/global/${userId}/`);
+    globalSocket = new WebSocket(`ws://localhost:8000/ws/chat/global/${userId}/`);
 
     globalSocket.onopen = async () => {
         console.log('✅ Global WebSocket connected');
@@ -53,6 +53,13 @@ export const initGlobalWebSocket = async (dispatch, userId) => {
                 else dispatch(addMessage(data.message));
                 break;
 
+            case 'chat':
+                const chat = data.data;
+                if (chat.users_data.some(item => item.id === userId)) {
+                    dispatch(addChat(chat))
+                    message.success("Tạo đoạn chat thành công!");
+                }
+                break;
             case 'error':
                 console.error("❌ Message error:", data.message);
                 break;
@@ -83,3 +90,19 @@ export const sendGlobalMessage = ({ chatId, senderId, content }) => {
         content: content // Nội dung tin nhắn
     }));
 };
+export const createChatGlobal = ({ name, users }) => {
+    if (!globalSocket || globalSocket.readyState !== WebSocket.OPEN) {
+        console.warn("⚠️ WebSocket chưa sẵn sàng!");
+        return;
+    }
+
+    // Tạo đoạn chat qua WebSocket
+    globalSocket.send(JSON.stringify({
+        type: "chat",
+        name: name, // Tên phòng chat
+        users: users, // ID của các người trong đoạn chat
+    }));
+};
+
+
+

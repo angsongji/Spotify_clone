@@ -4,7 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.utils import timezone
 from asgiref.sync import sync_to_async
 
-REDIS = aioredis.from_url("redis://100.24.32.198:6379", decode_responses=True)
+REDIS = aioredis.from_url("redis://localhost:6379", decode_responses=True)
 ONLINE_USERS_KEY = "online_users"
 
 class GlobalChatConsumer(AsyncWebsocketConsumer):
@@ -17,7 +17,6 @@ class GlobalChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         online_users = await REDIS.smembers(ONLINE_USERS_KEY)
-        print("dang hoat dong ",online_users)
         await self.send(text_data=json.dumps({
             'type': 'online_users',
             'users': list(online_users)
@@ -57,12 +56,32 @@ class GlobalChatConsumer(AsyncWebsocketConsumer):
                 'message': message_obj,
                 'status': 'not seen'
             })
+        if data.get('type') == 'chat':
+            name = data['name']
+            users = data['users']
+
+            try:
+                chat_obj = await self.save_chat(name, users)
+            except ValueError as e:
+                await self.send(text_data=json.dumps({'type': 'error', 'message': str(e)}))
+                return
+
+            await self.channel_layer.group_send(self.group_name, {
+                'type': 'chat_create',
+                'data': chat_obj
+            })
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
             'type': 'message',
             'message': event['message'],
             'status': event['status']
+        }))
+
+    async def chat_create(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'chat',
+            'data': event['data']
         }))
 
     async def user_status(self, event):
@@ -93,3 +112,15 @@ class GlobalChatConsumer(AsyncWebsocketConsumer):
         )
 
         return MessageSerializer(message_obj).data
+    
+    @sync_to_async
+    def save_chat(self, name, users):
+        from spotify.models import Chat
+        from spotify.views import ChatSerializer
+
+        chat_obj = Chat.objects.create(
+            name=name,
+            users=users
+        )
+
+        return ChatSerializer(chat_obj).data

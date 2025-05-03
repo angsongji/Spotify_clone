@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import re
 from .deepseek import call_deepseek
-from spotify.models import Song
+from spotify.models import Song, User
 from spotify.serializers import SongSerializer
 from rapidfuzz import fuzz
 from unidecode import unidecode
@@ -70,9 +70,11 @@ def search_song_in_db(song_name, artist_name=None):
         name_score = fuzz.token_set_ratio(normalized_song, song_name_normalized)
 
         if normalized_artist:
+            # Truy xuất tên các nghệ sĩ từ ID
+            artists = User.objects.filter(id__in=song.artists)
             artist_scores = [
-                fuzz.token_set_ratio(normalized_artist, unidecode(artist).lower())
-                for artist in song.artists
+                 fuzz.token_set_ratio(normalized_artist, unidecode(artist.name).lower())
+                for artist in artists
             ]
             artist_score = max(artist_scores) if artist_scores else 0
 

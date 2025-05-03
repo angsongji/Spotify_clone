@@ -9,6 +9,7 @@ import { fetchUsers } from "../../services/musicService";
 import { addChat } from "../../services/messageService";
 import { useSelector, useDispatch } from 'react-redux';
 import { setIsShowChatList, setChats } from '../../redux/slices/chatSlice';
+import { createChatGlobal } from "../../redux/websocketGlobal";
 
 import ChatWindow from "./ChatWindow";
 const { Option } = Select;
@@ -100,21 +101,22 @@ const ChatList = () => {
                         name: "",
                         users: [...new Set([userChatTo.id, user.id])],  // thêm user.id và loại bỏ trùng lặp
                     };
-                    try {
-                        message.loading({ content: "Đang tạo đoạn chat...", key: "add" });
-                        const addChatResponse = await addChat(chatData);
+                    createChatGlobal(chatData);
+                    // try {
+                    //     message.loading({ content: "Đang tạo đoạn chat...", key: "add" });
+                    //     const addChatResponse = await addChat(chatData);
 
-                        if (addChatResponse && addChatResponse.data.status === 201) {
-                            dispatch(setChats([addChatResponse.data.message]));
-                            setSearchValue("");
-                            message.success({ content: "Tạo đoạn chat thành công!", key: "add", duration: 2 });
+                    //     if (addChatResponse && addChatResponse.data.status === 201) {
+                    //         dispatch(setChats([addChatResponse.data.message]));
+                    //         setSearchValue("");
+                    //         message.success({ content: "Tạo đoạn chat thành công!", key: "add", duration: 2 });
 
 
-                        }
-                    } catch (error) {
-                        console.error("Error adding chat:", error);
-                        message.error({ content: "Tạo đoạn chat thất bại!", key: "add", duration: 2 });
-                    }
+                    //     }
+                    // } catch (error) {
+                    //     console.error("Error adding chat:", error);
+                    //     message.error({ content: "Tạo đoạn chat thất bại!", key: "add", duration: 2 });
+                    // }
                 };
                 handleAddChat();
 
@@ -154,6 +156,7 @@ const ChatList = () => {
     const FormAddChatGroup = () => {
         const [nameGroup, setNameGroup] = useState("");
         const [selectedValues, setSelectedValues] = useState([]);
+
         const handleAddChatGroup = async (e) => {
             e.preventDefault();
             if (selectedValues.length < 2) {
@@ -164,22 +167,23 @@ const ChatList = () => {
                 name: nameGroup,
                 users: [...new Set([...selectedValues, user.id])],  // thêm user.id và loại bỏ trùng lặp
             };
+            createChatGlobal(chatData);
+            setIsShowFormAdd(false);
+            // try {
+            //     const addChatResponse = await addChat(chatData);
 
-            try {
-                const addChatResponse = await addChat(chatData);
+            //     if (addChatResponse && addChatResponse.data.status === 201) {
+            //         dispatch(setChats([addChatResponse.data.message]));
+            //         message.success("Tạo nhóm thành công!");
+            //         setIsShowFormAdd(false);
 
-                if (addChatResponse && addChatResponse.data.status === 201) {
-                    dispatch(setChats([addChatResponse.data.message]));
-                    message.success("Tạo nhóm thành công!");
-                    setIsShowFormAdd(false);
-
-                } else {
-                    throw new Error("Failed to add chat");
-                }
-            } catch (error) {
-                console.error("Error adding chat:", error);
-                message.error("Tạo nhóm thất bại!");
-            }
+            //     } else {
+            //         throw new Error("Failed to add chat");
+            //     }
+            // } catch (error) {
+            //     console.error("Error adding chat:", error);
+            //     message.error("Tạo nhóm thất bại!");
+            // }
         };
         const SelectMultipleWithSearch = ({ data }) => {
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { FaFacebookF, FaInstagram, FaGithub } from 'react-icons/fa'
+import { FaFacebookF, FaInstagram } from 'react-icons/fa'
 import "../../index.css";
 const Footer = () => {
     return (
@@ -55,9 +55,6 @@ const Footer = () => {
                         </a>
                         <a href="https://www.instagram.com" target="_blank" rel="noreferrer">
                             <FaInstagram className="text-2xl hover:text-gray-400" />
-                        </a>
-                        <a href="https://www.github.com" target="_blank" rel="noreferrer">
-                            <FaGithub className="text-2xl hover:text-gray-400" />
                         </a>
                     </div>
                     <div className="w-full h-1/3 bg-auto bg-[url('./src/assets/logo2.svg') bg-center "></div>
