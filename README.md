@@ -34,7 +34,7 @@ sudo apt-get install python3-pip python3-venv docker.io
 ```bash
 python3 -m venv env         # Tạo virtualenv
 source env/bin/activate     # Linux/macOS
-.\env\Scripts ctivate      # Windows
+.\env\Scripts ctivate       # Windows
 ```
 
 #### c) Cài đặt thư viện Python:
@@ -96,6 +96,17 @@ sudo docker ps
 python runserver.py
 ```
 
+#### i) Thêm IP vào whitelist (Nếu dùng MongoDB Atlas):
+👨‍💻 Kết nối MongoDB Atlas
+Nếu bạn sử dụng MongoDB Atlas (cloud), cần đảm bảo IP của bạn được cho phép truy cập:
+
+Truy cập MongoDB Atlas và đăng nhập bằng tài khoản đã đăng ký.
+
+Khi vừa đăng nhập lần đầu, Atlas sẽ hiển thị thông báo yêu cầu chấp nhận IP hiện tại (Allow access from current IP).
+👉 Hãy nhấn nút "Add Current IP Address" để cho phép kết nối từ máy của bạn.
+
+Nếu đã bỏ qua bước này, bạn có thể vào phần "Network Access" > "IP Whitelist" để thêm địa chỉ IP thủ công.
+
 > 🌐 Server sẽ lắng nghe tại `http://localhost:8000`
 
 ---
@@ -135,14 +146,12 @@ npm run dev
 
 ---
 
-## ⚠️ Ghi chú & lưu ý khi deploy
+## 🔍 Lưu ý
 
-- Đảm bảo file `.env` chứa đầy đủ thông tin môi trường (SECRET_KEY, MongoDB URI, v.v.)
-- Kiểm tra firewall để đảm bảo cổng 8000 (backend) và 3000 (frontend) được mở
-- Khi deploy production:
-  - Đặt `DEBUG=False`
-  - Cấu hình SSL/HTTPS
-  - Sử dụng reverse proxy như Nginx để tối ưu bảo mật và hiệu suất
+- Nếu dùng MongoDB Atlas, đảm bảo IP của bạn đã được thêm vào whitelist trong Network Access.
+- Các biến môi trường trong file `.env` phải được cấu hình chính xác để server hoạt động.
+- Backend mặc định chạy ở cổng `8000`, frontend ở cổng `5173`. Đảm bảo các cổng này không bị chiếm dụng.
+
 
 ---
 
