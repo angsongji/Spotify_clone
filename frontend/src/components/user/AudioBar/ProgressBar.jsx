@@ -7,6 +7,7 @@ export default function ProgressBar() {
     const [time, setTime] = useState(0);
     const duration = currentSong.price === 0 ? currentSong.duration : 30;
     useEffect(() => {
+
         const audio = audioRef.current;
         if (!audio) return;
 

@@ -162,11 +162,9 @@ def register_user(request):
         email = request.data.get('email')
         password = request.data.get('password')
         name = request.data.get('name')
-        avatar = request.data.get('image')
 
-        print(avatar)
         # Validate input    
-        if not all([email, password, name,avatar]):
+        if not all([email, password, name]):
             return Response({
                 "success": False,
                 "message": "Vui lòng điền đầy đủ thông tin",
@@ -191,7 +189,7 @@ def register_user(request):
         
         # Thay vì dùng create(), tạo instance và gọi save()
         user = User(
-            avatar = avatar,
+            avatar = "",
             email=email,
             password=password,  # Password sẽ được hash trong save()
             name=name,
@@ -207,9 +205,7 @@ def register_user(request):
         return Response({
             "success": True,
             "message": "Xứ lí thành công",
-            "data": {
-                "user": serializer.data
-            },
+            "data": serializer.data,
             "status": 201
         }, status=status.HTTP_201_CREATED)
 

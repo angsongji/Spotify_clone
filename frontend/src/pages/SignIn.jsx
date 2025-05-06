@@ -51,7 +51,7 @@ const SignIn = () => {
             }
         } catch (error) {
             message.error({
-                content: 'Có lỗi xảy ra, vui lòng thử lại sau',
+                content: error.message,
                 duration: 3,
                 style: { marginTop: '20vh' },
             });

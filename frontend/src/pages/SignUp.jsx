@@ -5,7 +5,7 @@ import { message, Spin } from 'antd';
 import UploadImage from '../components/UploadImage'
 import { signUp } from "../services/authService";
 import { GrFormNextLink } from "react-icons/gr";
-import { uploadFile, addAlbum, updateSong } from "../services/musicService";
+import { uploadFile, addAlbum, updateSong, updateUser } from "../services/musicService";
 import { Form, Modal } from 'antd';
 const SignUp = () => {
     const [formData, setFormData] = useState({
@@ -113,26 +113,12 @@ const SignUp = () => {
 
             try {
                 setIsLoading(true);
-                let image = "";
 
-                // Upload image
-                if (values.image) {
-                    const imageData = new FormData();
-                    imageData.append("file", values.image);
-
-                    const res = await uploadFile(imageData);
-                    if (res.status === 200) {
-                        image = encodeURI(res.data.message);
-                    } else {
-                        throw new Error("Image upload failed");
-                    }
-                }
 
                 const payload = {
                     name: values.name,
                     email: formData.email,
-                    password: formData.password,
-                    image: image,   // đã encodeURI rồi ở trên
+                    password: formData.password
                 };
 
 
@@ -141,13 +127,36 @@ const SignUp = () => {
                 const data = response.data;
 
                 if (data.success) {
-                    message.success({
-                        content: 'Đăng ký thành công!',
-                        duration: 2
-                    });
-                    setTimeout(() => {
-                        navigate('/sign-in');
-                    }, 1000);
+                    let image = "";
+
+                    // Upload image
+                    if (values.image) {
+                        const imageData = new FormData();
+                        imageData.append("file", values.image);
+
+                        const res = await uploadFile(imageData);
+                        if (res.status === 200) {
+                            image = encodeURI(res.data.message);
+                        } else {
+                            throw new Error("Image upload failed");
+                        }
+                    }
+                    const responseUpdateImage = await updateUser(data.data.id, { avatar: image });
+                    if (responseUpdateImage.data.status) {
+                        message.success({
+                            content: 'Đăng ký thành công!',
+                            duration: 2
+                        });
+                        setTimeout(() => {
+                            navigate('/sign-in');
+                        }, 1000);
+                    } else {
+                        message.error({
+                            content: data.message,
+                            duration: 3
+                        });
+                    }
+
                 } else {
                     message.error({
                         content: data.message || 'Đăng ký thất bại',
@@ -155,7 +164,11 @@ const SignUp = () => {
                     });
                 }
             } catch (error) {
-                console.error("Error adding song:", error);
+                console.error("Error adding acc:", error);
+                message.error({
+                    content: error.message || 'Đăng ký thất bại',
+                    duration: 3
+                });
             } finally {
                 setIsLoading(false);
             }

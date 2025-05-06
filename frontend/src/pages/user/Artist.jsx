@@ -114,7 +114,7 @@ const Artist = () => {
             <div className='flex flex-col gap-5'>
 
               <div>
-                <button onClick={() => handleListenListSong(artist.songs_data)} className="bg-green-500 px-6 py-3 rounded-full  flex items-center cursor-pointer w-fit flex gap-2">
+                <button onClick={() => { handleListenListSong(artist.songs_data) }} className="bg-green-500 px-6 py-3 rounded-full  flex items-center cursor-pointer w-fit flex gap-2">
                   <FaPlay className="" /> Play
                 </button>
                 <ul>

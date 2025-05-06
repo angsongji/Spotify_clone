@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosClient = axios.create({
-    baseURL: 'http://localhost:8000/',  // Đặt URL cơ bản ở đây
+    baseURL: 'http://3.82.187.90:8000/',  // Đặt URL cơ bản ở đây
     timeout: 20000, // 20s timeout
 });
 

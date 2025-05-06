@@ -275,7 +275,7 @@ const ChatList = () => {
 
                             </div>
                         ) : (
-                            <div className=" flex flex-col gap-3 py-4 pr-2  flex-1">
+                            <div className=" flex flex-col gap-3 pt-4 pr-2  h-[90%] overflow-y-auto custom-scroll">
                                 {chats?.map((chat, index) => (
                                     <div key={index}>
                                         <ComponentChat chat={chat} />

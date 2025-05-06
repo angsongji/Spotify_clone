@@ -23,6 +23,9 @@ export const PlayerMusicProvider = ({ children }) => {
     const audioRef = useRef(null); // Không khởi tạo new Audio() ở đây
     const progressRef = useRef(null);
     const [objectUrl, setObjectUrl] = useState(null);
+    const [isShuffle, setIsShuffle] = useState(false);
+    const [isRepeat, setIsRepeat] = useState(false);
+    const isRepeatRef = useRef(isRepeat);
 
 
     // Cleanup khi component unmount
@@ -51,10 +54,17 @@ export const PlayerMusicProvider = ({ children }) => {
 
             updateProgressBar();
         };
+        const handleEnded = () => {
+            if (isRepeatRef.current) {
+                audio.currentTime = 0;
+                audio.play();
+            } else {
+                handleChangeMusic(1);
+            }
+        };
 
 
 
-        const handleEnded = () => handleChangeMusic(1);
 
         audio.addEventListener("timeupdate", handleTimeUpdate);
         audio.addEventListener("ended", handleEnded);
@@ -64,6 +74,11 @@ export const PlayerMusicProvider = ({ children }) => {
             audio.removeEventListener("ended", handleEnded);
         };
     }, [musicIndex, currentSong]);
+
+    useEffect(() => {
+        isRepeatRef.current = isRepeat;
+    }, [isRepeat]);
+
 
     // Fetch blob từ URL nhạc
     const fetchUrlAsBlob = async (url) => {
@@ -134,13 +149,34 @@ export const PlayerMusicProvider = ({ children }) => {
             });
     };
 
+    //Ngẫu nhiên
+    const toggleShuffle = () => {
+        setIsShuffle(!isShuffle);
+    };
+
+    //Lặp lại
+    const toggleRepeat = () => {
+        setIsRepeat(prev => !prev);
+    };
+
+
     // Chuyển bài
     const handleChangeMusic = (direction) => {
         if (songsQueue.length === 0) return;
 
-        const newIndex = (musicIndex + direction + songsQueue.length) % songsQueue.length;
+        let newIndex;
+
+        if (isShuffle) {
+            do {
+                newIndex = Math.floor(Math.random() * songsQueue.length);
+            } while (newIndex === musicIndex && songsQueue.length > 1); // tránh phát lại cùng bài
+        } else {
+            newIndex = (musicIndex + direction + songsQueue.length) % songsQueue.length;
+        }
+
         dispatch(setMusicIndex(newIndex));
     };
+
 
 
     // Cập nhật progress bar
@@ -214,7 +250,12 @@ export const PlayerMusicProvider = ({ children }) => {
         handleClickSong(list[0].id);
     };
 
-
+    const handleListenSuffer = () => {
+        toggleShuffle();
+        dispatch(setIsPlaying(true));
+        const sufferIndex = Math.floor(Math.random() * songsQueue.length);
+        handleClickSong(songsQueue[sufferIndex].id);
+    }
 
 
 
@@ -232,7 +273,12 @@ export const PlayerMusicProvider = ({ children }) => {
             volume,
             handleMuteClick,
             handleVolumeChange,
-            handleListenListSong
+            handleListenListSong,
+            isShuffle,
+            toggleShuffle,
+            handleListenSuffer,
+            isRepeat,
+            toggleRepeat,
         }}>
             {children}
         </PlayerMusicContext.Provider>

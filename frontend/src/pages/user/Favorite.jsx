@@ -38,7 +38,7 @@ const Favorite = () => {
                     {user.liked_songs_data?.length != 0 ?
                         <>
                             <div className="flex items-center mx-5 w-[15%] justify-between py-10">
-                                <button onClick={() => handleListenListSong(user.liked_songs_data)} className="bg-green-500 px-6 py-3 rounded-full mr-4 items-center cursor-pointer flex gap-2">
+                                <button onClick={() => { handleListenListSong(user.liked_songs_data) }} className="bg-green-500 px-6 py-3 rounded-full mr-4 items-center cursor-pointer flex gap-2">
                                     <FaPlay className="mr-2" /> Play
                                 </button>
                             </div>
