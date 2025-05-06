@@ -138,7 +138,7 @@ const Album = () => {
             {album.songs_data?.length != 0 ?
               <>
                 <div className="flex items-center mx-5 gap-5 py-10">
-                  <button onClick={() => handleListenListSong(album.songs_data)} className="bg-green-500 px-6 py-3 rounded-full mr-4 flex items-center cursor-pointer flex gap-2">
+                  <button onClick={() => { handleListenListSong(album.songs_data) }} className="bg-green-500 px-6 py-3 rounded-full mr-4 flex items-center cursor-pointer flex gap-2">
                     <FaPlay className="mr-2" /> Play
                   </button>
                   {

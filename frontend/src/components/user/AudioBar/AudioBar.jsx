@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
-import { lazy } from "react";
+import { lazy, useEffect } from "react";
 import { FaPlay, FaRandom } from "react-icons/fa";
 import { IoMdPause, IoMdDownload } from "react-icons/io";
 import { MdSkipNext, MdSkipPrevious, MdOutlineOndemandVideo } from "react-icons/md";
@@ -28,10 +28,16 @@ export default function AudioBar() {
         togglePlay,
         handleMuteClick,
         handleVolumeChange,
-
+        handleListenSuffer,
+        isShuffle,
+        toggleShuffle,
         isMuted,
+        isRepeat,
+        toggleRepeat,
         volume } = usePlayerMusic();
-
+    useEffect(() => {
+        console.log(currentSong.file_url);
+    }, []);
 
 
 
@@ -62,7 +68,8 @@ export default function AudioBar() {
         {
             localStorage.getItem('user') ? (
                 musicIndex == -1 ? <div className="flex justify-between items-center fixed bottom-0 h-fit bg-gradient-to-r from-[#FF9A8B] via-[#FF6A88] to-[#FF99AC]  text-white w-full py-5 px-4 m-1">
-                    Chọn bài hát bạn muốn nghe!
+                    <div>Chọn bài hát bạn muốn nghe hoặc để ứng dụng phát ngẫu nhiên một bài hát giúp bạn!</div>
+                    <div onClick={() => handleListenSuffer()} className="cursor-pointer bg-white text-black text-base font-bold py-2 px-4 rounded-full w-fit">Phát ngẫu nhiên</div>
                 </div> : <div>
                     {isPlayingVideo && <Video />}
                     <div className="fixed bottom-0  w-full">
@@ -104,16 +111,16 @@ export default function AudioBar() {
                             <div className="flex flex-1  items-center  text-whiterounded-lg shadow-lg ">
                                 <div className="w-2/3">
                                     <div className="flex items-center gap-4 justify-center">
-                                        <button className="w-6 h-6 flex justify-center items-center cursor-pointer">
-                                            <FaRandom size={16} />
+                                        <button className="w-6 h-6 flex justify-center items-center cursor-pointer " onClick={() => toggleShuffle()}>
+                                            <FaRandom size={16} className={`text-${isShuffle ? '[var(--main-green)]' : 'white'}`} />
                                         </button>
                                         <button className="cursor-pointer" onClick={() => handleChangeMusic(-1)}><MdSkipPrevious size={22} /></button>
                                         <button onClick={togglePlay} className="flex justify-center items-center !text-black cursor-pointer bg-white w-[2.2rem] h-[2.2rem]  rounded-full">
                                             {isPlaying ? <IoMdPause size={21} /> : <FaPlay size={16} className="ml-[2px]" />}
                                         </button>
                                         <button className="cursor-pointer" onClick={() => handleChangeMusic(1)}><MdSkipNext size={22} /></button>
-                                        <button className="w-6 h-6 flex justify-center items-center cursor-pointer">
-                                            <SlLoop size={16} />
+                                        <button className="w-6 h-6 flex justify-center items-center cursor-pointer" onClick={() => toggleRepeat()}>
+                                            <SlLoop size={16} className={`text-${isRepeat ? '[var(--main-green)]' : 'white'}`} />
                                         </button>
                                     </div>
                                     <ProgressBar />

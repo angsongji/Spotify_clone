@@ -1,4 +1,4 @@
-import { addMessage, updateUserStatus, setOnlineUsers, setChats, setMessages, addChat } from "./slices/chatSlice";
+import { addMessage, updateUserStatus, setOnlineUsers, setChats, setMessages, addChat, setIsShowChatList } from "./slices/chatSlice";
 import { fetchChats, fetchMessages } from "../services/messageService";
 import { message } from "antd";
 let globalSocket = null;
@@ -6,7 +6,7 @@ let globalSocket = null;
 export const initGlobalWebSocket = async (dispatch, userId) => {
     if (globalSocket) return;
 
-    globalSocket = new WebSocket(`ws://localhost:8000/ws/chat/global/${userId}/`);
+    globalSocket = new WebSocket(`ws://3.82.187.90:8000/ws/chat/global/${userId}/`);
 
     globalSocket.onopen = async () => {
         console.log('✅ Global WebSocket connected');
@@ -104,5 +104,14 @@ export const createChatGlobal = ({ name, users }) => {
     }));
 };
 
+export const disconnectGlobalWebSocket = () => {
+    if (globalSocket) {
+
+        globalSocket.close(); // Đóng kết nối
+        globalSocket = null;  // Reset biến
+        console.log("👋 Global WebSocket manually disconnected");
+
+    }
+};
 
 

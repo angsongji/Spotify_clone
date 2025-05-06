@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-
+import { disconnectGlobalWebSocket } from '../websocketGlobal';
 const initialState = {
     userId: localStorage.getItem("user") || "", // Lưu ID người dùng
     user: null,
@@ -23,7 +23,7 @@ const userSlice = createSlice({
             state.userId = "";
             state.user = null;
             state.isAuthenticated = false;
-
+            disconnectGlobalWebSocket();
         },
     },
 });

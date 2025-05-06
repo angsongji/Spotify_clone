@@ -29,7 +29,7 @@ const Song = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [song, setSong] = useState(true);
-  const { handleListenListSong, formatTime } = usePlayerMusic();
+  const { handleClickSong, formatTime } = usePlayerMusic();
 
   useEffect(() => {
     const loadAlbum = async () => {
@@ -116,7 +116,7 @@ const Song = () => {
           {song ?
             <>
               <div className="flex items-center  gap-5 py-10">
-                <button onClick={() => handleListenListSong([song])} className="bg-green-500 px-6 py-3 rounded-full mr-4 flex items-center cursor-pointer flex gap-2">
+                <button onClick={() => handleClickSong(song.id)} className="bg-green-500 px-6 py-3 rounded-full mr-4 flex items-center cursor-pointer flex gap-2">
                   <FaPlay className="mr-2" /> Play
                 </button>
 

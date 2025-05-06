@@ -18,6 +18,7 @@ const SideBar = () => {
     const navigate = useNavigate();
     const user = useSelector(state => state.user.user);
     const songs = useSelector(state => state.music.songs);
+
     const handleMenuClick = (e) => {
         switch (e.key) {
             case "1": setShowFormAdd(true); break;
@@ -31,52 +32,58 @@ const SideBar = () => {
         </Menu>
     );
 
-    const FullView = () => (
-        <div className="w-full h-full flex flex-col text-[var(--light-gray3)] text-base">
-            {/* Your Library */}
-            <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-2">
-                    <LuLibrary className="w-5 h-5" />
-                    <div className="text-base font-bold">Thư viện</div>
+    const FullView = () => {
+        const [searchValue, setSearchValue] = useState("");
+        return (
+            <div className="w-full h-full flex flex-col text-[var(--light-gray3)] text-base">
+                {/* Your Library */}
+                <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-2">
+                        <LuLibrary className="w-5 h-5" />
+                        <div className="text-base font-bold">Thư viện</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Dropdown overlay={menu} trigger={['click']}>
+                            <FaPlus className="w-5 h-5 cursor-pointer text-gray-400 hover:text-white" />
+                        </Dropdown>
+
+                        <button className=" font-bold cursor-pointer" onClick={() => setIsFull(false)}>
+                            <HiMiniArrowLeft className="text-2xl transition-transform duration-300 ease-in-out hover:-translate-x-1" />
+
+                        </button>
+                    </div>
+
                 </div>
-                <div className="flex items-center gap-2">
-                    <Dropdown overlay={menu} trigger={['click']}>
-                        <FaPlus className="w-5 h-5 cursor-pointer text-gray-400 hover:text-white" />
-                    </Dropdown>
 
-                    <button className=" font-bold cursor-pointer" onClick={() => setIsFull(false)}>
-                        <HiMiniArrowLeft className="text-2xl transition-transform duration-300 ease-in-out hover:-translate-x-1" />
+                {!localStorage.getItem('user') ? (
+                    <NoneUser />
+                ) : user?.id && <div className="h-full">
+                    <div className="flex items-center gap-3 bg-[var(--light-gray2)] px-2 py-1 rounded-md mb-4 w-full">
+                        <FaSearch className="w-5 h-5 text-white" />
+                        <input
+                            type="text"
+                            placeholder="Tìm trong thư viện"
+                            className="bg-transparent outline-none text-white w-full"
+                            value={searchValue}
+                            onChange={(e) => setSearchValue(e.target.value)}
+                        />
+                    </div>
 
-                    </button>
+                    <div className="flex flex-col h-[55vh] overflow-y-auto custom-scroll">
+                        <LikedSongCard />
+                        {user.playlists_data?.map(playlist => playlist.name.toLowerCase().includes(searchValue.toLowerCase()) && (
+                            <PlaylistCard key={playlist.id} playlist={playlist} />
+                        ))}
+                        {user.liked_albums_data?.map(album => album.name.toLowerCase().includes(searchValue.toLowerCase()) && (
+                            <FavoriteAlbumCard key={album.id} album={album} />
+                        ))}
+                    </div>
                 </div>
-
+                }
             </div>
+        )
 
-            {!localStorage.getItem('user') ? (
-                <NoneUser />
-            ) : user?.id && <div className="h-full">
-                <div className="flex items-center gap-3 bg-[var(--light-gray2)] px-2 py-1 rounded-md mb-4 w-full">
-                    <FaSearch className="w-5 h-5 text-white" />
-                    <input
-                        type="text"
-                        placeholder="Tìm trong thư viện"
-                        className="bg-transparent outline-none text-white w-full"
-                    />
-                </div>
-
-                <div className="flex flex-col h-[55vh] overflow-y-auto custom-scroll">
-                    <LikedSongCard />
-                    {user.playlists_data?.map(playlist => (
-                        <PlaylistCard key={playlist.id} playlist={playlist} />
-                    ))}
-                    {user.liked_albums_data?.map(album => (
-                        <FavoriteAlbumCard key={album.id} album={album} />
-                    ))}
-                </div>
-            </div>
-            }
-        </div>
-    )
+    }
 
     const CompactView = () => (
         <>
