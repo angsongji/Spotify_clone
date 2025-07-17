@@ -2,6 +2,10 @@
 
 Đây là một dự án Front-end xây dựng bằng **ReactJS**, xây dựng một giao diện cho sàn giáo dục thương mại điện tử tích hợp AI, nơi người dùng có thể tìm kiếm, khám phá và yêu thích các khoá học.
 
+---
+
+## 📸 Demo
+> 👉 [Xem demo tại đây](https://timely-vacherin-79de7d.netlify.app/).
 
 ---
 
@@ -74,11 +78,6 @@ Antoree/
    ```bash
    npm run preview
    ```
-
----
-
-## 📸 Demo
-> 👉 [Xem demo tại đây](https://timely-vacherin-79de7d.netlify.app/).
 
 ---
 
