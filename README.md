@@ -1,6 +1,6 @@
 # 🎓 Website Sàn thương mại giáo dục - Antoree
 
-Đây là một dự án Front-end xây dựng bằng **ReactJS**, xây dựng một giao diện cho sàn giáo dục thương mại điện tử tích hợp AI, nơi người dùng có thể tìm kiếm, khám phá và yêu thích các khoá học hoặc sản phẩm giáo dục (ví dụ: lớp học trực tuyến, giáo trình, tài liệu).
+Đây là một dự án Front-end xây dựng bằng **ReactJS**, xây dựng một giao diện cho sàn giáo dục thương mại điện tử tích hợp AI, nơi người dùng có thể tìm kiếm, khám phá và yêu thích các khoá học.
 
 
 ---
